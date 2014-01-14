@@ -4,12 +4,16 @@
 
 Sporran is a PouchDB alike implementation for Dart.
 
-It uses the Wilt CouchDB client and the Lawndart local storage client to allow clients to
-switch seamlessly between online and offline browser modes.
+It uses the Wilt CouchDB client and the Lawndart local storage client to allow users to
+switch seamlessly between online and offline browser modes and carry on using their database.
 
+When the browser is online Sporran acts just like Wilt, i.e is a CouchDB client, if the browser
+goes offline Sporran switches to using local storage, when the browser comes back online the 
+local database is synced with CouchDB, all transparent to the user.
+
+                        <--- Under Construction -->
 
 ## Contact
 
-Please use github to raise issues, any other queries you can direct to me
-at <steve.hamblett@linux.com>
+Queries you can direct to me at <steve.hamblett@linux.com>
 
