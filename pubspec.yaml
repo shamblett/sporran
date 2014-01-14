@@ -2,3 +2,7 @@ name: sporran
 description: A sample web application
 dependencies:
   browser: any
+  lawndart: '>=0.6.4'
+  wilt: '>=2.1.0'
+dev_dependencies:
+  unittest: any
