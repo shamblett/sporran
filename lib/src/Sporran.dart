@@ -131,7 +131,7 @@ class Sporran {
     JsonObject localUpdate = new JsonObject();
     if ( updateType == NOT_UPDATED) {
       localUpdate = _createNotUpdated(key,
-                                  update);
+                                      update);
     } else {
       localUpdate = _createUpdated(key,
           update);
@@ -162,11 +162,10 @@ class Sporran {
     /* Check for not initialized */
     if ( _database.wilt == null ) throw new SporranException("Initialisation Failure, Wilt is not initialized");
     
+    /* Complete locally, then boomerang to the client */
     var completer = (() {
       
-      /**
-       * If success, mark the update as UPDATED in Lawndart
-       */
+      /* If success, mark the update as UPDATED in Lawndart */
       JsonObject res = _database.wilt.completionResponse;
       if ( !res.error) {
         
@@ -177,7 +176,6 @@ class Sporran {
         
       }
       
-      /* Return to our client */
       _clientCompletion();
       
     });

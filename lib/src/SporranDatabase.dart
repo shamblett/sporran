@@ -63,6 +63,16 @@ class _SporranDatabase {
                   password);
     }
     
+    /**
+     * If the CouchDb database does not exist create it.
+     */
+    var completer = ((_) {
+      
+      
+      
+    });
+    _wilt.clientCompletion = completer;
+    _wilt.getAllDbs();
       
   }
     
