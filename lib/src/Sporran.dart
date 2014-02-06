@@ -24,11 +24,16 @@ part of sporran;
 
 class Sporran {
   
+  /**
+   * Constants
+   */
+  static final NOT_UPDATED = "not_updated";
+  static final UPDATED = "updated";
   
   /**
    * Database
    */
-  SporranDatabase _database;
+  _SporranDatabase _database;
   
   /**
    * Database name
@@ -50,7 +55,11 @@ class Sporran {
   var _clientCompletion;
   set resultCompletion (var completion ) => _clientCompletion = completion;
   
- 
+  /**
+   *  Response getter for completion callbacks 
+   */
+  JsonObject get completionResponse => _database.wilt.completionResponse;
+  
   /**
    * Construction
    */
@@ -65,15 +74,119 @@ class Sporran {
     /**
      * Construct our database 
      */
-    _database = new SporranDatabase(_dbName,
-                                    hostName,
-                                    port,
-                                    scheme,
-                                    userName,
-                                    password);
+    _database = new _SporranDatabase(_dbName,
+                                     hostName,
+                                     port,
+                                     scheme,
+                                     userName,
+                                     password);
     
     
   }
   
+  /**
+   * Create Lawndart updated entry 
+   */
+  JsonObject _createUpdated(String key,
+                           JsonObject payload) {
+    
+    /* Add our type marker and set to 'not updated' */
+    JsonObject update = new JsonObject();
+    update.type = NOT_UPDATED;
+    update.payload = payload;
+    return update;
+    
+    
+  }
+  
+  /**
+   * Create Lawndart not updated entry
+   */
+  JsonObject _createNotUpdated(String key,
+                               JsonObject payload) {
+    
+    /* Add our type marker and set to 'not updated' */
+    JsonObject update = new JsonObject();
+    update.type = UPDATED;
+    update.payload = payload;
+    return update;
+    
+    
+  }
+  
+  /**
+   * Update LawnDart
+   */
+  void _updateLawnDart(String key,
+                       JsonObject update,
+                       String updateType) {
+    
+    /* Check for not initialized */
+    if ( (_database.lawndart == null) || 
+         (!_database.lawndart.isOpen ) )
+      throw new SporranException("Initialisation Failure, Lawndart is not initialized");
+    
+    
+    /* Do the update */
+    JsonObject localUpdate = new JsonObject();
+    if ( updateType == NOT_UPDATED) {
+      localUpdate = _createNotUpdated(key,
+                                  update);
+    } else {
+      localUpdate = _createUpdated(key,
+          update);
+    }
+    _database._lawndart.save(localUpdate, key);
+      
+    
+  }
+  
+  
+  /**
+   * Update document
+   * If the document does not exist a create is performed
+   */
+  void put(String id,
+           JsonObject document ){
+    
+    
+    /* Update LawnDart */
+    _updateLawnDart(id,
+                    document,
+                    NOT_UPDATED);
+    
+    
+    /* If we are offline nothing to do */
+    if ( !_online ) return;
+    
+    /* Check for not initialized */
+    if ( _database.wilt == null ) throw new SporranException("Initialisation Failure, Wilt is not initialized");
+    
+    var completer = (() {
+      
+      /**
+       * If success, mark the update as UPDATED in Lawndart
+       */
+      JsonObject res = _database.wilt.completionResponse;
+      if ( !res.error) {
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        _updateLawnDart(id,
+            document,
+            UPDATED);
+        
+      }
+      
+      /* Return to our client */
+      _clientCompletion();
+      
+    });
+
+    /* Do the put */
+    _database.wilt.clientCompletion = completer;
+    _database.wilt.putDocument(id, document);
+    
+    
+  }
   
 }

@@ -12,7 +12,7 @@
 
 part of sporran;
 
-class SporranDatabase {
+class _SporranDatabase {
   
   /**
    * The Wilt database
@@ -33,7 +33,7 @@ class SporranDatabase {
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
-  SporranDatabase(this._dbName,
+  _SporranDatabase(this._dbName,
                   String hostName,
                   [String port = "5984",
                    String scheme = "http://",
@@ -46,7 +46,9 @@ class SporranDatabase {
      */
     _lawndart = new Store(this._dbName,
                           "Sporran");
-    
+    _lawndart.open()
+      .then((_) => _lawndart.nuke());
+      
     /**
      * Instantiate a Wilt object
      */
