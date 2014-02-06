@@ -12,3 +12,4 @@ import 'package:lawndart/lawndart.dart';
 
 part 'src/Sporran.dart';
 part 'src/SporranException.dart';
+part 'src/SporranDatabase.dart';
