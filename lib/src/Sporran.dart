@@ -73,16 +73,33 @@ class Sporran {
     
     
     /**
-     * Construct our database 
+     * Construct our database.
+     * Catch any exceptions from SporranDatabase, if we are offline ignore them.
      */
-    _database = new _SporranDatabase(_dbName,
-                                     hostName,
-                                     port,
-                                     scheme,
-                                     userName,
-                                     password);
+    try {
+      
+      _database = new _SporranDatabase(_dbName,
+                                       hostName,
+                                       port,
+                                       scheme,
+                                       userName,
+                                       password);
+      
+    } catch (e) {
+      
+      if ( e is SporranException ) {
+      
+        if ( _online ) throw e;
+        
+      } else {
+        
+        throw e;
+        
+      }
     
+    }
     
+      
   }
   
   /**
@@ -182,7 +199,7 @@ class Sporran {
     });
 
     /* Do the put */
-    _database.wilt.clientCompletion = completer;
+    _database.wilt.resultCompletion = completer;
     _database.wilt.putDocument(id, document);
     
     
@@ -237,7 +254,7 @@ class Sporran {
           
         });
         
-        _database.wilt.clientCompletion = completer;
+        _database.wilt.resultCompletion = completer;
         _completionResponse = null;
         _database.wilt.getDocument(id, rev:rev);
         

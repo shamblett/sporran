@@ -11,7 +11,7 @@ import 'dart:async';
 import 'dart:html';
 
 import '../lib/sporran.dart';
-import 'package:json_object/json_object.dart' as jsonobject;
+//import 'package:json_object/json_object.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
 import 'sporran_test_config.dart';
@@ -21,8 +21,20 @@ main() {
 
   useHtmlConfiguration();
   
+  try{
+    Sporran sporran = new Sporran('freddy',
+        hostName,
+        port,
+        scheme,
+        userName,
+        'notreal');
+  } catch(e) {
+    
+    print("Got it");
+  }
+  
   /* Group 1 - Environment tests */
-  group("1. Environment Tests - ", () {
+  skip_group("1. Environment Tests - ", () {
     
     String status = "online";
     
@@ -56,9 +68,77 @@ main() {
   });
   
   /* Group 2 - Sporran constructor tests */
-  group("2. Constructor Tests - ", () {
+  skip_group("2. Constructor Tests - ", () {
     
     
+    test("Construction New Database ", () {  
+      
+      void wrapper() {
+        
+        Sporran sporran = new Sporran(databaseName,
+            hostName,
+            port,
+            scheme,
+            userName,
+            userPassword);
+        
+        expect(sporran, isNotNull);
+        expect(sporran.dbName, databaseName);
+        
+      };
+      
+
+      expect(wrapper, returnsNormally);
+     
+      
+    });
+    
+    test("Construction Existing Database ", () {  
+      
+      void wrapper() {
+        
+        try{
+        Sporran sporran = new Sporran(databaseName,
+            hostName,
+            port,
+            scheme,
+            userName,
+            userPassword);
+        } catch(e) {
+          
+          print("Got it");
+        }
+        
+        //expect(sporran, isNotNull);
+        //expect(sporran.dbName, databaseName);
+        
+      };
+      
+
+      expect(wrapper, returnsNormally);
+     
+      
+    });
+    
+    solo_test("Construction Invalid Database ", () {  
+      
+      void wrapper() {
+        
+        Sporran sporran = new Sporran('freddy',
+            hostName,
+            port,
+            scheme,
+            userName,
+            'notreal');
+        
+        expect(sporran, isNotNull); 
+          
+        };
+     
+      expect(wrapper, throws);
+     
+      
+    });
    
   });    
   

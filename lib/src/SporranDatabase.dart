@@ -66,7 +66,7 @@ class _SporranDatabase {
      * If the CouchDb database does not exist create it.
      */
     
-    var createCompleter = ((_) {
+    void createCompleter() {
       
       
       JsonObject res = _wilt.completionResponse;
@@ -84,29 +84,31 @@ class _SporranDatabase {
        * TODO start change notifications here
        */
       
-    });
+    };
     
-    var allCompleter = ((_) {
+    void allCompleter(){
       
       JsonObject res = _wilt.completionResponse;
       if ( !res.error ) {
         
         JsonObject successResponse = res.jsonCouchResponse;
-        if ( !successResponse.contains(_dbName))
+        bool created = successResponse.contains(_dbName);
+        if ( created == false ) {
           
-          _wilt.clientCompletion = createCompleter;
+          _wilt.resultCompletion = createCompleter;
           _wilt.createDatabase(_dbName);
           
+        }   
         
       } else {
         
-        _wilt.db = _dbName;
+        throw new SporranException("Initialisation Failure - Wilt cannot contact CouchDb");
         
       }
       
-    });
+    };
     
-    _wilt.clientCompletion = allCompleter;
+    _wilt.resultCompletion = allCompleter;
     _wilt.getAllDbs();
       
   }
