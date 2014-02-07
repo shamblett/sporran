@@ -21,20 +21,9 @@ main() {
 
   useHtmlConfiguration();
   
-  try{
-    Sporran sporran = new Sporran('freddy',
-        hostName,
-        port,
-        scheme,
-        userName,
-        'notreal');
-  } catch(e) {
-    
-    print("Got it");
-  }
   
   /* Group 1 - Environment tests */
-  skip_group("1. Environment Tests - ", () {
+  group("1. Environment Tests - ", () {
     
     String status = "online";
     
@@ -68,7 +57,7 @@ main() {
   });
   
   /* Group 2 - Sporran constructor tests */
-  skip_group("2. Constructor Tests - ", () {
+  group("2. Constructor Tests - ", () {
     
     
     test("Construction New Database ", () {  
@@ -97,20 +86,16 @@ main() {
       
       void wrapper() {
         
-        try{
+        
         Sporran sporran = new Sporran(databaseName,
             hostName,
             port,
             scheme,
             userName,
             userPassword);
-        } catch(e) {
-          
-          print("Got it");
-        }
         
-        //expect(sporran, isNotNull);
-        //expect(sporran.dbName, databaseName);
+        expect(sporran, isNotNull);
+        expect(sporran.dbName, databaseName);
         
       };
       
