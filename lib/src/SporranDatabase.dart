@@ -56,7 +56,6 @@ class _SporranDatabase {
                      port,
                      scheme);
     
-    _wilt.db = _dbName;
     if ( userName != null ) {
       
       _wilt.login(userName,
@@ -66,12 +65,48 @@ class _SporranDatabase {
     /**
      * If the CouchDb database does not exist create it.
      */
-    var completer = ((_) {
+    
+    var createCompleter = ((_) {
       
       
+      JsonObject res = _wilt.completionResponse;
+      if ( !res.error ) {
+      
+        _wilt.db = _dbName;
+        
+      } else {
+        
+        throw new SporranException("Initialisation Failure - Wilt cannot create the database");
+        
+      }
+      
+      /**
+       * TODO start change notifications here
+       */
       
     });
-    _wilt.clientCompletion = completer;
+    
+    var allCompleter = ((_) {
+      
+      JsonObject res = _wilt.completionResponse;
+      if ( !res.error ) {
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        if ( !successResponse.contains(_dbName))
+          
+          _wilt.clientCompletion = createCompleter;
+          _wilt.createDatabase(_dbName);
+          
+        
+      } else {
+        
+        _wilt.db = _dbName;
+        
+      }
+      
+    });
+    
+    _wilt.clientCompletion = allCompleter;
     _wilt.getAllDbs();
       
   }

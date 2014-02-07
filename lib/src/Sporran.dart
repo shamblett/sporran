@@ -58,7 +58,8 @@ class Sporran {
   /**
    *  Response getter for completion callbacks 
    */
-  JsonObject get completionResponse => _database.wilt.completionResponse;
+  JsonObject _completionResponse;
+  JsonObject get completionResponse => _completionResponse;
   
   /**
    * Construction
@@ -187,4 +188,63 @@ class Sporran {
     
   }
   
+  /**
+   * Get a document 
+   */
+  void get(String id,
+           [String rev = null]) {
+    
+    /* Check for offline, if so try the get from LawnDart */
+    if ( !_online ) {
+      
+      var getFuture = _database.lawndart.getByKey(id);
+      _completionResponse = null;
+      
+      if ( getFuture != null ) {
+        
+        getFuture.then((document) {
+          
+          _completionResponse = document;
+          _clientCompletion();
+          
+        });
+        
+      } else {
+        
+        _clientCompletion();
+      }
+        
+    } else {
+      
+        var completer = ((_) {
+      
+          /* If Ok update Lawndart with the document */
+         
+          JsonObject res = _database.wilt.completionResponse;
+          if ( !res.error ) {
+        
+            JsonObject successResponse = res.jsonCouchResponse;
+            _updateLawnDart(id,
+                            successResponse,
+                            UPDATED);
+            _completionResponse = successResponse;
+            _clientCompletion();
+            
+          } else {
+            
+            _clientCompletion();
+          }
+          
+        });
+        
+        _database.wilt.clientCompletion = completer;
+        _completionResponse = null;
+        _database.wilt.getDocument(id, rev:rev);
+        
+    }
+    
+      
+  }
+    
+    
 }
