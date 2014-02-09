@@ -74,32 +74,14 @@ class Sporran {
     
     /**
      * Construct our database.
-     * Catch any exceptions from SporranDatabase, if we are offline ignore them.
      */
-    try {
       
-      _database = new _SporranDatabase(_dbName,
+     _database = new _SporranDatabase(_dbName,
                                        hostName,
                                        port,
                                        scheme,
                                        userName,
-                                       password);
-      
-    } catch (e) {
-      
-      if ( e is SporranException ) {
-      
-        if ( _online ) throw e;
-        
-      } else {
-        
-        throw e;
-        
-      }
-    
-    }
-    
-      
+                                       password);    
   }
   
   /**
@@ -194,6 +176,7 @@ class Sporran {
         
       }
       
+      _completionResponse = res;
       _clientCompletion();
       
     });
@@ -221,6 +204,9 @@ class Sporran {
         
         getFuture.then((document) {
           
+         /**
+          * TODO turn into a wilt completion response
+          */
           _completionResponse = document;
           _clientCompletion();
           
@@ -244,11 +230,12 @@ class Sporran {
             _updateLawnDart(id,
                             successResponse,
                             UPDATED);
-            _completionResponse = successResponse;
+            _completionResponse = res;
             _clientCompletion();
             
           } else {
             
+            _completionResponse = res;
             _clientCompletion();
           }
           

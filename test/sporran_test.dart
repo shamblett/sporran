@@ -11,7 +11,7 @@ import 'dart:async';
 import 'dart:html';
 
 import '../lib/sporran.dart';
-//import 'package:json_object/json_object.dart';
+import 'package:json_object/json_object.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
 import 'sporran_test_config.dart';
@@ -105,7 +105,7 @@ main() {
       
     });
     
-    solo_test("Construction Invalid Database ", () {  
+    test("Construction Invalid Database ", () {  
       
       void wrapper() {
         
@@ -120,11 +120,54 @@ main() {
           
         };
      
-      expect(wrapper, throws);
+      expect(wrapper, returnsNormally);
      
       
     });
    
   });    
+  
+  /* Group 3 - Sporran document put/get tests */
+  group("2. Document Put/Get Tests - ", () {
+    
+    Sporran sporran = new Sporran(databaseName,
+        hostName,
+        port,
+        scheme,
+        userName,
+        userPassword);
+    
+    String docIdPutOnline = "putOnline";
+    String docIdPutOffline = "putOffline";
+    JsonObject onlineDoc = new JsonObject();
+    JsonObject offlineDoc = new JsonObject();
+    
+    solo_test("Put Document Online ", () { 
+      
+      var wrapper = expectAsync(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.error, isFalse);
+        if ( !res.error ) {
+          
+          JsonObject successResponse = res.jsonCouchResponse;
+          expect(successResponse.ok, isTrue);
+          
+        }
+        
+      });
+      
+      sporran.online = true;
+      sporran.resultCompletion = wrapper;
+      onlineDoc.name = "Online";
+      /* Wait for the database to open, only need to do this once */
+      Timer wait = new Timer(new Duration(milliseconds:500),
+                             () => 
+                               sporran.put(docIdPutOnline, 
+                                           onlineDoc));
+      
+    });
+    
+  });
   
 }

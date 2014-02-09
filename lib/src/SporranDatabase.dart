@@ -26,8 +26,17 @@ class _SporranDatabase {
   Store _lawndart;
   Store get lawndart => _lawndart;
   
+  /**
+   * Database name
+   */
   String _dbName;
   String get dbName => _dbName;
+  
+  /**
+   * CouchDb database is intact
+   */
+  bool _noCouchDb = true;
+  bool get noCouchDb => _noCouchDb;
   
   /**
    * Construction, for Wilt we need URL and authentication parameters.
@@ -73,10 +82,11 @@ class _SporranDatabase {
       if ( !res.error ) {
       
         _wilt.db = _dbName;
+        _noCouchDb = false;
         
       } else {
         
-        throw new SporranException("Initialisation Failure - Wilt cannot create the database");
+        _noCouchDb = true;
         
       }
       
@@ -98,11 +108,15 @@ class _SporranDatabase {
           _wilt.resultCompletion = createCompleter;
           _wilt.createDatabase(_dbName);
           
-        }   
+        } else {
+          
+          _wilt.db = _dbName;
+          
+        }
         
       } else {
         
-        throw new SporranException("Initialisation Failure - Wilt cannot contact CouchDb");
+        _noCouchDb = true;
         
       }
       
