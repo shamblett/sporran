@@ -157,7 +157,7 @@ class Sporran {
     if ( result.lawnResponse ) {
        
       completion.ok = result.ok;
-      if ( result.ok ) completion.payload = result.payload;
+      if ( completion.ok ) completion.payload = result.payload;
       
     } else {
       
@@ -194,15 +194,10 @@ class Sporran {
                     _NOT_UPDATED);
     
     
-    /* If we are offline just complete */
+    /* If we are offline just return */
     if ( !_online ) {
       
-      JsonObject result = new JsonObject();
-      result.lawnResponse = true;
-      result.operation = PUT;
-      result.payload = document;
-      _completionResponse = _createCompletionResponse(result);
-      _clientCompleter();
+      return;
       
     }
     

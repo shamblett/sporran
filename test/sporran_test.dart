@@ -199,6 +199,17 @@ main() {
                  onlineDoc);                                   
      
    });
+   
+   test("Put Document Offline New", () { 
+     
+     sporran.online = false;
+     sporran.clientCompleter = null;
+     offlineDoc.name = "Offline";
+     sporran.put(docIdPutOffline, 
+                 offlineDoc);
+     
+     
+   });
     
   });
   
