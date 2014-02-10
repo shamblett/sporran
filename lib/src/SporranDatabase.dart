@@ -122,9 +122,10 @@ class _SporranDatabase {
       
     };
     
-    _wilt.resultCompletion = allCompleter;
-    _wilt.getAllDbs();
-      
+   // _wilt.resultCompletion = allCompleter;
+    //_wilt.getAllDbs();
+    _wilt.db = _dbName;
+    _noCouchDb = false;  
   }
     
 }

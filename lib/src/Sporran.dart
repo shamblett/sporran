@@ -27,8 +27,11 @@ class Sporran {
   /**
    * Constants
    */
-  static final NOT_UPDATED = "not_updated";
-  static final UPDATED = "updated";
+  static final _NOT_UPDATED = "not_updated";
+  static final _UPDATED = "updated";
+  
+  static final PUT = "put";
+  static final GET = "get";
   
   /**
    * Database
@@ -52,8 +55,8 @@ class Sporran {
   /**
    * Completion function 
    */
-  var _clientCompletion;
-  set resultCompletion (var completion ) => _clientCompletion = completion;
+  var _clientCompleter;
+  set clientCompleter(var completer) => _clientCompleter = completer;
   
   /**
    *  Response getter for completion callbacks 
@@ -92,7 +95,7 @@ class Sporran {
     
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
-    update.type = NOT_UPDATED;
+    update.type = _NOT_UPDATED;
     update.payload = payload;
     return update;
     
@@ -107,7 +110,7 @@ class Sporran {
     
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
-    update.type = UPDATED;
+    update.type = _UPDATED;
     update.payload = payload;
     return update;
     
@@ -129,7 +132,7 @@ class Sporran {
     
     /* Do the update */
     JsonObject localUpdate = new JsonObject();
-    if ( updateType == NOT_UPDATED) {
+    if ( updateType == _NOT_UPDATED) {
       localUpdate = _createNotUpdated(key,
                                       update);
     } else {
@@ -141,29 +144,73 @@ class Sporran {
     
   }
   
+  JsonObject _createCompletionResponse(JsonObject result) {
+    
+    JsonObject completion = new JsonObject();
+    
+    completion.operation = result.operation;
+    completion.payload = null;
+    
+    /**
+     * Check for a Lawndart or Wilt response 
+     */
+    if ( result.lawnResponse ) {
+       
+      completion.ok = result.ok;
+      if ( result.ok ) completion.payload = result.payload;
+      
+    } else {
+      
+      if ( result.error ) {
+        
+        completion.ok = false;
+        completion.errorCode = result.errorCode;
+        completion.errorText = result.jsonCouchResponse.error;
+        completion.errorReason = result.jsonCouchResponse.reason;
+        
+      } else {
+        
+        completion.ok = true;
+        completion.payload = result.jsonCouchResponse;
+        
+      }
+      
+    }
+    
+    return completion;
+      
+  }
   
   /**
    * Update document
    * If the document does not exist a create is performed
    */
   void put(String id,
-           JsonObject document ){
-    
+           JsonObject document){
     
     /* Update LawnDart */
     _updateLawnDart(id,
                     document,
-                    NOT_UPDATED);
+                    _NOT_UPDATED);
     
     
-    /* If we are offline nothing to do */
-    if ( !_online ) return;
+    /* If we are offline just complete */
+    if ( !_online ) {
+      
+      JsonObject result = new JsonObject();
+      result.lawnResponse = true;
+      result.operation = PUT;
+      result.payload = document;
+      _completionResponse = _createCompletionResponse(result);
+      _clientCompleter();
+      
+    }
     
     /* Check for not initialized */
     if ( _database.wilt == null ) throw new SporranException("Initialisation Failure, Wilt is not initialized");
     
     /* Complete locally, then boomerang to the client */
-    var completer = (() {
+    void completer() {
       
       /* If success, mark the update as UPDATED in Lawndart */
       JsonObject res = _database.wilt.completionResponse;
@@ -172,19 +219,20 @@ class Sporran {
         JsonObject successResponse = res.jsonCouchResponse;
         _updateLawnDart(id,
             document,
-            UPDATED);
+            _UPDATED);
         
       }
+      res.lawnResponse = false;
+      res.operation = PUT;
+      _completionResponse = _createCompletionResponse(res);
+      _clientCompleter();
       
-      _completionResponse = res;
-      _clientCompletion();
-      
-    });
+    };
 
     /* Do the put */
+    _database.wilt.completionResponse;
     _database.wilt.resultCompletion = completer;
     _database.wilt.putDocument(id, document);
-    
     
   }
   
@@ -207,14 +255,24 @@ class Sporran {
          /**
           * TODO turn into a wilt completion response
           */
-          _completionResponse = document;
-          _clientCompletion();
+          document.lawnResponse = true;
+          document.operation = GET;
+          document.ok = true;
+          _completionResponse = _createCompletionResponse(document);
+         _clientCompleter;
+         
           
         });
         
       } else {
         
-        _clientCompletion();
+        JsonObject document = new JsonObject();
+        document.lawnResponse = true;
+        document.operation = GET;
+        document.ok = false;
+        _completionResponse = _createCompletionResponse(document);
+        _clientCompleter;
+        
       }
         
     } else {
@@ -229,26 +287,29 @@ class Sporran {
             JsonObject successResponse = res.jsonCouchResponse;
             _updateLawnDart(id,
                             successResponse,
-                            UPDATED);
-            _completionResponse = res;
-            _clientCompletion();
+                            _UPDATED);
+            res.lawnResponse = false;
+            res.operation = GET;
+            _completionResponse = _createCompletionResponse(res);
+            _clientCompleter;
             
           } else {
             
-            _completionResponse = res;
-            _clientCompletion();
+            res.lawnResponse = false;
+            res.operation = GET;
+            _completionResponse = _createCompletionResponse(res);
+            _clientCompleter;
+            
           }
           
         });
         
         _database.wilt.resultCompletion = completer;
-        _completionResponse = null;
         _database.wilt.getDocument(id, rev:rev);
         
     }
     
       
   }
-    
     
 }

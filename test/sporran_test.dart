@@ -18,7 +18,6 @@ import 'sporran_test_config.dart';
 
 main() {  
   
-
   useHtmlConfiguration();
   
   
@@ -128,45 +127,78 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  group("2. Document Put/Get Tests - ", () {
+  solo_group("2. Document Put/Get Tests - ", () {
     
-    Sporran sporran = new Sporran(databaseName,
-        hostName,
-        port,
-        scheme,
-        userName,
-        userPassword);
+    Sporran sporran;
     
     String docIdPutOnline = "putOnline";
     String docIdPutOffline = "putOffline";
     JsonObject onlineDoc = new JsonObject();
     JsonObject offlineDoc = new JsonObject();
     
-    solo_test("Put Document Online ", () { 
+    test("Create and Open Sporran", () { 
       
-      var wrapper = expectAsync(() {
-        
-        JsonObject res = sporran.completionResponse;
-        expect(res.error, isFalse);
-        if ( !res.error ) {
-          
-          JsonObject successResponse = res.jsonCouchResponse;
-          expect(successResponse.ok, isTrue);
-          
-        }
+    
+    var wrapper = expectAsync0(() {
+      
+      expect(sporran.dbName, databaseName);
+      
+    });
+    
+    sporran = new Sporran(databaseName,
+        hostName,
+        port,
+        scheme,
+        userName,
+        userPassword);
+    
+    
+    /* Wait for the database to open, only need to do this once */
+    Timer wait = new Timer(new Duration(milliseconds:500),wrapper);
+      
+  
+    });
+    
+   test("Put Document Online New", () { 
+      
+     
+      var wrapper = expectAsync0(() {
+                    
+          JsonObject res = sporran.completionResponse;
+          expect(res.ok, isTrue);
+          expect(res.operation, Sporran.PUT);         
         
       });
       
       sporran.online = true;
-      sporran.resultCompletion = wrapper;
+      sporran.clientCompleter = wrapper;
       onlineDoc.name = "Online";
-      /* Wait for the database to open, only need to do this once */
-      Timer wait = new Timer(new Duration(milliseconds:500),
-                             () => 
-                               sporran.put(docIdPutOnline, 
-                                           onlineDoc));
+      sporran.put(docIdPutOnline, 
+                  onlineDoc);
+                                
       
     });
+   
+   test("Put Document Online Conflict", () { 
+     
+     
+     var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.errorCode, 409);
+       expect(res.errorText, 'conflict');
+       expect(res.operation, Sporran.PUT);  
+      
+       
+     });
+     
+     sporran.online = true;
+     sporran.clientCompleter = wrapper;
+     onlineDoc.name = "Online";
+     sporran.put(docIdPutOnline, 
+                 onlineDoc);                                   
+     
+   });
     
   });
   
