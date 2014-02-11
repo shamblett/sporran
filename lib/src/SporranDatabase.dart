@@ -5,9 +5,8 @@
  * Copyright :  S.Hamblett@OSCF
  * 
  * 
- * A Sporran database comprises of a Wilt object and a Lawndart object in tandem, both sharing the
- * same database name. This allows Sporran to have multiple databases instantiated at any time keyed
- * by database name 
+ * A Sporran database comprises of a Wilt object, a Lawndart object and an in memory hot cache in tandem,
+ * all sharing the same database name. 
  */
 
 part of sporran;
@@ -37,6 +36,11 @@ class _SporranDatabase {
    */
   bool _noCouchDb = true;
   bool get noCouchDb => _noCouchDb;
+  
+  /**
+   * In memory hot cache
+   */
+  Map _hotCache = new Map<String, JsonObject>();
   
   /**
    * Construction, for Wilt we need URL and authentication parameters.
@@ -122,10 +126,48 @@ class _SporranDatabase {
       
     };
     
-   // _wilt.resultCompletion = allCompleter;
-    //_wilt.getAllDbs();
-    _wilt.db = _dbName;
-    _noCouchDb = false;  
+   _wilt.resultCompletion = allCompleter;
+   _wilt.getAllDbs();
+   
   }
+  
+  /**
+   * Hot cache get
+   */
+  JsonObject get(String id) {
     
+    if ( _hotCache.containsKey(id)) {
+      
+      return _hotCache[id];
+    }
+    
+    return null;
+    
+  }
+  
+  /**
+   * Hot cache put
+   */
+  void put(String id,
+           JsonObject payload) {
+    
+    
+    _hotCache[id] = payload;
+    
+    
+  }
+  
+  /**
+   * Hot cache remove
+   */
+  void remove(String id) {
+    
+    
+    if ( _hotCache.containsKey(id)) {
+      
+      _hotCache.remove(id);
+      
+    }    
+    
+  }
 }
