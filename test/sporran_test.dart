@@ -247,6 +247,41 @@ main() {
      
      
    });
+   
+    test("Get Document Online New", () { 
+     
+     var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.ok, isTrue);
+       expect(res.operation, Sporran.GET);  
+       expect(res.payload.name, "Online");
+       
+     });
+     
+     sporran.online = true;;
+     sporran.clientCompleter = wrapper;
+     sporran.get(docIdPutOnline);
+     
+     
+   });
+    
+    test("Get Document Online Not Exist", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.GET);  
+        
+      });
+      
+      sporran.online = true;;
+      sporran.clientCompleter = wrapper;
+      sporran.get("Billy");
+      
+      
+    }); 
     
   });
   
