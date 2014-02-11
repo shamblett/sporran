@@ -239,40 +239,36 @@ class Sporran {
     
     /* Check for offline, if so try the get from LawnDart */
     if ( !_online ) {
-      
-      var getFuture = _database.lawndart.getByKey(id);
-      _completionResponse = null;
-      
-      if ( getFuture != null ) {
         
-        getFuture.then((document) {
-          
-         /**
-          * TODO turn into a wilt completion response
-          */
-          document.lawnResponse = true;
-          document.operation = GET;
-          document.ok = true;
-          _completionResponse = _createCompletionResponse(document);
-         _clientCompleter;
+        _database.lawndart.getByKey(id).then((document) {
          
+          JsonObject res = new JsonObject();
+          if ( document == null ) {
+                    
+            res.lawnResponse = true;
+            res.operation = GET;
+            res.ok = false;
+            _completionResponse = _createCompletionResponse(res);
+            _clientCompleter();
+            
+          } else {
+            
+            res.lawnResponse = true;
+            res.operation = GET;
+            res.ok = true;
+            res.payload = new JsonObject.fromMap(document['payload']);
+            _completionResponse = _createCompletionResponse(res);
+          
+          }
+         
+          _clientCompleter();
           
         });
         
-      } else {
-        
-        JsonObject document = new JsonObject();
-        document.lawnResponse = true;
-        document.operation = GET;
-        document.ok = false;
-        _completionResponse = _createCompletionResponse(document);
-        _clientCompleter;
-        
-      }
         
     } else {
       
-        var completer = ((_) {
+        void completer(){
       
           /* If Ok update Lawndart with the document */
          
@@ -281,23 +277,23 @@ class Sporran {
         
             JsonObject successResponse = res.jsonCouchResponse;
             _updateLawnDart(id,
-                            successResponse,
+                             successResponse,
                             _UPDATED);
             res.lawnResponse = false;
             res.operation = GET;
             _completionResponse = _createCompletionResponse(res);
-            _clientCompleter;
+            _clientCompleter();
             
           } else {
             
             res.lawnResponse = false;
             res.operation = GET;
             _completionResponse = _createCompletionResponse(res);
-            _clientCompleter;
+            _clientCompleter();
             
           }
           
-        });
+        };
         
         _database.wilt.resultCompletion = completer;
         _database.wilt.getDocument(id, rev:rev);

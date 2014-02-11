@@ -210,6 +210,26 @@ main() {
      
      
    });
+   
+   test("Get Document Offline New", () { 
+     
+     var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.ok, isTrue);
+       expect(res.operation, Sporran.GET);  
+       expect(res.payload.name, "Offline");
+       
+     });
+     
+     sporran.online = false;
+     sporran.clientCompleter = wrapper;
+     offlineDoc.name = "Offline";
+     Timer wait = new Timer(new Duration(milliseconds:500),() =>
+                                           sporran.get(docIdPutOffline));
+     
+     
+   });
     
   });
   
