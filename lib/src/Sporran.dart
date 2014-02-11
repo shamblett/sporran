@@ -65,6 +65,11 @@ class Sporran {
   JsonObject get completionResponse => _completionResponse;
   
   /**
+   * Hot cache size
+   */
+  int get hotCacheSize => _database.length();
+  
+  /**
    * Construction
    */
   Sporran(this._dbName,
@@ -88,7 +93,7 @@ class Sporran {
   }
   
   /**
-   * Create Lawndart updated entry 
+   * Create local storage updated entry 
    */
   JsonObject _createUpdated(String key,
                            JsonObject payload) {
@@ -103,7 +108,7 @@ class Sporran {
   }
   
   /**
-   * Create Lawndart not updated entry
+   * Create local storage not updated entry
    */
   JsonObject _createNotUpdated(String key,
                                JsonObject payload) {
@@ -118,9 +123,9 @@ class Sporran {
   }
   
   /**
-   * Update LawnDart
+   * Update local storage
    */
-  void _updateLawnDart(String key,
+  void _updateLocalStorage(String key,
                        JsonObject update,
                        String updateType) {
     
@@ -139,11 +144,22 @@ class Sporran {
       localUpdate = _createUpdated(key,
           update);
     }
-    _database._lawndart.save(localUpdate, key);
+    
+    /**
+     * Update the hot cache, then Lawndart.
+     * When Lawndart has saved the item remove it from the
+     * hot cache.
+     */
+    _database.put(key, localUpdate);
+    _database._lawndart.save(localUpdate, key)
+    ..then((String key) => _database.remove(key));
       
     
   }
   
+  /**
+   * Common completion response creator for all databases
+   */
   JsonObject _createCompletionResponse(JsonObject result) {
     
     JsonObject completion = new JsonObject();
@@ -182,6 +198,68 @@ class Sporran {
   }
   
   /**
+   * Get from local storage
+   */
+  JsonObject _getLocalStorageObject(String key) {
+    
+    JsonObject localObject = new JsonObject();
+    bool notFound = true;
+    
+    /**
+     * Try Lawndart first then the hot cache
+     */
+    _database.lawndart.getByKey(key).then((document) {
+      
+      JsonObject res = new JsonObject();
+      notFound = false;
+      
+      if ( document == null ) {
+        
+        /* Try the hot cache */
+        JsonObject hotObject = _database.get(key);
+        if ( hotObject == null ) {
+          
+          localObject = null;
+          
+        } else {
+          
+          localObject = hotObject;
+        }
+        
+      } else {
+        
+        /* Got from Lawndart */
+        
+        localObject = document;
+        
+      }
+      
+    });
+    
+    /**
+     * One last shot at the hot cache 
+     */
+    if ( notFound ) {
+      
+      JsonObject res = new JsonObject();
+      JsonObject hotObject = _database.get(key);
+      if ( hotObject == null ) {
+        
+        localObject = null;
+        
+      } else {
+        
+        localObject = hotObject;
+      }
+      
+    }
+    
+    /* Either an object or null */
+    return localObject;
+    
+  }
+  
+  /**
    * Update document
    * If the document does not exist a create is performed
    */
@@ -189,7 +267,7 @@ class Sporran {
            JsonObject document){
     
     /* Update LawnDart */
-    _updateLawnDart(id,
+    _updateLocalStorage(id,
                     document,
                     _NOT_UPDATED);
     
@@ -212,7 +290,7 @@ class Sporran {
       if ( !res.error) {
         
         JsonObject successResponse = res.jsonCouchResponse;
-        _updateLawnDart(id,
+        _updateLocalStorage(id,
             document,
             _UPDATED);
         
@@ -237,50 +315,49 @@ class Sporran {
   void get(String id,
            [String rev = null]) {
     
-    /* Check for offline, if so try the get from LawnDart */
+    /* Check for offline, if so try the get from local storage */
     if ( !_online ) {
         
-        _database.lawndart.getByKey(id).then((document) {
+        JsonObject document = _getLocalStorageObject(id);
          
-          JsonObject res = new JsonObject();
-          if ( document == null ) {
+        JsonObject res = new JsonObject();
+        if ( document == null ) {
                     
-            res.lawnResponse = true;
-            res.operation = GET;
-            res.ok = false;
-            _completionResponse = _createCompletionResponse(res);
-            _clientCompleter();
+          res.lawnResponse = true;
+          res.operation = GET;
+          res.ok = false;
+          _completionResponse = _createCompletionResponse(res);
             
-          } else {
+        } else {
             
-            res.lawnResponse = true;
-            res.operation = GET;
-            res.ok = true;
-            res.payload = new JsonObject.fromMap(document['payload']);
-            _completionResponse = _createCompletionResponse(res);
+          res.lawnResponse = true;
+          res.operation = GET;
+          res.ok = true;
+          res.payload = new JsonObject.fromMap(document['payload']);
+          _completionResponse = _createCompletionResponse(res);
           
-          }
+        }
          
-          _clientCompleter();
-          
-        });
+        _clientCompleter();
         
         
     } else {
       
         void completer(){
       
-          /* If Ok update Lawndart with the document */
+          /* If Ok update local storage with the document */
          
           JsonObject res = _database.wilt.completionResponse;
           if ( !res.error ) {
         
             JsonObject successResponse = res.jsonCouchResponse;
-            _updateLawnDart(id,
+            _updateLocalStorage(id,
                              successResponse,
                             _UPDATED);
             res.lawnResponse = false;
             res.operation = GET;
+            res.ok = true;
+            res.payload = successResponse;
             _completionResponse = _createCompletionResponse(res);
             _clientCompleter();
             
@@ -288,6 +365,7 @@ class Sporran {
             
             res.lawnResponse = false;
             res.operation = GET;
+            res.ok = false;
             _completionResponse = _createCompletionResponse(res);
             _clientCompleter();
             
@@ -295,6 +373,7 @@ class Sporran {
           
         };
         
+        /* Get the document from CouchDb */
         _database.wilt.resultCompletion = completer;
         _database.wilt.getDocument(id, rev:rev);
         

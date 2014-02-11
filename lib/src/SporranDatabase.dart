@@ -170,4 +170,14 @@ class _SporranDatabase {
     }    
     
   }
+  
+  /**
+   * Hot cache length
+   */
+  int length() {
+    
+    return _hotCache.length;
+    
+  }
+  
 }

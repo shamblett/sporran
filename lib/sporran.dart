@@ -7,6 +7,8 @@
 
 library sporran;
 
+import 'dart:async';
+
 import 'package:wilt/wilt.dart';
 import 'package:lawndart/lawndart.dart';
 import 'package:json_object/json_object.dart';

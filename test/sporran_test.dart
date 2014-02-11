@@ -225,8 +225,25 @@ main() {
      sporran.online = false;
      sporran.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
-     Timer wait = new Timer(new Duration(milliseconds:500),() =>
-                                           sporran.get(docIdPutOffline));
+     sporran.get(docIdPutOffline);
+     
+     
+   });
+   
+   test("Get Document Offline Not Exist", () { 
+     
+     var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.ok, isFalse);
+       expect(res.operation, Sporran.GET);  
+       
+     });
+     
+     sporran.online = false;
+     sporran.clientCompleter = wrapper;
+     offlineDoc.name = "Offline";
+     sporran.get("Billy");
      
      
    });
