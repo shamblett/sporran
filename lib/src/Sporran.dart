@@ -274,32 +274,6 @@ class Sporran {
   }
   
   /**
-   * Delete from local storage
-   */
-  bool _deleteLocalStorageObject(String key) {
-    
-    bool keyExists = false;
-    
-    /* Remove from Lawndart */
-    _database.lawndart.exists(key)
-    ..then((bool exists) {
-      
-          if ( exists ) {
-            
-            _database.lawndart.removeByKey(key);
-            keyExists = true;
-            
-          }
-       });
-    
-    /* Remove from the hot cache */
-    _database.remove(key);
-    
-    return keyExists;
-    
-  }
-  
-  /**
    * Update document
    * If the document does not exist a create is performed
    */
@@ -431,67 +405,79 @@ class Sporran {
   }
   
   /**
-   * Delete a document
+   * Delete a document.
+   * 
+   * Revision must be supplied if we are online
    */
    void delete(String id,
                [String rev = null]) {
      
-     /* Always delete from local storage if the key exists */
-     bool exists = _deleteLocalStorageObject(id);
-     if ( ! exists ) {
-       
-       JsonObject res = new JsonObject();
-       res.localResponse = true;
-       res.operation = DELETE;
-       res.ok = false;
-       _completionResponse = _createCompletionResponse(res);
-       _clientCompleter();
-       return;
-     }
+     /* Remove from the hot cache */
+     _database.remove(id);
      
-     /* Check for offline, if so add to the pending delete queue and return */
-     if ( !_online ) {
-       
-       _database.addPendingDelete(id);
-       JsonObject res = new JsonObject();
-       res.localResponse = true;
-       res.operation = DELETE;
-       res.ok = true;
-       _completionResponse = _createCompletionResponse(res);
-       _clientCompleter();      
-       return;
-       
-     }
-     
-     /* Online, delete from CouchDb */
-     void completer(){
-       
-       /* If not OK add to the pending delete queue for later */    
-       JsonObject res = _database.wilt.completionResponse;
-       if ( res.error ) {
+     /* Remove from Lawndart */
+     _database.lawndart.exists(id)
+       ..then((bool exists) {
          
-         _database.addPendingDelete(id);        
-         res.localResponse = false;
-         res.operation = DELETE;
-         res.ok = false;
-         _completionResponse = _createCompletionResponse(res);
+         JsonObject res = _database.wilt.completionResponse;
          
-       } else {
+         if ( exists ) {
+           
+           _database.lawndart.removeByKey(id);
+           
+           /* Check for offline, if so add to the pending delete queue and return */
+           if ( !_online ) {
+       
+             _database.addPendingDelete(id);
+              res.localResponse = true;
+              res.operation = DELETE;
+              res.ok = true;
+              _completionResponse = _createCompletionResponse(res);
+              _clientCompleter();      
+              return;
+              
+           } else { 
+       
+              /* Online, delete from CouchDb */
+              void completer() {
+       
+                if ( (res.error) ) {
          
-         res.localResponse = false;
-         res.operation = DELETE;
-         res.ok = false;
-         _completionResponse = _createCompletionResponse(res);
+                  res.localResponse = false;
+                  res.operation = DELETE;
+                  res.ok = false;        
+         
+                } else {
+         
+                  res.localResponse = false;
+                  res.operation = DELETE;
+                  res.ok = false;
                  
-       }
+               }
+               
+               _completionResponse = _createCompletionResponse(res);
+               _clientCompleter();
        
-       _clientCompleter();
-       
-     };
+            };
      
-     /* Delete the document from CouchDb */
-     _database.wilt.resultCompletion = completer;
-     _database.wilt.deleteDocument(id, rev);   
-     
-   }
+            /* Delete the document from CouchDb */
+            _database.wilt.resultCompletion = completer;
+            _database.wilt.deleteDocument(id, rev); 
+            
+           }
+           
+         } else {
+           
+           /* Doesnt exists, return error */
+           res.localResponse = false;
+           res.operation = DELETE;
+           res.ok = false;
+           _completionResponse = _createCompletionResponse(res);
+           _clientCompleter();
+           
+         }
+         
+      });
+  }
+   
 }

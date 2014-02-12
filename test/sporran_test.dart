@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:html';
 
 import '../lib/sporran.dart';
+import 'package:wilt/wilt.dart' show WiltUserUtils;
 import 'package:json_object/json_object.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
@@ -135,6 +136,7 @@ main() {
     String docIdPutOffline = "putOffline";
     JsonObject onlineDoc = new JsonObject();
     JsonObject offlineDoc = new JsonObject();
+    String onlineDocRev;
     
     test("Create and Open Sporran", () { 
       
@@ -264,6 +266,7 @@ main() {
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
        expect(res.payload.name, "Online");
+       onlineDocRev = WiltUserUtils.getDocumentRev(res.payload);
        
      });
      
@@ -340,6 +343,25 @@ main() {
        sporran.online = false;
        sporran.clientCompleter = wrapper;
        sporran.delete(docIdPutOffline);
+       
+       
+     }); 
+     
+     test("Delete Document Online", () { 
+       
+       var wrapper = expectAsync0(() {
+         
+         JsonObject res = sporran.completionResponse;
+         expect(res.ok, isTrue);
+         expect(res.operation, Sporran.DELETE); 
+         expect(sporran.pendingDeleteSize, 1);
+         
+       });
+       
+       sporran.online = true;
+       sporran.clientCompleter = wrapper;
+       sporran.delete(docIdPutOnline,
+                      onlineDocRev);
        
        
      }); 

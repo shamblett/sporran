@@ -10,7 +10,7 @@ library sporran;
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:wilt/wilt.dart';
+import 'package:wilt/wilt.dart' show WiltUserUtils, Wilt, WiltException;
 import 'package:lawndart/lawndart.dart';
 import 'package:json_object/json_object.dart';
 
