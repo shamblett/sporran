@@ -43,6 +43,11 @@ class _SporranDatabase {
   Map _hotCache = new Map<String, JsonObject>();
   
   /**
+   * Pending delete queue
+   */
+  Queue _pendingDeletes = new Queue<String>();
+  
+  /**
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
@@ -177,6 +182,37 @@ class _SporranDatabase {
   int length() {
     
     return _hotCache.length;
+    
+  }
+  
+  /**
+   * Add a key to the pending delete queue
+   */
+  void addPendingDelete(String key) {
+    
+    
+    _pendingDeletes.add(key);
+    
+  }
+  
+  /**
+   * Remove a key from the pending delete queue
+   */
+  void removePendingDelete(String key) {
+    
+    
+    if ( _pendingDeletes.contains(key) ) _pendingDeletes.remove(key);
+    
+    
+  }
+  
+  /*
+   * Length of the pending delete queue
+   */
+  int pendingLength() {
+    
+    
+    return _pendingDeletes.length;
     
   }
   

@@ -127,7 +127,7 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  solo_group("2. Document Put/Get Tests - ", () {
+  solo_group("2. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -159,7 +159,7 @@ main() {
   
     });
     
-   test("Put Document Online New", () { 
+  test("Put Document Online New", () { 
       
      
       var wrapper = expectAsync0(() {
@@ -195,15 +195,22 @@ main() {
      sporran.online = true;
      sporran.clientCompleter = wrapper;
      onlineDoc.name = "Online";
-     sporran.put(docIdPutOnline, 
-                 onlineDoc);                                   
+     sporran.put(docIdPutOnline,onlineDoc);                                   
      
    });
    
    test("Put Document Offline New", () { 
      
+      var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.ok, isTrue);
+       expect(res.operation, Sporran.PUT);  
+       
+     });
+      
      sporran.online = false;
-     sporran.clientCompleter = null;
+     sporran.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
      sporran.put(docIdPutOffline, 
                  offlineDoc);
@@ -244,6 +251,7 @@ main() {
      sporran.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
      sporran.get("Billy");
+     expect(sporran.hotCacheSize, 1);
      
      
    });
@@ -282,6 +290,59 @@ main() {
       
       
     }); 
+    
+    test("Drain Hot Cache", () { 
+      
+      
+      var wrapper = expectAsync0(() {
+        
+        expect(sporran.dbName, databaseName);
+        expect(sporran.hotCacheSize, 0);
+        
+      });
+      
+      sporran.clientCompleter = wrapper;
+      
+      /* Wait for the hot cache to drain  */
+      Timer wait = new Timer(new Duration(milliseconds:500),wrapper);
+      
+      
+    });
+    
+     test("Delete Document Not Exist", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.DELETE);  
+        
+      });
+      
+      sporran.online = false;;
+      sporran.clientCompleter = wrapper;
+      sporran.delete("Billy");
+      
+      
+    }); 
+     
+     test("Delete Document Offline", () { 
+       
+       var wrapper = expectAsync0(() {
+         
+         JsonObject res = sporran.completionResponse;
+         expect(res.ok, isTrue);
+         expect(res.operation, Sporran.DELETE); 
+         expect(sporran.pendingDeleteSize, 1);
+         
+       });
+       
+       sporran.online = false;
+       sporran.clientCompleter = wrapper;
+       sporran.delete(docIdPutOffline);
+       
+       
+     }); 
     
   });
   

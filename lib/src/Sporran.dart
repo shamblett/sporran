@@ -32,6 +32,7 @@ class Sporran {
   
   static final PUT = "put";
   static final GET = "get";
+  static final DELETE = "delete";
   
   /**
    * Database
@@ -70,6 +71,11 @@ class Sporran {
   int get hotCacheSize => _database.length();
   
   /**
+   * Pending delete queue size
+   */
+  int get pendingDeleteSize => _database.pendingLength();
+  
+  /**
    * Construction
    */
   Sporran(this._dbName,
@@ -90,6 +96,52 @@ class Sporran {
                                        scheme,
                                        userName,
                                        password);    
+  }
+  
+  /**
+   * Common completion response creator for all databases
+   */
+  JsonObject _createCompletionResponse(JsonObject result) {
+    
+    JsonObject completion = new JsonObject();
+    
+    completion.operation = result.operation;
+    completion.payload = null;
+    
+    /**
+     * Check for a local or Wilt response 
+     */
+    if ( result.localResponse ) {
+       
+      completion.ok = result.ok;
+      
+      /* Only have a payload for a GET response */
+      if ( completion.ok ) {
+        
+        if ( result.operation == GET) completion.payload = result.payload;
+        
+      }
+      
+    } else {
+      
+      if ( result.error ) {
+        
+        completion.ok = false;
+        completion.errorCode = result.errorCode;
+        completion.errorText = result.jsonCouchResponse.error;
+        completion.errorReason = result.jsonCouchResponse.reason;
+        
+      } else {
+        
+        completion.ok = true;
+        completion.payload = result.jsonCouchResponse;
+        
+      }
+      
+    }
+    
+    return completion;
+      
   }
   
   /**
@@ -122,10 +174,11 @@ class Sporran {
     
   }
   
+  
   /**
    * Update local storage
    */
-  void _updateLocalStorage(String key,
+  void _updateLocalStorageObject(String key,
                        JsonObject update,
                        String updateType) {
     
@@ -157,45 +210,6 @@ class Sporran {
     
   }
   
-  /**
-   * Common completion response creator for all databases
-   */
-  JsonObject _createCompletionResponse(JsonObject result) {
-    
-    JsonObject completion = new JsonObject();
-    
-    completion.operation = result.operation;
-    completion.payload = null;
-    
-    /**
-     * Check for a Lawndart or Wilt response 
-     */
-    if ( result.lawnResponse ) {
-       
-      completion.ok = result.ok;
-      if ( completion.ok ) completion.payload = result.payload;
-      
-    } else {
-      
-      if ( result.error ) {
-        
-        completion.ok = false;
-        completion.errorCode = result.errorCode;
-        completion.errorText = result.jsonCouchResponse.error;
-        completion.errorReason = result.jsonCouchResponse.reason;
-        
-      } else {
-        
-        completion.ok = true;
-        completion.payload = result.jsonCouchResponse;
-        
-      }
-      
-    }
-    
-    return completion;
-      
-  }
   
   /**
    * Get from local storage
@@ -260,6 +274,32 @@ class Sporran {
   }
   
   /**
+   * Delete from local storage
+   */
+  bool _deleteLocalStorageObject(String key) {
+    
+    bool keyExists = false;
+    
+    /* Remove from Lawndart */
+    _database.lawndart.exists(key)
+    ..then((bool exists) {
+      
+          if ( exists ) {
+            
+            _database.lawndart.removeByKey(key);
+            keyExists = true;
+            
+          }
+       });
+    
+    /* Remove from the hot cache */
+    _database.remove(key);
+    
+    return keyExists;
+    
+  }
+  
+  /**
    * Update document
    * If the document does not exist a create is performed
    */
@@ -267,7 +307,7 @@ class Sporran {
            JsonObject document){
     
     /* Update LawnDart */
-    _updateLocalStorage(id,
+    _updateLocalStorageObject(id,
                     document,
                     _NOT_UPDATED);
     
@@ -275,6 +315,12 @@ class Sporran {
     /* If we are offline just return */
     if ( !_online ) {
       
+      JsonObject res = new JsonObject();
+      res.localResponse = true;
+      res.operation = PUT;
+      res.ok = true;
+      _completionResponse = _createCompletionResponse(res);
+      _clientCompleter();
       return;
       
     }
@@ -285,17 +331,19 @@ class Sporran {
     /* Complete locally, then boomerang to the client */
     void completer() {
       
-      /* If success, mark the update as UPDATED in Lawndart */
+      /* If success, mark the update as UPDATED in local storage */
       JsonObject res = _database.wilt.completionResponse;
+      res.ok = false;
       if ( !res.error) {
         
         JsonObject successResponse = res.jsonCouchResponse;
-        _updateLocalStorage(id,
+        _updateLocalStorageObject(id,
             document,
             _UPDATED);
+        res.ok = true;
         
       }
-      res.lawnResponse = false;
+      res.localResponse = false;
       res.operation = PUT;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
@@ -323,14 +371,14 @@ class Sporran {
         JsonObject res = new JsonObject();
         if ( document == null ) {
                     
-          res.lawnResponse = true;
+          res.localResponse = true;
           res.operation = GET;
           res.ok = false;
           _completionResponse = _createCompletionResponse(res);
             
         } else {
             
-          res.lawnResponse = true;
+          res.localResponse = true;
           res.operation = GET;
           res.ok = true;
           res.payload = new JsonObject.fromMap(document['payload']);
@@ -351,25 +399,25 @@ class Sporran {
           if ( !res.error ) {
         
             JsonObject successResponse = res.jsonCouchResponse;
-            _updateLocalStorage(id,
+            _updateLocalStorageObject(id,
                              successResponse,
                             _UPDATED);
-            res.lawnResponse = false;
+            res.localResponse = false;
             res.operation = GET;
             res.ok = true;
             res.payload = successResponse;
-            _completionResponse = _createCompletionResponse(res);
-            _clientCompleter();
+            _completionResponse = _createCompletionResponse(res);     
             
           } else {
             
-            res.lawnResponse = false;
+            res.localResponse = false;
             res.operation = GET;
             res.ok = false;
             _completionResponse = _createCompletionResponse(res);
-            _clientCompleter();
             
           }
+          
+          _clientCompleter();
           
         };
         
@@ -381,5 +429,69 @@ class Sporran {
     
       
   }
-    
+  
+  /**
+   * Delete a document
+   */
+   void delete(String id,
+               [String rev = null]) {
+     
+     /* Always delete from local storage if the key exists */
+     bool exists = _deleteLocalStorageObject(id);
+     if ( ! exists ) {
+       
+       JsonObject res = new JsonObject();
+       res.localResponse = true;
+       res.operation = DELETE;
+       res.ok = false;
+       _completionResponse = _createCompletionResponse(res);
+       _clientCompleter();
+       return;
+     }
+     
+     /* Check for offline, if so add to the pending delete queue and return */
+     if ( !_online ) {
+       
+       _database.addPendingDelete(id);
+       JsonObject res = new JsonObject();
+       res.localResponse = true;
+       res.operation = DELETE;
+       res.ok = true;
+       _completionResponse = _createCompletionResponse(res);
+       _clientCompleter();      
+       return;
+       
+     }
+     
+     /* Online, delete from CouchDb */
+     void completer(){
+       
+       /* If not OK add to the pending delete queue for later */    
+       JsonObject res = _database.wilt.completionResponse;
+       if ( res.error ) {
+         
+         _database.addPendingDelete(id);        
+         res.localResponse = false;
+         res.operation = DELETE;
+         res.ok = false;
+         _completionResponse = _createCompletionResponse(res);
+         
+       } else {
+         
+         res.localResponse = false;
+         res.operation = DELETE;
+         res.ok = false;
+         _completionResponse = _createCompletionResponse(res);
+                 
+       }
+       
+       _clientCompleter();
+       
+     };
+     
+     /* Delete the document from CouchDb */
+     _database.wilt.resultCompletion = completer;
+     _database.wilt.deleteDocument(id, rev);   
+     
+   }
 }
