@@ -128,7 +128,7 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  solo_group("2. Document Put/Get/Delete Tests - ", () {
+  solo_group("3. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -161,7 +161,7 @@ main() {
   
     });
     
-  test("Put Document Online New", () { 
+  test("Put Document Online docIdPutOnline", () { 
       
      
       var wrapper = expectAsync0(() {
@@ -201,7 +201,7 @@ main() {
      
    });
    
-   test("Put Document Offline New", () { 
+   test("Put Document Offline docIdPutOffline", () { 
      
       var wrapper = expectAsync0(() {
        
@@ -220,7 +220,7 @@ main() {
      
    });
    
-   test("Get Document Offline New", () { 
+   test("Get Document Offline docIdPutOffline", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -233,8 +233,25 @@ main() {
      
      sporran.online = false;
      sporran.clientCompleter = wrapper;
-     offlineDoc.name = "Offline";
      sporran.get(docIdPutOffline);
+     
+     
+   });
+   
+   test("Get Document Offline docIdPutOnline", () { 
+     
+     var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.ok, isTrue);
+       expect(res.operation, Sporran.GET);  
+       expect(res.payload.name, "Online");
+       
+     });
+     
+     sporran.online = false;
+     sporran.clientCompleter = wrapper;
+     sporran.get(docIdPutOnline);
      
      
    });
@@ -258,7 +275,7 @@ main() {
      
    });
    
-    test("Get Document Online New", () { 
+   /*test("Get Document Online New", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -364,8 +381,97 @@ main() {
                       onlineDocRev);
        
        
-     }); 
+     }); */
     
   });
+  
+  /* Group 4 - Sporran attachment put/get tests */
+  /*solo_group("4. Attachment Put/Get/Delete Tests - ", () {
+    
+    Sporran sporran;
+    
+    String docIdPutOnline = "putOnline";
+    String docIdPutOffline = "putOffline";
+    JsonObject onlineDoc = new JsonObject();
+    JsonObject offlineDoc = new JsonObject();
+    String onlineDocRev;
+    String onlineAttachName = "OnlineAttachName";
+    String onlineAttachRev = '';
+    String onlineAttachContentType = 'image/png';
+    String onlineAttachmentContent = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'+
+                                     'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'+
+                                     'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'+
+                                     '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+    JsonObject onlineAttachment = new JsonObject();
+    onlineAttachment.attachmentName = onlineAttachName;  
+    onlineAttachment.rev = onlineAttachRev;
+    onlineAttachment.contentType = onlineAttachContentType;
+    onlineAttachment.payload = onlineAttachmentContent;
+    
+    test("Create and Open Sporran", () { 
+      
+    
+    var wrapper = expectAsync0(() {
+      
+      expect(sporran.dbName, databaseName);
+      
+    });
+    
+    sporran = new Sporran(databaseName,
+        hostName,
+        port,
+        scheme,
+        userName,
+        userPassword);
+    
+    
+    /* Wait for the database to open, only need to do this once */
+    Timer wait = new Timer(new Duration(milliseconds:500),wrapper);
+      
+  
+    });
+    
+  test("Put Document Online New", () { 
+      
+     
+      var wrapper = expectAsync0(() {
+                    
+          JsonObject res = sporran.completionResponse;
+          expect(res.ok, isTrue);
+          expect(res.operation, Sporran.PUT);         
+        
+      });
+      
+      sporran.online = true;
+      sporran.clientCompleter = wrapper;
+      onlineDoc.name = "Online";
+      sporran.put(docIdPutOnline, 
+                  onlineDoc);
+                                
+      
+    });
+  
+  test("Put Document Offline New", () { 
+    
+    var wrapper = expectAsync0(() {
+      
+      JsonObject res = sporran.completionResponse;
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.PUT);  
+      
+    });
+    
+    sporran.online = false;
+    sporran.clientCompleter = wrapper;
+    offlineDoc.name = "Offline";
+    sporran.put(docIdPutOffline, 
+        offlineDoc);
+    
+    
+  });
+  
+  
+  
+  });*/
   
 }

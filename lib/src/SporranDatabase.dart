@@ -120,6 +120,7 @@ class _SporranDatabase {
         } else {
           
           _wilt.db = _dbName;
+          _noCouchDb = false;
           
         }
         

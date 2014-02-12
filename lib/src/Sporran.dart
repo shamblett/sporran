@@ -29,6 +29,7 @@ class Sporran {
    */
   static final _NOT_UPDATED = "not_updated";
   static final _UPDATED = "updated";
+  static final _ATTACHMENTMARKER = "sporranAttachment";
   
   static final PUT = "put";
   static final GET = "get";
@@ -46,10 +47,28 @@ class Sporran {
   String get dbName => _dbName;
   
   /**
+   * Lawndart database
+   */
+  Store get lawndart => _database.lawndart;
+  
+  /**
+   * Wilt database
+   */
+  Wilt get wilt => _database.wilt;
+  
+  /**
    * On/Offline indicator
    */
   bool _online = true;
-  bool get online => _online;
+  bool get online {
+    
+    /* If we are not online or the CouchDb database is not 
+     * available we are offline
+     */
+    if ( (!_online) || (_database.noCouchDb) ) return false;
+    return true;
+    
+  }
   set online(bool state) => _online = state;
   
   
@@ -97,6 +116,7 @@ class Sporran {
                                        userName,
                                        password);    
   }
+  
   
   /**
    * Common completion response creator for all databases
@@ -204,6 +224,7 @@ class Sporran {
      * hot cache.
      */
     _database.put(key, localUpdate);
+    print("Hot put $key");
     _database._lawndart.save(localUpdate, key)
     ..then((String key) => _database.remove(key));
       
@@ -214,10 +235,10 @@ class Sporran {
   /**
    * Get from local storage
    */
-  JsonObject _getLocalStorageObject(String key) {
+  Future<JsonObject> _getLocalStorageObject(String key) {
     
     JsonObject localObject = new JsonObject();
-    bool notFound = true;
+    var completer = new Completer();
     
     /**
      * Try Lawndart first then the hot cache
@@ -225,7 +246,6 @@ class Sporran {
     _database.lawndart.getByKey(key).then((document) {
       
       JsonObject res = new JsonObject();
-      notFound = false;
       
       if ( document == null ) {
         
@@ -234,42 +254,32 @@ class Sporran {
         if ( hotObject == null ) {
           
           localObject = null;
+          print("Local is hot null $key");
           
         } else {
           
           localObject = hotObject;
+          print("Local is hot $key");
         }
         
       } else {
         
         /* Got from Lawndart */
-        
-        localObject = document;
-        
+        if ( document != null) {
+          
+        localObject.payload = document['payload'];
+        print("Got it $key");
+        } else {
+          print("Not got it $key");
+        }
       }
+      
+      completer.complete(localObject);
       
     });
     
-    /**
-     * One last shot at the hot cache 
-     */
-    if ( notFound ) {
-      
-      JsonObject res = new JsonObject();
-      JsonObject hotObject = _database.get(key);
-      if ( hotObject == null ) {
-        
-        localObject = null;
-        
-      } else {
-        
-        localObject = hotObject;
-      }
-      
-    }
     
-    /* Either an object or null */
-    return localObject;
+    return completer.future; 
     
   }
   
@@ -287,7 +297,7 @@ class Sporran {
     
     
     /* If we are offline just return */
-    if ( !_online ) {
+    if ( !online ) {
       
       JsonObject res = new JsonObject();
       res.localResponse = true;
@@ -298,10 +308,7 @@ class Sporran {
       return;
       
     }
-    
-    /* Check for not initialized */
-    if ( _database.wilt == null ) throw new SporranException("Initialisation Failure, Wilt is not initialized");
-    
+     
     /* Complete locally, then boomerang to the client */
     void completer() {
       
@@ -337,38 +344,45 @@ class Sporran {
   void get(String id,
            [String rev = null]) {
     
+    print("Entering GET");
+    
     /* Check for offline, if so try the get from local storage */
-    if ( !_online ) {
+    if ( !online ) {
         
-        JsonObject document = _getLocalStorageObject(id);
+        _getLocalStorageObject(id)
+          ..then((document) {
          
-        JsonObject res = new JsonObject();
-        if ( document == null ) {
+            JsonObject res = new JsonObject();
+            if ( document == null ) {
                     
-          res.localResponse = true;
-          res.operation = GET;
-          res.ok = false;
-          _completionResponse = _createCompletionResponse(res);
+              res.localResponse = true;
+              res.operation = GET;
+              res.ok = false;
+             _completionResponse = _createCompletionResponse(res);
+             print("!online document null");
             
-        } else {
+            } else {
             
-          res.localResponse = true;
-          res.operation = GET;
-          res.ok = true;
-          res.payload = new JsonObject.fromMap(document['payload']);
-          _completionResponse = _createCompletionResponse(res);
+              res.localResponse = true;
+              res.operation = GET;
+              res.ok = true;
+              res.payload = new JsonObject.fromMap(document['payload']);
+              _completionResponse = _createCompletionResponse(res);
+              print("!online document OK");
           
-        }
+            }
          
-        _clientCompleter();
+            print("Calling clientcompleter");
+            _clientCompleter();
+            
+          });
         
         
     } else {
       
         void completer(){
       
-          /* If Ok update local storage with the document */
-         
+          /* If Ok update local storage with the document */       
           JsonObject res = _database.wilt.completionResponse;
           if ( !res.error ) {
         
@@ -401,7 +415,7 @@ class Sporran {
         
     }
     
-      
+    print("Exiting GET");
   }
   
   /**
@@ -426,7 +440,7 @@ class Sporran {
            _database.lawndart.removeByKey(id);
            
            /* Check for offline, if so add to the pending delete queue and return */
-           if ( !_online ) {
+           if ( !online ) {
        
              _database.addPendingDelete(id);
               res.localResponse = true;
@@ -479,5 +493,246 @@ class Sporran {
          
       });
   }
+   
+  /**
+   * Put attachment
+   * 
+   * If the revision is supplied the attachment to the document will be updated, 
+   * otherwise the attachment will be created, along with the document if needed.
+   * 
+   * The JsonObject attachment parameter must contain the following :-
+   * 
+   * String attachmentName
+   * String rev - maybe '', see above
+   * String contentType - mime type in the form 'image/png'
+   * String payload - stringified binary blob
+   */
+   void putAttachment(String id,
+                      JsonObject attachment) {
+     
+     
+     /* Update LawnDart */
+     String key = "$id-${attachment.attachmentName}-_ATTACHMENTMARKER";
+     _updateLocalStorageObject(id,
+         attachment,
+         _NOT_UPDATED);
+     
+     
+     /* If we are offline just return */
+     if ( !online ) {
+       
+       JsonObject res = new JsonObject();
+       res.localResponse = true;
+       res.operation = PUT;
+       res.ok = true;
+       _completionResponse = _createCompletionResponse(res);
+       _clientCompleter();
+       return;
+       
+     }
+     
+     /* Complete locally, then boomerang to the client */
+     void completer() {
+       
+       /* If success, mark the update as UPDATED in local storage */
+       JsonObject res = _database.wilt.completionResponse;
+       res.ok = false;
+       if ( !res.error) {
+         
+         JsonObject successResponse = res.jsonCouchResponse;
+         _updateLocalStorageObject(key,
+             attachment,
+             _UPDATED);
+         res.ok = true;
+         
+       }
+       res.localResponse = false;
+       res.operation = PUT;
+       _completionResponse = _createCompletionResponse(res);
+       _clientCompleter();
+       
+     };
+
+     /* Do the create */
+     _database.wilt.completionResponse;
+     _database.wilt.resultCompletion = completer;
+     if ( attachment.rev == '' ) {
+     
+       _database.wilt.createAttachment(id, 
+                                       attachment.attachmentName, 
+                                       attachment.rev, 
+                                       attachment.contentType, 
+                                       attachment.payload);
+     
+     } else {
+       
+       _database.wilt.updateAttachment(id, 
+           attachment.attachmentName, 
+           attachment.rev, 
+           attachment.contentType, 
+           attachment.payload);
+       
+     }
+     
+   }
+   
+   /**
+    * Delete an attachment
+    */
+   void deleteAttachment(String id,
+                         String attachmentName,
+                         String rev) { 
+     
+     String key = "$id-$attachmentName-_ATTACHMENTMARKER";
+     
+     /* Remove from the hot cache */
+     _database.remove(key);
+     
+     /* Remove from Lawndart */
+     _database.lawndart.exists(key)
+       ..then((bool exists) {
+         
+         JsonObject res = _database.wilt.completionResponse;
+         
+         if ( exists ) {
+           
+           _database.lawndart.removeByKey(key);
+           
+           /* Check for offline, if so add to the pending delete queue and return */
+           if ( !online ) {
+       
+             _database.addPendingDelete(key);
+              res.localResponse = true;
+              res.operation = DELETE;
+              res.ok = true;
+              _completionResponse = _createCompletionResponse(res);
+              _clientCompleter();      
+              return;
+              
+           } else { 
+       
+              /* Online, delete from CouchDb */
+              void completer() {
+       
+                if ( (res.error) ) {
+         
+                  res.localResponse = false;
+                  res.operation = DELETE;
+                  res.ok = false;        
+         
+                } else {
+         
+                  res.localResponse = false;
+                  res.operation = DELETE;
+                  res.ok = false;
+                 
+               }
+               
+               _completionResponse = _createCompletionResponse(res);
+               _clientCompleter();
+       
+            };
+     
+            /* Delete the document from CouchDb */
+            _database.wilt.resultCompletion = completer;
+            _database.wilt.deleteAttachment(id, 
+                                            attachmentName,
+                                            rev); 
+            
+           }
+           
+         } else {
+           
+           /* Doesnt exists, return error */
+           res.localResponse = false;
+           res.operation = DELETE;
+           res.ok = false;
+           _completionResponse = _createCompletionResponse(res);
+           _clientCompleter();
+           
+         }
+         
+      });  
+     
+   }
+   
+   /**
+    * Get an attachment
+    */
+   void getAttachment(String id,
+                      String attachmentName) {
+     
+     String key = "$id-$attachmentName-_ATTACHMENTMARKER";
+     
+     /* Check for offline, if so try the get from local storage */
+     if ( !online ) {
+       
+       _getLocalStorageObject(key)
+       ..then((document) {
+       
+          JsonObject res = new JsonObject();
+          if ( document == null ) {
+         
+            res.localResponse = true;
+            res.operation = GET;
+            res.ok = false;
+            _completionResponse = _createCompletionResponse(res);
+         
+          } else {
+         
+            res.localResponse = true;
+            res.operation = GET;
+            res.ok = true;
+            res.payload = new JsonObject.fromMap(document['payload']);
+            _completionResponse = _createCompletionResponse(res);
+         
+          }
+       
+          _clientCompleter();
+          
+       });
+          
+     } else {
+       
+       void completer(){
+         
+         /* If Ok update local storage with the attachment */   
+         JsonObject res = _database.wilt.completionResponse;
+         if ( !res.error ) {
+           
+           JsonObject successResponse = res.jsonCouchResponse;
+           _updateLocalStorageObject(key,
+               successResponse,
+               _UPDATED);
+           res.localResponse = false;
+           res.operation = GET;
+           res.ok = true;
+           res.payload = successResponse;
+           _completionResponse = _createCompletionResponse(res);     
+           
+         } else {
+           
+           res.localResponse = false;
+           res.operation = GET;
+           res.ok = false;
+           _completionResponse = _createCompletionResponse(res);
+           
+         }
+         
+         _clientCompleter();
+         
+       };
+       
+       /* Get the attachment from CouchDb */
+       _database.wilt.resultCompletion = completer;
+       _database.wilt.getAttachment(id,
+                                    attachmentName);
+       
+     }
+     
+     
+   }
+   
+   
    
 }
