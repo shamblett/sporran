@@ -697,14 +697,15 @@ class Sporran {
          if ( !res.error ) {
            
            JsonObject successResponse = res.jsonCouchResponse;
-           _updateLocalStorageObject(key,
-               successResponse,
-               _UPDATED);
            res.localResponse = false;
            res.operation = GET;
            res.ok = true;
-           res.payload = successResponse;
-           _completionResponse = _createCompletionResponse(res);     
+           res.payload = res.responseText;
+           res.details = successResponse;
+           _completionResponse = _createCompletionResponse(res);  
+           _updateLocalStorageObject(key,
+               res,
+               _UPDATED);
            
          } else {
            

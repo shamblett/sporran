@@ -499,6 +499,25 @@ main() {
       
       
     });
+    
+    test("Get Attachment Online docIdPutOnline", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET);  
+        expect(res.payload, attachmentPayload);
+        
+      });
+      
+      sporran.online = true;
+      sporran.clientCompleter = wrapper;
+      sporran.getAttachment(docIdPutOnline, 
+                            "onlineAttachment");
+      
+      
+    });
   
   });
   
