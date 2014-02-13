@@ -124,6 +124,37 @@ main() {
      
       
     });
+    
+    test("Construction Online/Offline listener ", () {  
+        
+
+      Sporran sporran = new Sporran(databaseName,
+            hostName,
+            port,
+            scheme,
+            userName,
+            userPassword);
+      
+      void wrapper() {
+        
+        Event offline = new Event.eventType('Event', 'offline');
+        window.dispatchEvent(offline);
+        expect(sporran.online, isFalse); 
+        Event online = new Event.eventType('Event', 'online');
+        window.dispatchEvent(online);
+        expect(sporran.online, isTrue); 
+        
+        
+      }     
+          
+      expect(sporran, isNotNull);
+      expect(sporran.online, isFalse);
+      Timer wait = new Timer(new Duration(milliseconds:300),wrapper); 
+      
+    });
+    
+    
+    
    
   });    
   

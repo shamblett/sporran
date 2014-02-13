@@ -75,8 +75,7 @@ class Sporran {
     
   }
   set online(bool state) => _online = state;
-  
-  
+    
   /**
    * Completion function 
    */
@@ -112,14 +111,20 @@ class Sporran {
     
     /**
      * Construct our database.
-     */
-      
+     */    
      _database = new _SporranDatabase(_dbName,
                                        hostName,
                                        port,
                                        scheme,
                                        userName,
-                                       password);    
+                                       password);   
+     
+     /**
+      * Online/offline listeners
+      */
+      window.onOnline.listen((_) => _online = true);
+      window.onOffline.listen((_) => _online = false);
+     
   }
   
   
