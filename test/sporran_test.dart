@@ -144,6 +144,7 @@ main() {
     var wrapper = expectAsync0(() {
       
       expect(sporran.dbName, databaseName);
+      expect(sporran.lawnIsOpen, isTrue);
       
     });
     
@@ -155,9 +156,11 @@ main() {
         userPassword);
     
     
-    /* Wait for the database to open, only need to do this once */
-    Timer wait = new Timer(new Duration(milliseconds:500),wrapper);
-      
+    /* Wait for the database to open, only need to do this once.
+     * In the real world there's no need to do this, only in harness
+     * world.
+     */
+    Timer wait = new Timer(new Duration(milliseconds:300),wrapper);  
   
     });
     
@@ -180,8 +183,28 @@ main() {
                                 
       
     });
+  
+  test("Put Document Offline docIdPutOffline", () { 
+    
+    var wrapper = expectAsync0(() {
+      
+      JsonObject res = sporran.completionResponse;
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.PUT);  
+      
+    });
+    
+    sporran.online = false;
+    sporran.clientCompleter = wrapper;
+    offlineDoc.name = "Offline";
+    sporran.put(docIdPutOffline, 
+        offlineDoc);
+    
+    
+  });
+  
    
-   test("Put Document Online Conflict", () { 
+  test("Put Document Online Conflict", () { 
      
      
      var wrapper = expectAsync0(() {
@@ -201,21 +224,22 @@ main() {
      
    });
    
-   test("Put Document Offline docIdPutOffline", () { 
+   
+   
+   test("Get Document Offline docIdPutOnline", () { 
      
-      var wrapper = expectAsync0(() {
+     var wrapper = expectAsync0(() {
        
        JsonObject res = sporran.completionResponse;
        expect(res.ok, isTrue);
-       expect(res.operation, Sporran.PUT);  
+       expect(res.operation, Sporran.GET);  
+       expect(res.payload.name, "Online");
        
      });
-      
+     
      sporran.online = false;
      sporran.clientCompleter = wrapper;
-     offlineDoc.name = "Offline";
-     sporran.put(docIdPutOffline, 
-                 offlineDoc);
+     sporran.get(docIdPutOnline);
      
      
    });
@@ -237,25 +261,7 @@ main() {
      
      
    });
-   
-   test("Get Document Offline docIdPutOnline", () { 
-     
-     var wrapper = expectAsync0(() {
-       
-       JsonObject res = sporran.completionResponse;
-       expect(res.ok, isTrue);
-       expect(res.operation, Sporran.GET);  
-       expect(res.payload.name, "Online");
-       
-     });
-     
-     sporran.online = false;
-     sporran.clientCompleter = wrapper;
-     sporran.get(docIdPutOnline);
-     
-     
-   });
-   
+
    test("Get Document Offline Not Exist", () { 
      
      var wrapper = expectAsync0(() {
@@ -270,12 +276,12 @@ main() {
      sporran.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
      sporran.get("Billy");
-     expect(sporran.hotCacheSize, 1);
+     expect(sporran.hotCacheSize, 0);
      
      
    });
    
-   /*test("Get Document Online New", () { 
+   test("Get Document Online docIdPutOnline", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -311,25 +317,8 @@ main() {
       
     }); 
     
-    test("Drain Hot Cache", () { 
-      
-      
-      var wrapper = expectAsync0(() {
-        
-        expect(sporran.dbName, databaseName);
-        expect(sporran.hotCacheSize, 0);
-        
-      });
-      
-      sporran.clientCompleter = wrapper;
-      
-      /* Wait for the hot cache to drain  */
-      Timer wait = new Timer(new Duration(milliseconds:500),wrapper);
-      
-      
-    });
     
-     test("Delete Document Not Exist", () { 
+    test("Delete Document Not Exist", () { 
       
       var wrapper = expectAsync0(() {
         
@@ -381,7 +370,7 @@ main() {
                       onlineDocRev);
        
        
-     }); */
+     });
     
   });
   

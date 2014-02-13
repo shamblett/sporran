@@ -47,6 +47,9 @@ class _SporranDatabase {
    */
   Queue _pendingDeletes = new Queue<String>();
   
+  bool _lawnIsOpen = false;
+  bool get lawnIsOpen => _lawnIsOpen;
+  
   /**
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
@@ -65,7 +68,8 @@ class _SporranDatabase {
     _lawndart = new Store(this._dbName,
                           "Sporran");
     _lawndart.open()
-      .then((_) => _lawndart.nuke());
+      ..then((_) => _lawndart.nuke())
+      ..then((_){ _lawnIsOpen = true;});
       
     /**
      * Instantiate a Wilt object
@@ -156,7 +160,6 @@ class _SporranDatabase {
    */
   void put(String id,
            JsonObject payload) {
-    
     
     _hotCache[id] = payload;
     

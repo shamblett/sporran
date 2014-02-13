@@ -52,6 +52,11 @@ class Sporran {
   Store get lawndart => _database.lawndart;
   
   /**
+   * Lawndart databse is open
+   */
+  bool get lawnIsOpen => _database.lawnIsOpen;
+  
+  /**
    * Wilt database
    */
   Wilt get wilt => _database.wilt;
@@ -224,7 +229,6 @@ class Sporran {
      * hot cache.
      */
     _database.put(key, localUpdate);
-    print("Hot put $key");
     _database._lawndart.save(localUpdate, key)
     ..then((String key) => _database.remove(key));
       
@@ -254,12 +258,11 @@ class Sporran {
         if ( hotObject == null ) {
           
           localObject = null;
-          print("Local is hot null $key");
           
         } else {
           
           localObject = hotObject;
-          print("Local is hot $key");
+         
         }
         
       } else {
@@ -268,10 +271,8 @@ class Sporran {
         if ( document != null) {
           
         localObject.payload = document['payload'];
-        print("Got it $key");
-        } else {
-          print("Not got it $key");
-        }
+       
+        } 
       }
       
       completer.complete(localObject);
@@ -344,7 +345,6 @@ class Sporran {
   void get(String id,
            [String rev = null]) {
     
-    print("Entering GET");
     
     /* Check for offline, if so try the get from local storage */
     if ( !online ) {
@@ -359,7 +359,6 @@ class Sporran {
               res.operation = GET;
               res.ok = false;
              _completionResponse = _createCompletionResponse(res);
-             print("!online document null");
             
             } else {
             
@@ -368,11 +367,9 @@ class Sporran {
               res.ok = true;
               res.payload = new JsonObject.fromMap(document['payload']);
               _completionResponse = _createCompletionResponse(res);
-              print("!online document OK");
           
             }
          
-            print("Calling clientcompleter");
             _clientCompleter();
             
           });
@@ -415,7 +412,6 @@ class Sporran {
         
     }
     
-    print("Exiting GET");
   }
   
   /**
