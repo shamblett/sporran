@@ -508,8 +508,8 @@ class Sporran {
      
      
      /* Update LawnDart */
-     String key = "$id-${attachment.attachmentName}-_ATTACHMENTMARKER";
-     _updateLocalStorageObject(id,
+     String key = "$id-${attachment.attachmentName}-$_ATTACHMENTMARKER";
+     _updateLocalStorageObject(key,
          attachment,
          _NOT_UPDATED);
      
@@ -579,7 +579,7 @@ class Sporran {
                          String attachmentName,
                          String rev) { 
      
-     String key = "$id-$attachmentName-_ATTACHMENTMARKER";
+     String key = "$id-$attachmentName-$_ATTACHMENTMARKER";
      
      /* Remove from the hot cache */
      _database.remove(key);
@@ -658,7 +658,7 @@ class Sporran {
    void getAttachment(String id,
                       String attachmentName) {
      
-     String key = "$id-$attachmentName-_ATTACHMENTMARKER";
+     String key = "$id-$attachmentName-$_ATTACHMENTMARKER";
      
      /* Check for offline, if so try the get from local storage */
      if ( !online ) {
