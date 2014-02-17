@@ -51,6 +51,12 @@ class _SporranDatabase {
   bool get lawnIsOpen => _lawnIsOpen;
   
   /**
+   * Event stream for Ready events
+   */
+  final _onReady = new StreamController.broadcast();
+  Stream get onReady => _onReady.stream;
+  
+  /**
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
@@ -67,9 +73,17 @@ class _SporranDatabase {
      */
     _lawndart = new Store(this._dbName,
                           "Sporran");
+    
+    /**
+     * Open it and signal when ready
+     */
     _lawndart.open()
       ..then((_) => _lawndart.nuke())
-      ..then((_){ _lawnIsOpen = true;});
+      ..then((_){ 
+                  _lawnIsOpen = true;
+                  Event e = new Event.eventType('Event', 'ready');
+                  _onReady.add(e);
+                  });
       
     /**
      * Instantiate a Wilt object

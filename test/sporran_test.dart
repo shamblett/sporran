@@ -135,7 +135,7 @@ main() {
             userName,
             userPassword);
       
-      void wrapper() {
+      var wrapper = expectAsync0(() {
         
         Event offline = new Event.eventType('Event', 'offline');
         window.dispatchEvent(offline);
@@ -145,15 +145,13 @@ main() {
         expect(sporran.online, isTrue); 
         
         
-      }     
+      });     
           
       expect(sporran, isNotNull);
       expect(sporran.online, isFalse);
-      Timer wait = new Timer(new Duration(milliseconds:300),wrapper); 
+      sporran.onReady.listen((e) => wrapper());
       
     });
-    
-    
     
    
   });    
@@ -187,11 +185,7 @@ main() {
         userPassword);
     
     
-    /* Wait for the database to open, only need to do this once.
-     * In the real world there's no need to do this, only in harness
-     * world.
-     */
-    Timer wait = new Timer(new Duration(milliseconds:300),wrapper);  
+    sporran.onReady.listen((e) => wrapper());
   
     });
     
@@ -406,7 +400,7 @@ main() {
   });
   
   /* Group 4 - Sporran attachment put/get tests */
-  solo_group("4. Attachment Put/Get/Delete Tests - ", () {
+  group("4. Attachment Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -428,6 +422,7 @@ main() {
     var wrapper = expectAsync0(() {
       
       expect(sporran.dbName, databaseName);
+      expect(sporran.lawnIsOpen, isTrue);
       
     });
     
@@ -439,9 +434,7 @@ main() {
         userPassword);
     
     
-    /* Wait for the database to open, only need to do this once */
-    Timer wait = new Timer(new Duration(milliseconds:300),wrapper);
-      
+    sporran.onReady.listen((e) => wrapper());  
   
     });
     

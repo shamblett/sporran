@@ -99,6 +99,11 @@ class Sporran {
   int get pendingDeleteSize => _database.pendingLength();
   
   /**
+   * Ready event
+   */
+  Stream get onReady => _database.onReady;
+  
+  /**
    * Construction
    */
   Sporran(this._dbName,
