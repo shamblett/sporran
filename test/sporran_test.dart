@@ -167,7 +167,7 @@ main() {
     JsonObject offlineDoc = new JsonObject();
     String onlineDocRev;
     
-    test("Create and Open Sporran", () { 
+    solo_test("Create and Open Sporran", () { 
       
     
     var wrapper = expectAsync0(() {
@@ -189,14 +189,17 @@ main() {
   
     });
     
-  test("Put Document Online docIdPutOnline", () { 
+  solo_test("Put Document Online docIdPutOnline", () { 
       
      
       var wrapper = expectAsync0(() {
                     
           JsonObject res = sporran.completionResponse;
           expect(res.ok, isTrue);
-          expect(res.operation, Sporran.PUT);         
+          expect(res.operation, Sporran.PUT); 
+          expect(res.localResponse, isFalse);
+          expect(res.payload.id, docIdPutOnline);
+          expect(res.payload.rev, anything);
         
       });
       
@@ -209,13 +212,15 @@ main() {
       
     });
   
-  test("Put Document Offline docIdPutOffline", () { 
+  solo_test("Put Document Offline docIdPutOffline", () { 
     
     var wrapper = expectAsync0(() {
       
       JsonObject res = sporran.completionResponse;
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.PUT);  
+      expect(res.localResponse, isTrue);
+      expect(res.payload, isNull);
       
     });
     
@@ -229,7 +234,7 @@ main() {
   });
   
    
-  test("Put Document Online Conflict", () { 
+  solo_test("Put Document Online Conflict", () { 
      
      
      var wrapper = expectAsync0(() {
@@ -251,13 +256,15 @@ main() {
    
    
    
-   test("Get Document Offline docIdPutOnline", () { 
+   solo_test("Get Document Offline docIdPutOnline", () { 
      
      var wrapper = expectAsync0(() {
        
        JsonObject res = sporran.completionResponse;
        expect(res.ok, isTrue);
-       expect(res.operation, Sporran.GET);  
+       expect(res.operation, Sporran.GET); 
+       expect(res.localResponse, isTrue);
+       expect(res.id, docIdPutOnline);
        expect(res.payload.name, "Online");
        
      });
@@ -269,13 +276,15 @@ main() {
      
    });
    
-   test("Get Document Offline docIdPutOffline", () { 
+   solo_test("Get Document Offline docIdPutOffline", () { 
      
      var wrapper = expectAsync0(() {
        
        JsonObject res = sporran.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
+       expect(res.localResponse, isTrue);
+       expect(res.id, docIdPutOffline);
        expect(res.payload.name, "Offline");
        
      });
@@ -287,13 +296,15 @@ main() {
      
    });
 
-   test("Get Document Offline Not Exist", () { 
+   solo_test("Get Document Offline Not Exist", () { 
      
      var wrapper = expectAsync0(() {
        
        JsonObject res = sporran.completionResponse;
        expect(res.ok, isFalse);
-       expect(res.operation, Sporran.GET);  
+       expect(res.operation, Sporran.GET); 
+       expect(res.localResponse, isTrue);
+       expect(res.id, "Billy");
        
      });
      
@@ -306,7 +317,7 @@ main() {
      
    });
    
-   test("Get Document Online docIdPutOnline", () { 
+   solo_test("Get Document Online docIdPutOnline", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -314,6 +325,8 @@ main() {
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
        expect(res.payload.name, "Online");
+       expect(res.localResponse, isFalse);
+       expect(WiltUserUtils.getDocumentId(res.payload), docIdPutOnline);
        onlineDocRev = WiltUserUtils.getDocumentRev(res.payload);
        
      });
@@ -325,13 +338,15 @@ main() {
      
    });
     
-    test("Get Document Online Not Exist", () { 
+    solo_test("Get Document Online Not Exist", () { 
       
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);  
+        expect(res.operation, Sporran.GET);
+        expect(res.localResponse, isFalse);
+        expect(res.id, "Billy");
         
       });
       

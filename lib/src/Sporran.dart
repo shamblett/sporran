@@ -145,6 +145,7 @@ class Sporran {
     
     completion.operation = result.operation;
     completion.payload = result.payload;
+    completion.localResponse = result.localResponse;
     
     /**
      * Check for a local or Wilt response 
@@ -152,6 +153,7 @@ class Sporran {
     if ( result.localResponse ) {
        
       completion.ok = result.ok;
+      completion.id = result.id;
       
     } else {
       
@@ -310,6 +312,8 @@ class Sporran {
       res.localResponse = true;
       res.operation = PUT;
       res.ok = true;
+      res.payload = null;
+      res.id = id;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
       return;
@@ -361,9 +365,11 @@ class Sporran {
             JsonObject res = new JsonObject();
             res.localResponse = true;
             res.operation = GET;
+            res.id = id;
             if ( document == null ) {
                     
               res.ok = false;
+              res.payload = null;
              _completionResponse = _createCompletionResponse(res);
             
             } else {
@@ -432,8 +438,6 @@ class Sporran {
      _database.lawndart.exists(id)
        ..then((bool exists) {
          
-         JsonObject res = _database.wilt.completionResponse;
-         
          if ( exists ) {
            
            _database.lawndart.removeByKey(id);
@@ -442,23 +446,36 @@ class Sporran {
            if ( !online ) {
        
              _database.addPendingDelete(id);
-              res.localResponse = true;
-              res.operation = DELETE;
-              res.ok = true;
-              _completionResponse = _createCompletionResponse(res);
-              _clientCompleter();      
-              return;
+             JsonObject res = new JsonObject();
+             res.localResponse = true;
+             res.operation = DELETE;
+             res.ok = true; 
+             res.id = id;
+             res.payload = null;
+             _completionResponse = _createCompletionResponse(res);
+             _clientCompleter();      
+             return;
               
            } else { 
        
               /* Online, delete from CouchDb */
               void completer() {
-       
+                
+                JsonObject res = _database.wilt.completionResponse;
                 res.operation = DELETE;
                 res.localResponse = false;
-                res.ok = false;
-                if ( !res.error ) res.ok = true;         
-               
+                res.payload = res.jsonCouchResponse;
+                if ( !res.error ) {
+                    
+                  res.ok = false; 
+                  _database.removePendingDelete(id);
+                  
+                } else {
+                  
+                  res.ok = true;
+                  
+                }
+                
                _completionResponse = _createCompletionResponse(res);
                _clientCompleter();
        
@@ -472,10 +489,12 @@ class Sporran {
            
          } else {
            
-           /* Doesnt exists, return error */
-           res.localResponse = false;
+           /* Doesnt exist, return error */
+           JsonObject res = new JsonObject();
+           res.localResponse = true;
            res.operation = DELETE;
            res.ok = false;
+           res.id = id;
            _completionResponse = _createCompletionResponse(res);
            _clientCompleter();
            
