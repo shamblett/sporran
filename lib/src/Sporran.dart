@@ -34,6 +34,9 @@ class Sporran {
   static final PUT = "put";
   static final GET = "get";
   static final DELETE = "delete";
+  static final PUT_ATTACHMENT = "put_attachment";
+  static final GET_ATTACHMENT = "get_attachment";
+  static final DELETE_ATTACHMENT = "delete_attachment";
   
   /**
    * Database
@@ -141,7 +144,7 @@ class Sporran {
     JsonObject completion = new JsonObject();
     
     completion.operation = result.operation;
-    completion.payload = null;
+    completion.payload = result.payload;
     
     /**
      * Check for a local or Wilt response 
@@ -149,13 +152,6 @@ class Sporran {
     if ( result.localResponse ) {
        
       completion.ok = result.ok;
-      
-      /* Only have a payload for a GET response */
-      if ( completion.ok ) {
-        
-        if ( result.operation == GET) completion.payload = result.payload;
-        
-      }
       
     } else {
       
@@ -169,7 +165,7 @@ class Sporran {
       } else {
         
         completion.ok = true;
-        completion.payload = result.jsonCouchResponse;
+        completion.payload = result.payload;
         
       }
       
@@ -328,7 +324,6 @@ class Sporran {
       res.ok = false;
       if ( !res.error) {
         
-        JsonObject successResponse = res.jsonCouchResponse;
         _updateLocalStorageObject(id,
             document,
             _UPDATED);
@@ -337,6 +332,7 @@ class Sporran {
       }
       res.localResponse = false;
       res.operation = PUT;
+      res.payload = res.jsonCouchResponse;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
       
@@ -363,17 +359,15 @@ class Sporran {
           ..then((document) {
          
             JsonObject res = new JsonObject();
+            res.localResponse = true;
+            res.operation = GET;
             if ( document == null ) {
                     
-              res.localResponse = true;
-              res.operation = GET;
               res.ok = false;
              _completionResponse = _createCompletionResponse(res);
             
             } else {
             
-              res.localResponse = true;
-              res.operation = GET;
               res.ok = true;
               res.payload = new JsonObject.fromMap(document['payload']);
               _completionResponse = _createCompletionResponse(res);
@@ -393,14 +387,13 @@ class Sporran {
           JsonObject res = _database.wilt.completionResponse;
           if ( !res.error ) {
         
-            JsonObject successResponse = res.jsonCouchResponse;
             _updateLocalStorageObject(id,
-                             successResponse,
+                            res.jsonCouchResponse,
                             _UPDATED);
             res.localResponse = false;
             res.operation = GET;
             res.ok = true;
-            res.payload = successResponse;
+            res.payload = res.jsonCouchResponse;
             _completionResponse = _createCompletionResponse(res);     
             
           } else {
@@ -461,19 +454,10 @@ class Sporran {
               /* Online, delete from CouchDb */
               void completer() {
        
-                if ( (res.error) ) {
-         
-                  res.localResponse = false;
-                  res.operation = DELETE;
-                  res.ok = false;        
-         
-                } else {
-         
-                  res.localResponse = false;
-                  res.operation = DELETE;
-                  res.ok = false;
-                 
-               }
+                res.operation = DELETE;
+                res.localResponse = false;
+                res.ok = false;
+                if ( !res.error ) res.ok = true;         
                
                _completionResponse = _createCompletionResponse(res);
                _clientCompleter();
@@ -529,7 +513,7 @@ class Sporran {
        
        JsonObject res = new JsonObject();
        res.localResponse = true;
-       res.operation = PUT;
+       res.operation = PUT_ATTACHMENT;
        res.ok = true;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
@@ -545,7 +529,6 @@ class Sporran {
        res.ok = false;
        if ( !res.error) {
          
-         JsonObject successResponse = res.jsonCouchResponse;
          _updateLocalStorageObject(key,
              attachment,
              _UPDATED);
@@ -553,7 +536,8 @@ class Sporran {
          
        }
        res.localResponse = false;
-       res.operation = PUT;
+       res.operation = PUT_ATTACHMENT;
+       res.payload = res.jsonCouchResponse;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
        
@@ -609,7 +593,7 @@ class Sporran {
        
              _database.addPendingDelete(key);
               res.localResponse = true;
-              res.operation = DELETE;
+              res.operation = DELETE_ATTACHMENT;
               res.ok = true;
               _completionResponse = _createCompletionResponse(res);
               _clientCompleter();      
@@ -619,20 +603,11 @@ class Sporran {
        
               /* Online, delete from CouchDb */
               void completer() {
-       
-                if ( (res.error) ) {
-         
-                  res.localResponse = false;
-                  res.operation = DELETE;
-                  res.ok = false;        
-         
-                } else {
-         
-                  res.localResponse = false;
-                  res.operation = DELETE;
-                  res.ok = false;
-                 
-               }
+                
+                res.localResponse = false;
+                res.operation = DELETE_ATTACHMENT;
+                res.ok = false;
+                if ( !res.error ) res.ok = true;
                
                _completionResponse = _createCompletionResponse(res);
                _clientCompleter();
@@ -651,7 +626,7 @@ class Sporran {
            
            /* Doesnt exists, return error */
            res.localResponse = false;
-           res.operation = DELETE;
+           res.operation = DELETE_ATTACHMENT;
            res.ok = false;
            _completionResponse = _createCompletionResponse(res);
            _clientCompleter();
@@ -680,14 +655,14 @@ class Sporran {
           if ( document == null ) {
          
             res.localResponse = true;
-            res.operation = GET;
+            res.operation = GET_ATTACHMENT;
             res.ok = false;
             _completionResponse = _createCompletionResponse(res);
          
           } else {
          
             res.localResponse = true;
-            res.operation = GET;
+            res.operation = GET_ATTACHMENT;
             res.ok = true;
             res.payload = new JsonObject.fromMap(document['payload']);
             _completionResponse = _createCompletionResponse(res);
@@ -708,19 +683,23 @@ class Sporran {
            
            JsonObject successResponse = res.jsonCouchResponse;
            res.localResponse = false;
-           res.operation = GET;
+           res.operation = GET_ATTACHMENT;
            res.ok = true;
-           res.payload = res.responseText;
-           res.details = successResponse;
+           JsonObject attachment = new JsonObject();
+           attachment.attachmentName = attachmentName;
+           attachment.rev = successResponse.rev;
+           attachment.contentType = successResponse.contentType;
+           attachment.payload = res.responseText;
+           res.payload = attachment;
            _completionResponse = _createCompletionResponse(res);  
            _updateLocalStorageObject(key,
-               res,
+               attachment,
                _UPDATED);
            
          } else {
            
            res.localResponse = false;
-           res.operation = GET;
+           res.operation = GET_ATTACHMENT;
            res.ok = false;
            _completionResponse = _createCompletionResponse(res);
            
