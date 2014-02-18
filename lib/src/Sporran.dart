@@ -294,11 +294,15 @@ class Sporran {
   }
   
   /**
-   * Update document
-   * If the document does not exist a create is performed
+   * Update document.
+   * 
+   * If the document does not exist a create is performed.
+   * 
+   * For an upadte operation a specific revision must be specified.
    */
   void put(String id,
-           JsonObject document){
+           JsonObject document,
+           [String rev = null]){
     
     /* Update LawnDart */
     _updateLocalStorageObject(id,
@@ -355,7 +359,9 @@ class Sporran {
     /* Do the put */
     _database.wilt.completionResponse;
     _database.wilt.resultCompletion = completer;
-    _database.wilt.putDocument(id, document);
+    _database.wilt.putDocument(id, 
+                               document,
+                               rev);
     
   }
   

@@ -156,7 +156,7 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  group("3. Document Put/Get/Delete Tests - ", () {
+  solo_group("3. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -199,6 +199,7 @@ main() {
           expect(res.localResponse, isFalse);
           expect(res.id, docIdPutOnline);
           expect(res.rev, anything);
+          onlineDocRev = res.rev;
           expect(res.payload.name, "Online");
         
       });
@@ -256,7 +257,30 @@ main() {
      
    });
    
-   
+   test("Put Document Online Updated docIdPutOnline", () { 
+     
+     
+     var wrapper = expectAsync0(() {
+       
+       JsonObject res = sporran.completionResponse;
+       expect(res.ok, isTrue);
+       expect(res.operation, Sporran.PUT); 
+       expect(res.localResponse, isFalse);
+       expect(res.id, docIdPutOnline);
+       expect(res.rev, anything);
+       expect(res.payload.name, "Online - Updated");
+       
+     });
+     
+     sporran.online = true;
+     sporran.clientCompleter = wrapper;
+     onlineDoc.name = "Online - Updated";
+     sporran.put(docIdPutOnline, 
+                 onlineDoc,
+                 onlineDocRev);
+     
+     
+   });
    
    test("Get Document Offline docIdPutOnline", () { 
      
@@ -267,7 +291,7 @@ main() {
        expect(res.operation, Sporran.GET); 
        expect(res.localResponse, isTrue);
        expect(res.id, docIdPutOnline);
-       expect(res.payload.name, "Online");
+       expect(res.payload.name, "Online - Updated");
        
      });
      
@@ -329,7 +353,7 @@ main() {
        JsonObject res = sporran.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
-       expect(res.payload.name, "Online");
+       expect(res.payload.name, "Online - Updated");
        expect(res.localResponse, isFalse);
        expect(res.id, docIdPutOnline);
        onlineDocRev = res.rev;
