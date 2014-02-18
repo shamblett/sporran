@@ -199,7 +199,8 @@ main() {
           expect(res.operation, Sporran.PUT); 
           expect(res.localResponse, isFalse);
           expect(res.id, docIdPutOnline);
-          expect(res.payload.rev, anything);
+          expect(res.rev, anything);
+          expect(res.payload.name, "Online");
         
       });
       
@@ -288,6 +289,7 @@ main() {
        expect(res.localResponse, isTrue);
        expect(res.id, docIdPutOffline);
        expect(res.payload.name, "Offline");
+       expect(res.rev, isNull);
        
      });
      
@@ -307,6 +309,8 @@ main() {
        expect(res.operation, Sporran.GET); 
        expect(res.localResponse, isTrue);
        expect(res.id, "Billy");
+       expect(res.rev, isNull);
+       expect(res.payload, isNull);
        
      });
      
@@ -329,8 +333,7 @@ main() {
        expect(res.payload.name, "Online");
        expect(res.localResponse, isFalse);
        expect(res.id, docIdPutOnline);
-       expect(WiltUserUtils.getDocumentId(res.payload), docIdPutOnline);
-       onlineDocRev = WiltUserUtils.getDocumentRev(res.payload);
+       onlineDocRev = res.rev;
        
      });
      
@@ -369,6 +372,8 @@ main() {
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.DELETE); 
         expect(res.id, "Billy");
+        expect(res.payload, isNull);
+        expect(res.rev, isNull);
         
       });
       
@@ -388,6 +393,8 @@ main() {
          expect(res.localResponse, isTrue);
          expect(res.operation, Sporran.DELETE); 
          expect(res.id, docIdPutOffline);
+         expect(res.payload, isNull);
+         expect(res.rev, isNull);
          expect(sporran.pendingDeleteSize, 1);
          
        });
@@ -408,6 +415,8 @@ main() {
          expect(res.localResponse, isFalse);
          expect(res.operation, Sporran.DELETE); 
          expect(res.id, docIdPutOnline);
+         expect(res.payload, isNotNull);
+         expect(res.rev, anything);
          expect(sporran.pendingDeleteSize, 1);
          
        });
@@ -471,7 +480,7 @@ main() {
           expect(res.operation, Sporran.PUT);
           expect(res.id, docIdPutOnline);
           expect(res.localResponse, isFalse);
-          onlineDocRev = res.payload.rev;
+          onlineDocRev = res.rev;
           expect(res.payload.name, "Online");
         
       });
@@ -492,7 +501,7 @@ main() {
         JsonObject res = sporran.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT); 
-        expect(res.id, docIdPutOnline);
+        expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.payload.name, "Offline");
       
@@ -509,19 +518,19 @@ main() {
   
     solo_test("Create Attachment Online docIdPutOnline", () { 
     
-    var wrapper = expectAsync0(() {
+      var wrapper = expectAsync0(() {
       
-      JsonObject res = sporran.completionResponse;
-      expect(res.ok, isTrue);
-      expect(res.operation, Sporran.PUT_ATTACHMENT); 
-      expect(res.id, docIdPutOnline);
-      expect(res.localResponse, isFalse);
-      expect(res.rev, anything);
-      expect(res.payload.attachmentName,"onlineAttachment");
-      expect(res.payload.contentType, 'image/png');
-      expect(res.payload.payload, attachmentPayload);
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.PUT_ATTACHMENT); 
+        expect(res.id, docIdPutOnline);
+        expect(res.localResponse, isFalse);
+        expect(res.rev, anything);
+        expect(res.payload.attachmentName,"onlineAttachment");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
       
-    });
+      });
     
     sporran.online = true;
     sporran.clientCompleter = wrapper;
@@ -536,13 +545,19 @@ main() {
     
     });
     
-    test("Create Attachment Offline docIdPutOffline", () { 
+    solo_test("Create Attachment Offline docIdPutOffline", () { 
       
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);  
+        expect(res.operation, Sporran.PUT_ATTACHMENT);  
+        expect(res.id, docIdPutOffline);
+        expect(res.localResponse, isTrue);
+        expect(res.rev, isNull);
+        expect(res.payload.attachmentName,"offlineAttachment");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
         
       });
       

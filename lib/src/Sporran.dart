@@ -147,6 +147,7 @@ class Sporran {
     completion.payload = result.payload;
     completion.localResponse = result.localResponse;
     completion.id = result.id;
+    completion.rev = result.rev;
     
     /**
      * Check for a local or Wilt response 
@@ -168,7 +169,6 @@ class Sporran {
       } else {
         
         completion.ok = true;
-        completion.payload = result.payload;
         
       }
       
@@ -315,6 +315,7 @@ class Sporran {
       res.ok = true;
       res.payload = document;
       res.id = id;
+      res.rev = null;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
       return;
@@ -327,18 +328,25 @@ class Sporran {
       /* If success, mark the update as UPDATED in local storage */
       JsonObject res = _database.wilt.completionResponse;
       res.ok = false;
+      res.localResponse = false;
+      res.operation = PUT;
+      res.id = id;
+      res.payload = document;
       if ( !res.error) {
         
         _updateLocalStorageObject(id,
             document,
             _UPDATED);
         res.ok = true;
+       
+        res.rev = res.jsonCouchResponse.rev;
+        
+      } else {
+      
+        res.rev = null;
         
       }
-      res.localResponse = false;
-      res.operation = PUT;
-      res.id = id;
-      res.payload = res.jsonCouchResponse;
+      
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
       
@@ -368,6 +376,7 @@ class Sporran {
             res.localResponse = true;
             res.operation = GET;
             res.id = id;
+            res.rev = null;
             if ( document == null ) {
                     
               res.ok = false;
@@ -393,15 +402,18 @@ class Sporran {
       
           /* If Ok update local storage with the document */       
           JsonObject res = _database.wilt.completionResponse;
+          res.operation = GET;
+          res.id = id;
           if ( !res.error ) {
         
             _updateLocalStorageObject(id,
                             res.jsonCouchResponse,
                             _UPDATED);
-            res.localResponse = false;
-            res.operation = GET;
+            res.localResponse = false;     
             res.ok = true;
+            res.rev = WiltUserUtils.getDocumentRev(res.jsonCouchResponse);
             res.payload = res.jsonCouchResponse;
+           
             _completionResponse = _createCompletionResponse(res);     
             
           } else {
@@ -409,6 +421,8 @@ class Sporran {
             res.localResponse = false;
             res.operation = GET;
             res.ok = false;
+            res.payload = null;
+            res.rev = null;
             _completionResponse = _createCompletionResponse(res);
             
           }
@@ -454,6 +468,7 @@ class Sporran {
              res.ok = true; 
              res.id = id;
              res.payload = null;
+             res.rev = null;
              _completionResponse = _createCompletionResponse(res);
              _clientCompleter();      
              return;
@@ -467,6 +482,8 @@ class Sporran {
                 res.operation = DELETE;
                 res.localResponse = false;
                 res.payload = res.jsonCouchResponse;
+                res.id = id;
+                res.rev = res.jsonCouchResponse.rev;
                 if ( res.error ) {
                     
                   res.ok = false; 
@@ -497,6 +514,7 @@ class Sporran {
            res.ok = false;
            res.id = id;
            res.payload = null;
+           res.rev = null;
            _completionResponse = _createCompletionResponse(res);
            _clientCompleter();
            
@@ -538,6 +556,7 @@ class Sporran {
        res.ok = true;
        res.payload = attachment;
        res.id = id;
+       res.rev = null;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
        return;
