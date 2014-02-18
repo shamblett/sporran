@@ -188,7 +188,7 @@ main() {
   
     });
     
-  test("Put Document Online docIdPutOnline", () { 
+     test("Put Document Online docIdPutOnline", () { 
       
      
       var wrapper = expectAsync0(() {
@@ -447,7 +447,7 @@ main() {
                                '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
     
     
-    solo_test("Create and Open Sporran", () { 
+    test("Create and Open Sporran", () { 
       
     
     var wrapper = expectAsync0(() {
@@ -469,7 +469,7 @@ main() {
   
     });
     
-    solo_test("Put Document Online docIdPutOnline", () { 
+    test("Put Document Online docIdPutOnline", () { 
       
      
       var wrapper = expectAsync0(() {
@@ -493,7 +493,7 @@ main() {
       
     });
   
-    solo_test("Put Document Offline docIdPutOffline", () { 
+    test("Put Document Offline docIdPutOffline", () { 
     
       var wrapper = expectAsync0(() {
       
@@ -515,7 +515,7 @@ main() {
     
     });
   
-    solo_test("Create Attachment Online docIdPutOnline", () { 
+    test("Create Attachment Online docIdPutOnline", () { 
     
       var wrapper = expectAsync0(() {
       
@@ -544,7 +544,7 @@ main() {
     
     });
     
-    solo_test("Create Attachment Offline docIdPutOffline", () { 
+    test("Create Attachment Offline docIdPutOffline", () { 
       
       var wrapper = expectAsync0(() {
         
@@ -573,7 +573,7 @@ main() {
       
     });
     
-    solo_test("Get Attachment Online docIdPutOnline", () { 
+    test("Get Attachment Online docIdPutOnline", () { 
       
       var wrapper = expectAsync0(() {
         
@@ -597,7 +597,7 @@ main() {
       
     });
     
-    solo_test("Get Attachment Offline docIdPutOffline", () { 
+    test("Get Attachment Offline docIdPutOffline", () { 
       
       var wrapper = expectAsync0(() {
         
@@ -645,7 +645,7 @@ main() {
                                 
     });*/
     
-    solo_test("Delete Attachment Offline docIdPutOffline", () { 
+    test("Delete Attachment Offline docIdPutOffline", () { 
       
       var wrapper = expectAsync0(() {
         
@@ -668,7 +668,7 @@ main() {
                                 
     });
     
-    solo_test("Delete Attachment Not Exist", () { 
+    test("Delete Attachment Not Exist", () { 
       
       var wrapper = expectAsync0(() {
         
