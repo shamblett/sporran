@@ -612,7 +612,9 @@ class Sporran {
    }
    
    /**
-    * Delete an attachment
+    * Delete an attachment.
+    * 
+    * Revision can be null if offline
     */
    void deleteAttachment(String id,
                          String attachmentName,
@@ -627,8 +629,6 @@ class Sporran {
      _database.lawndart.exists(key)
        ..then((bool exists) {
          
-         JsonObject res = _database.wilt.completionResponse;
-         
          if ( exists ) {
            
            _database.lawndart.removeByKey(key);
@@ -636,23 +636,38 @@ class Sporran {
            /* Check for offline, if so add to the pending delete queue and return */
            if ( !online ) {
        
-             _database.addPendingDelete(key);
-              res.localResponse = true;
-              res.operation = DELETE_ATTACHMENT;
-              res.ok = true;
-              _completionResponse = _createCompletionResponse(res);
-              _clientCompleter();      
-              return;
-              
+             _database.addPendingDelete(id);
+             JsonObject res = new JsonObject();
+             res.localResponse = true;
+             res.operation = DELETE_ATTACHMENT;
+             res.ok = true; 
+             res.id = id;
+             res.payload = null;
+             res.rev = null;
+             _completionResponse = _createCompletionResponse(res);
+             _clientCompleter();
+             return;
+             
            } else { 
        
               /* Online, delete from CouchDb */
               void completer() {
                 
-                res.localResponse = false;
+                JsonObject res = _database.wilt.completionResponse;
                 res.operation = DELETE_ATTACHMENT;
-                res.ok = false;
-                if ( !res.error ) res.ok = true;
+                res.localResponse = false;
+                res.payload = res.jsonCouchResponse;
+                res.id = id;
+                res.rev = res.jsonCouchResponse.rev;
+                if ( res.error ) {
+                    
+                  res.ok = false; 
+                  
+                } else {
+                  
+                  res.ok = true;
+                  
+                }
                
                _completionResponse = _createCompletionResponse(res);
                _clientCompleter();
@@ -670,9 +685,13 @@ class Sporran {
          } else {
            
            /* Doesnt exists, return error */
-           res.localResponse = false;
+           JsonObject res = new JsonObject();
+           res.localResponse = true;
            res.operation = DELETE_ATTACHMENT;
            res.ok = false;
+           res.id = id;
+           res.payload = null;
+           res.rev = null;
            _completionResponse = _createCompletionResponse(res);
            _clientCompleter();
            
@@ -697,18 +716,20 @@ class Sporran {
        ..then((document) {
        
           JsonObject res = new JsonObject();
+          res.localResponse = true;
+          res.id = id;
+          res.rev = null;
+          res.operation = GET_ATTACHMENT;
           if ( document == null ) {
          
-            res.localResponse = true;
-            res.operation = GET_ATTACHMENT;
+            
             res.ok = false;
+            res.payload = null;
             _completionResponse = _createCompletionResponse(res);
          
           } else {
          
-            res.localResponse = true;
-            res.operation = GET_ATTACHMENT;
-            res.ok = true;
+            res.ok = true; 
             res.payload = new JsonObject.fromMap(document['payload']);
             _completionResponse = _createCompletionResponse(res);
          
@@ -724,32 +745,36 @@ class Sporran {
          
          /* If Ok update local storage with the attachment */   
          JsonObject res = _database.wilt.completionResponse;
+         res.operation = GET_ATTACHMENT;
+         res.id = id;
+         res.localResponse = false; 
+         
          if ( !res.error ) {
            
            JsonObject successResponse = res.jsonCouchResponse;
-           res.localResponse = false;
-           res.operation = GET_ATTACHMENT;
-           res.ok = true;
+            
+           res.ok = true;       
+           //TODO res.rev = successResponse.rev;
            JsonObject attachment = new JsonObject();
            attachment.attachmentName = attachmentName;
-           attachment.rev = successResponse.rev;
+           //TODO attachment.rev = successResponse.rev;
            attachment.contentType = successResponse.contentType;
            attachment.payload = res.responseText;
            res.payload = attachment;
-           _completionResponse = _createCompletionResponse(res);  
+            
            _updateLocalStorageObject(key,
                attachment,
                _UPDATED);
            
          } else {
            
-           res.localResponse = false;
-           res.operation = GET_ATTACHMENT;
            res.ok = false;
-           _completionResponse = _createCompletionResponse(res);
+           res.rev = null;
+           res.payload = null;
            
          }
          
+         _completionResponse = _createCompletionResponse(res);
          _clientCompleter();
          
        };

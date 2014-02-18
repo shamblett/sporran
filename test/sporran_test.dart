@@ -11,7 +11,6 @@ import 'dart:async';
 import 'dart:html';
 
 import '../lib/sporran.dart';
-import 'package:wilt/wilt.dart' show WiltUserUtils;
 import 'package:json_object/json_object.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
@@ -574,14 +573,19 @@ main() {
       
     });
     
-    test("Get Attachment Online docIdPutOnline", () { 
+    solo_test("Get Attachment Online docIdPutOnline", () { 
       
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);  
-        expect(res.payload, attachmentPayload);
+        expect(res.operation, Sporran.GET_ATTACHMENT); 
+        expect(res.id, docIdPutOnline);
+        expect(res.localResponse, isFalse);
+        //TODO expect(res.rev, anything);
+        expect(res.payload.attachmentName,"onlineAttachment");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
         
       });
       
@@ -591,6 +595,100 @@ main() {
                             "onlineAttachment");
       
       
+    });
+    
+    solo_test("Get Attachment Offline docIdPutOffline", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET_ATTACHMENT); 
+        expect(res.id, docIdPutOffline);
+        expect(res.localResponse, isTrue);
+        expect(res.rev, isNull);
+        expect(res.payload.attachmentName,"offlineAttachment");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
+        
+      });
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.getAttachment(docIdPutOffline, 
+                            "offlineAttachment");
+      
+      
+    });
+    
+    /*solo_test("Delete Attachment Online docIdPutOnline", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET_ATTACHMENT); 
+        expect(res.id, docIdPutOnline);
+        expect(res.localResponse, isFalse);
+        //TODO expect(res.rev, anything);
+        expect(res.payload.attachmentName,"onlineAttachment");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
+        
+      });
+      
+      sporran.online = true;
+      sporran.clientCompleter = wrapper;
+      sporran.deleteAttachment(docIdPutOnline, 
+                               "onlineAttachment",
+                                TODO rev);
+                                
+    });*/
+    
+    solo_test("Delete Attachment Offline docIdPutOffline", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.DELETE_ATTACHMENT); 
+        expect(res.id, docIdPutOffline);
+        expect(res.localResponse, isTrue);
+        expect(res.rev, isNull);
+        expect(res.payload, isNull);
+        
+        
+      });
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.deleteAttachment(docIdPutOffline, 
+                               "offlineAttachment",
+                                null);
+                                
+    });
+    
+    solo_test("Delete Attachment Not Exist", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.DELETE_ATTACHMENT); 
+        expect(res.id, docIdPutOffline);
+        expect(res.localResponse, isTrue);
+        expect(res.rev, isNull);
+        expect(res.payload, isNull);
+        
+        
+      });
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.deleteAttachment(docIdPutOffline, 
+                               "Billy",
+                                null);
+                                
     });
   
   });
