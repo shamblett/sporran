@@ -157,7 +157,7 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  group("3. Document Put/Get/Delete Tests - ", () {
+  solo_group("3. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -189,7 +189,7 @@ main() {
   
     });
     
-  solo_test("Put Document Online docIdPutOnline", () { 
+  test("Put Document Online docIdPutOnline", () { 
       
      
       var wrapper = expectAsync0(() {
@@ -198,7 +198,7 @@ main() {
           expect(res.ok, isTrue);
           expect(res.operation, Sporran.PUT); 
           expect(res.localResponse, isFalse);
-          expect(res.payload.id, docIdPutOnline);
+          expect(res.id, docIdPutOnline);
           expect(res.payload.rev, anything);
         
       });
@@ -212,7 +212,7 @@ main() {
       
     });
   
-  solo_test("Put Document Offline docIdPutOffline", () { 
+  test("Put Document Offline docIdPutOffline", () { 
     
     var wrapper = expectAsync0(() {
       
@@ -220,6 +220,7 @@ main() {
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.PUT);  
       expect(res.localResponse, isTrue);
+      expect(res.id, docIdPutOffline);
       expect(res.payload, isNull);
       
     });
@@ -234,7 +235,7 @@ main() {
   });
   
    
-  solo_test("Put Document Online Conflict", () { 
+   test("Put Document Online Conflict", () { 
      
      
      var wrapper = expectAsync0(() {
@@ -242,7 +243,8 @@ main() {
        JsonObject res = sporran.completionResponse;
        expect(res.errorCode, 409);
        expect(res.errorText, 'conflict');
-       expect(res.operation, Sporran.PUT);  
+       expect(res.operation, Sporran.PUT); 
+       expect(res.id, docIdPutOnline);
       
        
      });
@@ -256,7 +258,7 @@ main() {
    
    
    
-   solo_test("Get Document Offline docIdPutOnline", () { 
+   test("Get Document Offline docIdPutOnline", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -276,7 +278,7 @@ main() {
      
    });
    
-   solo_test("Get Document Offline docIdPutOffline", () { 
+   test("Get Document Offline docIdPutOffline", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -296,7 +298,7 @@ main() {
      
    });
 
-   solo_test("Get Document Offline Not Exist", () { 
+   test("Get Document Offline Not Exist", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -317,7 +319,7 @@ main() {
      
    });
    
-   solo_test("Get Document Online docIdPutOnline", () { 
+   test("Get Document Online docIdPutOnline", () { 
      
      var wrapper = expectAsync0(() {
        
@@ -326,6 +328,7 @@ main() {
        expect(res.operation, Sporran.GET);  
        expect(res.payload.name, "Online");
        expect(res.localResponse, isFalse);
+       expect(res.id, docIdPutOnline);
        expect(WiltUserUtils.getDocumentId(res.payload), docIdPutOnline);
        onlineDocRev = WiltUserUtils.getDocumentRev(res.payload);
        
@@ -338,7 +341,7 @@ main() {
      
    });
     
-    solo_test("Get Document Online Not Exist", () { 
+    test("Get Document Online Not Exist", () { 
       
       var wrapper = expectAsync0(() {
         
@@ -364,7 +367,8 @@ main() {
         
         JsonObject res = sporran.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.DELETE);  
+        expect(res.operation, Sporran.DELETE); 
+        expect(res.id, "Billy");
         
       });
       
@@ -381,7 +385,9 @@ main() {
          
          JsonObject res = sporran.completionResponse;
          expect(res.ok, isTrue);
+         expect(res.localResponse, isTrue);
          expect(res.operation, Sporran.DELETE); 
+         expect(res.id, docIdPutOffline);
          expect(sporran.pendingDeleteSize, 1);
          
        });
@@ -399,7 +405,9 @@ main() {
          
          JsonObject res = sporran.completionResponse;
          expect(res.ok, isTrue);
+         expect(res.localResponse, isFalse);
          expect(res.operation, Sporran.DELETE); 
+         expect(res.id, docIdPutOnline);
          expect(sporran.pendingDeleteSize, 1);
          
        });

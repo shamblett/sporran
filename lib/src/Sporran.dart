@@ -146,6 +146,7 @@ class Sporran {
     completion.operation = result.operation;
     completion.payload = result.payload;
     completion.localResponse = result.localResponse;
+    completion.id = result.id;
     
     /**
      * Check for a local or Wilt response 
@@ -153,7 +154,7 @@ class Sporran {
     if ( result.localResponse ) {
        
       completion.ok = result.ok;
-      completion.id = result.id;
+     
       
     } else {
       
@@ -336,6 +337,7 @@ class Sporran {
       }
       res.localResponse = false;
       res.operation = PUT;
+      res.id = id;
       res.payload = res.jsonCouchResponse;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
@@ -465,10 +467,9 @@ class Sporran {
                 res.operation = DELETE;
                 res.localResponse = false;
                 res.payload = res.jsonCouchResponse;
-                if ( !res.error ) {
+                if ( res.error ) {
                     
                   res.ok = false; 
-                  _database.removePendingDelete(id);
                   
                 } else {
                   
@@ -495,6 +496,7 @@ class Sporran {
            res.operation = DELETE;
            res.ok = false;
            res.id = id;
+           res.payload = null;
            _completionResponse = _createCompletionResponse(res);
            _clientCompleter();
            
