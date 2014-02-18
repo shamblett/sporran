@@ -156,7 +156,7 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  solo_group("3. Document Put/Get/Delete Tests - ", () {
+  group("3. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -455,7 +455,7 @@ main() {
   });
   
   /* Group 4 - Sporran attachment put/get tests */
-  group("4. Attachment Put/Get/Delete Tests - ", () {
+  solo_group("4. Attachment Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -503,8 +503,10 @@ main() {
           expect(res.operation, Sporran.PUT);
           expect(res.id, docIdPutOnline);
           expect(res.localResponse, isFalse);
-          onlineDocRev = res.rev;
           expect(res.payload.name, "Online");
+          expect(res.rev, anything);
+          onlineDocRev = res.rev;
+          
         
       });
       
@@ -549,6 +551,7 @@ main() {
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
+        onlineDocRev = res.rev;
         expect(res.payload.attachmentName,"onlineAttachment");
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -606,7 +609,7 @@ main() {
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
-        //TODO expect(res.rev, anything);
+        expect(res.rev, anything);
         expect(res.payload.attachmentName,"onlineAttachment");
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -645,19 +648,18 @@ main() {
       
     });
     
-    /*solo_test("Delete Attachment Online docIdPutOnline", () { 
+    test("Delete Attachment Online docIdPutOnline", () { 
       
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET_ATTACHMENT); 
+        expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
-        //TODO expect(res.rev, anything);
-        expect(res.payload.attachmentName,"onlineAttachment");
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        onlineDocRev = res.rev;
+        expect(res.rev, anything);
+        
         
       });
       
@@ -665,9 +667,9 @@ main() {
       sporran.clientCompleter = wrapper;
       sporran.deleteAttachment(docIdPutOnline, 
                                "onlineAttachment",
-                                TODO rev);
+                                onlineDocRev);
                                 
-    });*/
+    });
     
     test("Delete Attachment Offline docIdPutOffline", () { 
       
@@ -713,6 +715,28 @@ main() {
                                "Billy",
                                 null);
                                 
+    });
+    
+    test("Delete Document Online", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.localResponse, isFalse);
+        expect(res.operation, Sporran.DELETE); 
+        expect(res.id, docIdPutOnline);
+        expect(res.payload, isNotNull);
+        expect(res.rev, anything);
+        
+      });
+      
+      sporran.online = true;
+      sporran.clientCompleter = wrapper;
+      sporran.delete(docIdPutOnline,
+                     onlineDocRev);
+      
+      
     });
   
   });

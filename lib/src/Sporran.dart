@@ -588,9 +588,11 @@ class Sporran {
        res.operation = PUT_ATTACHMENT;
        JsonObject newAttachment = new JsonObject.fromMap(attachment);
        newAttachment.rev = res.jsonCouchResponse.rev;
+       res.rev = res.jsonCouchResponse.rev;
        res.payload = newAttachment;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
+       return;
        
      };
 
@@ -760,10 +762,10 @@ class Sporran {
            JsonObject successResponse = res.jsonCouchResponse;
             
            res.ok = true;       
-           //TODO res.rev = successResponse.rev;
+           res.rev = successResponse.rev;
            JsonObject attachment = new JsonObject();
            attachment.attachmentName = attachmentName;
-           //TODO attachment.rev = successResponse.rev;
+           attachment.rev = successResponse.rev;
            attachment.contentType = successResponse.contentType;
            attachment.payload = res.responseText;
            res.payload = attachment;
