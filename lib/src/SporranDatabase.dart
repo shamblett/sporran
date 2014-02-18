@@ -75,15 +75,13 @@ class _SporranDatabase {
                           "Sporran");
     
     /**
-     * Open it and signal when ready
+     * Open it, note the when ready event is raised
+     * from the CouchDb open processing, not here, this will
+     * always have completed before CouchDb does.
      */
     _lawndart.open()
       ..then((_) => _lawndart.nuke())
-      ..then((_){ 
-                  _lawnIsOpen = true;
-                  Event e = new Event.eventType('Event', 'ready');
-                  _onReady.add(e);
-                  });
+      ..then((_) => _lawnIsOpen = true);
       
     /**
      * Instantiate a Wilt object
@@ -117,6 +115,9 @@ class _SporranDatabase {
         
       }
       
+      Event e = new Event.eventType('Event', 'ready');
+      _onReady.add(e);
+      
       /**
        * TODO start change notifications here
        */
@@ -139,12 +140,16 @@ class _SporranDatabase {
           
           _wilt.db = _dbName;
           _noCouchDb = false;
+          Event e = new Event.eventType('Event', 'ready');
+          _onReady.add(e);
           
         }
         
       } else {
         
         _noCouchDb = true;
+        Event e = new Event.eventType('Event', 'ready');
+        _onReady.add(e);
         
       }
       
