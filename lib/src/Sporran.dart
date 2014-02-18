@@ -313,7 +313,7 @@ class Sporran {
       res.localResponse = true;
       res.operation = PUT;
       res.ok = true;
-      res.payload = null;
+      res.payload = document;
       res.id = id;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
@@ -536,6 +536,8 @@ class Sporran {
        res.localResponse = true;
        res.operation = PUT_ATTACHMENT;
        res.ok = true;
+       res.payload = attachment;
+       res.id = id;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
        return;
@@ -557,8 +559,11 @@ class Sporran {
          
        }
        res.localResponse = false;
+       res.id = id;
        res.operation = PUT_ATTACHMENT;
-       res.payload = res.jsonCouchResponse;
+       JsonObject newAttachment = new JsonObject.fromMap(attachment);
+       newAttachment.rev = res.jsonCouchResponse.rev;
+       res.payload = newAttachment;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
        

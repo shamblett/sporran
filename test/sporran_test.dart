@@ -157,7 +157,7 @@ main() {
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  solo_group("3. Document Put/Get/Delete Tests - ", () {
+  group("3. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -167,7 +167,7 @@ main() {
     JsonObject offlineDoc = new JsonObject();
     String onlineDocRev;
     
-    solo_test("Create and Open Sporran", () { 
+    test("Create and Open Sporran", () { 
       
     
     var wrapper = expectAsync0(() {
@@ -221,7 +221,7 @@ main() {
       expect(res.operation, Sporran.PUT);  
       expect(res.localResponse, isTrue);
       expect(res.id, docIdPutOffline);
-      expect(res.payload, isNull);
+      expect(res.payload.name, "Offline");
       
     });
     
@@ -439,7 +439,7 @@ main() {
                                '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
     
     
-    test("Create and Open Sporran", () { 
+    solo_test("Create and Open Sporran", () { 
       
     
     var wrapper = expectAsync0(() {
@@ -461,15 +461,18 @@ main() {
   
     });
     
-  test("Put Document Online docIdPutOnline", () { 
+    solo_test("Put Document Online docIdPutOnline", () { 
       
      
       var wrapper = expectAsync0(() {
                     
           JsonObject res = sporran.completionResponse;
           expect(res.ok, isTrue);
-          expect(res.operation, Sporran.PUT); 
+          expect(res.operation, Sporran.PUT);
+          expect(res.id, docIdPutOnline);
+          expect(res.localResponse, isFalse);
           onlineDocRev = res.payload.rev;
+          expect(res.payload.name, "Online");
         
       });
       
@@ -482,13 +485,16 @@ main() {
       
     });
   
-    test("Put Document Offline docIdPutOffline", () { 
+    solo_test("Put Document Offline docIdPutOffline", () { 
     
-    var wrapper = expectAsync0(() {
+      var wrapper = expectAsync0(() {
       
-      JsonObject res = sporran.completionResponse;
-      expect(res.ok, isTrue);
-      expect(res.operation, Sporran.PUT);  
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.PUT); 
+        expect(res.id, docIdPutOnline);
+        expect(res.localResponse, isTrue);
+        expect(res.payload.name, "Offline");
       
     });
     
@@ -501,13 +507,19 @@ main() {
     
     });
   
-    test("Create Attachment Online docIdPutOnline", () { 
+    solo_test("Create Attachment Online docIdPutOnline", () { 
     
     var wrapper = expectAsync0(() {
       
       JsonObject res = sporran.completionResponse;
       expect(res.ok, isTrue);
-      expect(res.operation, Sporran.PUT);  
+      expect(res.operation, Sporran.PUT_ATTACHMENT); 
+      expect(res.id, docIdPutOnline);
+      expect(res.localResponse, isFalse);
+      expect(res.rev, anything);
+      expect(res.payload.attachmentName,"onlineAttachment");
+      expect(res.payload.contentType, 'image/png');
+      expect(res.payload.payload, attachmentPayload);
       
     });
     
