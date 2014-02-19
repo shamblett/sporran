@@ -745,7 +745,9 @@ main() {
   solo_group("5. Bulk Document Tests - ", () {
     
     Sporran sporran;
-    
+    String docid1rev;
+    String docid2rev;
+    String docid3rev;
     
     test("Create and Open Sporran", () { 
       
@@ -781,12 +783,15 @@ main() {
         expect(res.payload, isNotNull);
         expect(res.rev, isNotNull);
         expect(res.rev[0], anything);
+        docid1rev = res.rev[0];
         expect(res.rev[1], anything);
+        docid2rev = res.rev[1];
         expect(res.rev[2], anything);
-        Map doc3 = res.payload[2];
-        expect(doc3['docid3'].title, "Document 3");
-        expect(doc3['docid3'].version,3);
-        expect(doc3['docid3'].attribute, "Doc 3 attribute");
+        docid3rev = res.rev[2];
+        JsonObject doc3 = res.payload['docid3'];
+        expect(doc3.title, "Document 3");
+        expect(doc3.version,3);
+        expect(doc3.attribute, "Doc 3 attribute");
         
         
       });
@@ -806,26 +811,137 @@ main() {
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
       
-      Map doc1 = new Map<String, JsonObject>();
-      doc1['docid1'] = document1;
-      Map doc2 = new Map<String, JsonObject>();
-      doc2['docid2'] = document2;
-      Map doc3 = new Map<String, JsonObject>();
-      doc3['docid3'] = document3;
-      
-      List docList = new List<Map<String, JsonObject>>();
-      docList.add(doc1);
-      docList.add(doc2);
-      docList.add(doc3);
+      Map docs = new Map<String, JsonObject>();
+      docs['docid1'] = document1;
+      docs['docid2'] = document2;
+      docs['docid3'] = document3;
       
       sporran.online = true;
       sporran.clientCompleter = wrapper;
-      sporran.bulkCreate(docList);
+      sporran.bulkCreate(docs);
       
       
     });
     
+  test("Bulk Insert Documents Offline", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.localResponse, isTrue);
+        expect(res.operation, Sporran.BULK_CREATE); 
+        expect(res.id, isNull);
+        expect(res.payload, isNotNull);
+        expect(res.rev, isNull);
+        JsonObject doc3 = res.payload['docid3offline'];
+        expect(doc3.title, "Document 3");
+        expect(doc3.version,3);
+        expect(doc3.attribute, "Doc 3 attribute");
+        
+        
+      });
+      
+      JsonObject document1 = new JsonObject();
+      document1.title = "Document 1";
+      document1.version = 1;
+      document1.attribute = "Doc 1 attribute";
+      
+      JsonObject document2 = new JsonObject();
+      document2.title = "Document 2";
+      document2.version = 2;
+      document2.attribute = "Doc 2 attribute";
+      
+      JsonObject document3 = new JsonObject();
+      document3.title = "Document 3";
+      document3.version = 3;
+      document3.attribute = "Doc 3 attribute";
+      
+      Map docs = new Map<String, JsonObject>();
+      docs['docid1offline'] = document1;
+      docs['docid2offline'] = document2;
+      docs['docid3offline'] = document3;
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.bulkCreate(docs);
+      
+      
+    });
+  
+  test("Get All Docs Online", () {  
     
+    var wrapper = expectAsync0((){
+      
+      JsonObject res = sporran.completionResponse;
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isFalse);
+      expect(res.operation, Sporran.GET_ALL_DOCS); 
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      JsonObject successResponse = res.payload;
+      expect(successResponse.total_rows, equals(3));
+      expect(successResponse.rows[0].id, equals('docid1'));
+      expect(successResponse.rows[1].id, equals('docid2'));
+      expect(successResponse.rows[2].id, equals('docid3'));
+      
+    });
+    
+    sporran.online = true;
+    sporran.clientCompleter = wrapper;
+    sporran.getAllDocs(includeDocs:true);
+    
+    
+  }); 
+  
+  test("Get All Docs Offline", () {  
+    
+    var wrapper = expectAsync0((){
+      
+      JsonObject res = sporran.completionResponse;
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isTrue);
+      expect(res.operation, Sporran.GET_ALL_DOCS); 
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.payload.length, 6);
+      expect(res.payload['docid1'].payload.title, "Document 1");
+      expect(res.payload['docid2'].payload.title, "Document 2");
+      expect(res.payload['docid3'].payload.title, "Document 3");
+      expect(res.payload['docid1offline'].payload.title, "Document 1");
+      expect(res.payload['docid2offline'].payload.title, "Document 2");
+      expect(res.payload['docid3offline'].payload.title, "Document 3");
+      
+    });
+    
+    sporran.online = false;
+    sporran.clientCompleter = wrapper;
+    List keys = ['docid1offline', 'docid2offline', 'docid3offline',
+                 'docid1', 'docid2', 'docid3'];
+    
+    sporran.getAllDocs(keys:keys);
+    
+    
+  }); 
+  
+  test("Tidy Up All Docs Online", () {  
+    
+    var wrapper = expectAsync0((){
+  
+    
+    
+    },count:3);
+    
+    sporran.online = true;
+    sporran.clientCompleter = wrapper;
+    sporran.delete('docid1', docid1rev);
+    sporran.delete('docid2', docid2rev);
+    sporran.delete('docid3', docid3rev);
+    
+  });
+  
   });
   
 }

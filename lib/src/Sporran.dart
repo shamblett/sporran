@@ -38,6 +38,7 @@ class Sporran {
   static final GET_ATTACHMENT = "get_attachment";
   static final DELETE_ATTACHMENT = "delete_attachment";
   static final BULK_CREATE ="bulk_create";
+  static final GET_ALL_DOCS ="get_all_docs";
   
   
   /**
@@ -253,9 +254,8 @@ class Sporran {
     
   }
   
-  
   /**
-   * Get from local storage
+   * Get an object from local storage
    */
   Future<JsonObject> _getLocalStorageObject(String key) {
     
@@ -298,6 +298,34 @@ class Sporran {
     });
     
     
+    return completer.future; 
+    
+  }
+  
+  /**
+   * Get multiple objects from local storage
+   */
+  Future<Map<String,JsonObject>> _getLocalStorageObjects(List<String> keys) {
+    
+    var completer = new Completer();
+    Map results = new Map<String, JsonObject>();
+    int keyPos = 0;
+    
+    /**
+     * Try only Lawndart for objects
+     */
+    _database.lawndart.getByKeys(keys).listen((value){
+      
+      JsonObject document = new JsonObject.fromMap(value);
+      results[keys[keyPos]] = document;
+      keyPos++;
+      
+    }, onDone:() {
+      
+      completer.complete(results);
+      
+    });
+        
     return completer.future; 
     
   }
@@ -397,16 +425,15 @@ class Sporran {
                     
               res.ok = false;
               res.payload = null;
-             _completionResponse = _createCompletionResponse(res);
             
             } else {
             
               res.ok = true;
               res.payload = new JsonObject.fromMap(document['payload']);
-              _completionResponse = _createCompletionResponse(res);
           
             }
          
+            _completionResponse = _createCompletionResponse(res);
             _clientCompleter();
             
           });
@@ -420,29 +447,25 @@ class Sporran {
           JsonObject res = _database.wilt.completionResponse;
           res.operation = GET;
           res.id = id;
+          res.localResponse = false;
           if ( !res.error ) {
         
             _updateLocalStorageObject(id,
                             res.jsonCouchResponse,
-                            _UPDATED);
-            res.localResponse = false;     
+                            _UPDATED);  
             res.ok = true;
             res.rev = WiltUserUtils.getDocumentRev(res.jsonCouchResponse);
-            res.payload = res.jsonCouchResponse;
-           
-            _completionResponse = _createCompletionResponse(res);     
+            res.payload = res.jsonCouchResponse;           
             
           } else {
             
-            res.localResponse = false;
-            res.operation = GET;
             res.ok = false;
             res.payload = null;
             res.rev = null;
-            _completionResponse = _createCompletionResponse(res);
             
           }
           
+          _completionResponse = _createCompletionResponse(res);
           _clientCompleter();
           
         };
@@ -739,20 +762,18 @@ class Sporran {
           res.rev = null;
           res.operation = GET_ATTACHMENT;
           if ( document == null ) {
-         
-            
+           
             res.ok = false;
             res.payload = null;
-            _completionResponse = _createCompletionResponse(res);
-         
+           
           } else {
          
             res.ok = true; 
             res.payload = new JsonObject.fromMap(document['payload']);
-            _completionResponse = _createCompletionResponse(res);
          
           }
        
+          _completionResponse = _createCompletionResponse(res);
           _clientCompleter();
           
        });
@@ -810,18 +831,15 @@ class Sporran {
    /**
     * Bulk document create.
     * 
-    * docList is List of documents with their keys
+    * docList is a map of documents with their keys
     */
-   void bulkCreate(List<Map<String, JsonObject>> docList) {
+   void bulkCreate(Map<String, JsonObject> docList) {
      
      
      /* Update LawnDart */
-     docList.forEach((Map<String, JsonObject> docMap) {
-       
-       var keyList = docMap.keys;
-       String id = keyList.first;
-       JsonObject document = docMap[id];
-      _updateLocalStorageObject(id,
+     docList.forEach((key, document) {
+ 
+      _updateLocalStorageObject(key,
            document,
            _NOT_UPDATED);
      });
@@ -855,12 +873,9 @@ class Sporran {
        res.rev = null;
        if ( !res.error) {
          
-         docList.forEach((Map<String, JsonObject> docMap) {
+         docList.forEach((key, document) {
            
-           var keyList = docMap.keys;
-           String id = keyList.first;
-           JsonObject document = docMap[id];
-           _updateLocalStorageObject(id,
+           _updateLocalStorageObject(key,
                document,
                _UPDATED);
          });
@@ -884,13 +899,10 @@ class Sporran {
 
      /* Prepare the documents */
      List documentList = new List<String>();
-     docList.forEach((Map<String, JsonObject> docMap) {
+     docList.forEach((key, document) {
        
-       var keyList = docMap.keys;
-       String id = keyList.first;
-       JsonObject document = docMap[id];
        String docString = WiltUserUtils.addDocumentId(document,
-                                                      id); 
+                                                      key); 
        documentList.add(docString);
        
      });
@@ -905,6 +917,94 @@ class Sporran {
      
    }
    
+   /**
+    * Get all documents.
+    * 
+    * The parameters should be self explanatory and are addative.
+    *
+    * In offline mode only the keys parameter is respected. 
+    * The includeDocs parameter is also forced to true.
+    */
+   void getAllDocs({bool includeDocs:false,
+     int limit:null,
+     String startKey:null,
+     String endKey:null,
+     List<String> keys:null,
+     bool descending:false}) {
+     
+     
+     /* Check for offline, if so try the get from local storage */
+     if ( !online ) {
+       
+       _getLocalStorageObjects(keys)   
+       ..then((documents) {
+         
+         JsonObject res = new JsonObject();
+         res.localResponse = true;
+         res.operation = GET_ALL_DOCS;
+         res.id = null;
+         res.rev = null;
+         if ( documents == null ) {
+           
+           res.ok = false;
+           res.payload = null;
+           
+         } else {
+           
+           res.ok = true;
+           res.payload = documents;
+           
+         }
+         
+         _completionResponse = _createCompletionResponse(res);
+         _clientCompleter();
+         
+       });
+       
+       
+     } else {
+       
+       void completer(){
+         
+         /* If Ok update local storage with the document */       
+         JsonObject res = _database.wilt.completionResponse;
+         res.operation = GET_ALL_DOCS;
+         res.id = null;
+         res.rev = null;
+         res.localResponse = false;  
+         if ( !res.error ) {
+                     
+           res.ok = true;
+           res.payload = res.jsonCouchResponse;
+           
+           
+         } else {
+           
+           res.localResponse = false;
+           res.ok = false;
+           res.payload = null;
+          
+           
+         }
+         
+         _completionResponse = _createCompletionResponse(res);  
+         _clientCompleter();
+         
+       };
+       
+       /* Get the document from CouchDb */
+       _database.wilt.resultCompletion = completer;
+       _database.wilt.getAllDocs(includeDocs:includeDocs,
+                                 limit:limit,
+                                 startKey:startKey,
+                                 endKey:endKey,
+                                 keys:keys,
+                                 descending:descending);
+       
+     }
+     
+     
    
+   }
    
 }
