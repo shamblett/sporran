@@ -97,9 +97,48 @@ class _SporranDatabase {
     }
     
     /**
+     * Connect to CouchDb
+     */
+    _connectToCouch();
+   
+  }
+  
+  /**
+   * Start change notifications
+   */
+  _startChangeNotifications() {
+    
+    WiltChangeNotificationParameters parameters = new WiltChangeNotificationParameters();
+    parameters.includeDocs = true;
+   _wilt.startChangeNotification(parameters);
+   
+   _wilt.changeNotification.listen((e) {
+     
+     _processChange(e);
+     
+   });
+    
+  }
+  
+  /**
+   * Change notification processor
+   */
+  _processChange(WiltChangeNotificationEvent e) {
+    
+    
+    
+    
+  }
+  
+  /**
+   * Create and/or connect to CouchDb
+   */
+  _connectToCouch() {
+    
+    
+    /**
      * If the CouchDb database does not exist create it.
      */
-    
     void createCompleter() {
       
       
@@ -115,12 +154,17 @@ class _SporranDatabase {
         
       }
       
+      /**
+       * Start change notifications 
+       */
+      _startChangeNotifications();
+      
+      /**
+       * Signal we are ready
+       */
       Event e = new Event.eventType('Event', 'ready');
       _onReady.add(e);
       
-      /**
-       * TODO start change notifications here
-       */
       
     };
     
@@ -140,6 +184,15 @@ class _SporranDatabase {
           
           _wilt.db = _dbName;
           _noCouchDb = false;
+          
+          /**
+           * Start change notifications 
+           */
+          _startChangeNotifications();
+          
+         /**
+          * Signal we are ready
+          */
           Event e = new Event.eventType('Event', 'ready');
           _onReady.add(e);
           
@@ -157,7 +210,8 @@ class _SporranDatabase {
     
    _wilt.resultCompletion = allCompleter;
    _wilt.getAllDbs();
-   
+    
+    
   }
   
   /**
