@@ -39,6 +39,7 @@ class Sporran {
   static final DELETE_ATTACHMENT = "delete_attachment";
   static final BULK_CREATE ="bulk_create";
   static final GET_ALL_DOCS ="get_all_docs";
+  static final DB_INFO ="db_info";
   
   
   /**
@@ -1002,9 +1003,71 @@ class Sporran {
                                  descending:descending);
        
      }
-     
-     
    
+   }
+   
+   /**
+    * Get information about the database.
+    * 
+    * When offline the a list of the keys in the Lawndart database are returned, 
+    * otherwise a response for CouchDb is returned.
+    */
+   void getDatabaseInfo() {
+     
+     if ( !online ) {
+       
+       _database.lawndart.keys().toList()
+       ..then((List keys) {
+         
+         JsonObject res = new JsonObject();
+         res.localResponse = true;
+         res.operation = DB_INFO;
+         res.id = null;
+         res.rev = null;
+         res.payload = keys;
+         res.ok = true;
+         _completionResponse = _createCompletionResponse(res);  
+         _clientCompleter();
+         return;
+         
+       });
+       
+     } else {
+       
+       
+       void completer(){
+         
+         /* If Ok update local storage with the database info */       
+         JsonObject res = _database.wilt.completionResponse;
+         res.operation = DB_INFO;
+         res.id = null;
+         res.rev = null;
+         res.localResponse = false;  
+         if ( !res.error ) {
+                     
+           res.ok = true;
+           res.payload = res.jsonCouchResponse;
+           
+           
+         } else {
+           
+           res.localResponse = false;
+           res.ok = false;
+           res.payload = null;
+               
+         }
+         
+         _completionResponse = _createCompletionResponse(res);  
+         _clientCompleter();
+         
+       };
+       
+       /* Get the database information from CouchDb */
+       _database.wilt.resultCompletion = completer;
+       _database.wilt.getDatabaseInfo();
+       
+     }
+       
    }
    
 }

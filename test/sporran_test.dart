@@ -926,6 +926,59 @@ main() {
     
   }); 
   
+    test("Get Database Info Offline", () {  
+    
+    var wrapper = expectAsync0((){
+      
+      JsonObject res = sporran.completionResponse;
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isTrue);
+      expect(res.operation, Sporran.DB_INFO); 
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.payload.length, 6);
+      expect(res.payload.contains('docid1'), isTrue);
+      expect(res.payload.contains('docid2'), isTrue);
+      expect(res.payload.contains('docid3'), isTrue);
+      expect(res.payload.contains('docid1offline'), isTrue);
+      expect(res.payload.contains('docid2offline'), isTrue);
+      expect(res.payload.contains('docid3offline'), isTrue);
+      
+    });
+    
+    sporran.online = false;
+    sporran.clientCompleter = wrapper;
+    
+    sporran.getDatabaseInfo();
+    
+    
+  }); 
+  
+    test("Get Database Info Online", () {  
+      
+      var wrapper = expectAsync0((){
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.localResponse, isFalse);
+        expect(res.operation, Sporran.DB_INFO); 
+        expect(res.id, isNull);
+        expect(res.rev, isNull);
+        expect(res.payload, isNotNull);
+        expect(res.payload.doc_count, 3);
+        expect(res.payload.db_name, databaseName);    
+        
+      });
+      
+      sporran.online = true;
+      sporran.clientCompleter = wrapper;
+      
+      sporran.getDatabaseInfo();
+      
+      
+    }); 
+    
   test("Tidy Up All Docs Online", () {  
     
     var wrapper = expectAsync0((){
