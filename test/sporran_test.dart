@@ -455,7 +455,7 @@ main() {
   });
   
   /* Group 4 - Sporran attachment put/get tests */
-  solo_group("4. Attachment Put/Get/Delete Tests - ", () {
+  group("4. Attachment Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -739,6 +739,93 @@ main() {
       
     });
   
+  });
+  
+  /* Group 5 - Sporran Bulk Documents tests */
+  solo_group("5. Bulk Document Tests - ", () {
+    
+    Sporran sporran;
+    
+    
+    test("Create and Open Sporran", () { 
+      
+    
+    var wrapper = expectAsync0(() {
+      
+      expect(sporran.dbName, databaseName);
+      expect(sporran.lawnIsOpen, isTrue);
+      
+    });
+    
+    sporran = new Sporran(databaseName,
+        hostName,
+        port,
+        scheme,
+        userName,
+        userPassword);
+    
+    
+    sporran.onReady.listen((e) => wrapper());  
+  
+    });
+    
+    test("Bulk Insert Documents Online", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.localResponse, isFalse);
+        expect(res.operation, Sporran.BULK_CREATE); 
+        expect(res.id, isNull);
+        expect(res.payload, isNotNull);
+        expect(res.rev, isNotNull);
+        expect(res.rev[0], anything);
+        expect(res.rev[1], anything);
+        expect(res.rev[2], anything);
+        Map doc3 = res.payload[2];
+        expect(doc3['docid3'].title, "Document 3");
+        expect(doc3['docid3'].version,3);
+        expect(doc3['docid3'].attribute, "Doc 3 attribute");
+        
+        
+      });
+      
+      JsonObject document1 = new JsonObject();
+      document1.title = "Document 1";
+      document1.version = 1;
+      document1.attribute = "Doc 1 attribute";
+      
+      JsonObject document2 = new JsonObject();
+      document2.title = "Document 2";
+      document2.version = 2;
+      document2.attribute = "Doc 2 attribute";
+      
+      JsonObject document3 = new JsonObject();
+      document3.title = "Document 3";
+      document3.version = 3;
+      document3.attribute = "Doc 3 attribute";
+      
+      Map doc1 = new Map<String, JsonObject>();
+      doc1['docid1'] = document1;
+      Map doc2 = new Map<String, JsonObject>();
+      doc2['docid2'] = document2;
+      Map doc3 = new Map<String, JsonObject>();
+      doc3['docid3'] = document3;
+      
+      List docList = new List<Map<String, JsonObject>>();
+      docList.add(doc1);
+      docList.add(doc2);
+      docList.add(doc3);
+      
+      sporran.online = true;
+      sporran.clientCompleter = wrapper;
+      sporran.bulkCreate(docList);
+      
+      
+    });
+    
+    
   });
   
 }

@@ -37,6 +37,8 @@ class Sporran {
   static final PUT_ATTACHMENT = "put_attachment";
   static final GET_ATTACHMENT = "get_attachment";
   static final DELETE_ATTACHMENT = "delete_attachment";
+  static final BULK_CREATE ="bulk_create";
+  
   
   /**
    * Database
@@ -186,7 +188,7 @@ class Sporran {
     
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
-    update.type = _NOT_UPDATED;
+    update.status = _UPDATED;
     update.payload = payload;
     return update;
     
@@ -201,7 +203,7 @@ class Sporran {
     
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
-    update.type = _UPDATED;
+    update.status = _NOT_UPDATED;
     update.payload = payload;
     return update;
     
@@ -210,11 +212,14 @@ class Sporran {
   
   
   /**
-   * Update local storage
+   * Update local storage.
+   * 
+   * This will eventually become consistent, no need to wait on the future 
+   * completion
    */
   void _updateLocalStorageObject(String key,
                        JsonObject update,
-                       String updateType) {
+                       String updateStatus) {
     
     /* Check for not initialized */
     if ( (_database.lawndart == null) || 
@@ -224,7 +229,7 @@ class Sporran {
     
     /* Do the update */
     JsonObject localUpdate = new JsonObject();
-    if ( updateType == _NOT_UPDATED) {
+    if ( updateStatus == _NOT_UPDATED) {
       localUpdate = _createNotUpdated(key,
                                       update);
     } else {
@@ -239,8 +244,12 @@ class Sporran {
      */
     _database.put(key, localUpdate);
     _database._lawndart.save(localUpdate, key)
-    ..then((String key) => _database.remove(key));
+    ..then((String key) {
       
+      _database.remove(key);
+      
+    });
+  
     
   }
   
@@ -341,6 +350,7 @@ class Sporran {
         _updateLocalStorageObject(id,
             document,
             _UPDATED);
+        
         res.ok = true;
        
         res.rev = res.jsonCouchResponse.rev;
@@ -793,6 +803,104 @@ class Sporran {
                                     attachmentName);
        
      }
+     
+     
+   }
+   
+   /**
+    * Bulk document create.
+    * 
+    * docList is List of documents with their keys
+    */
+   void bulkCreate(List<Map<String, JsonObject>> docList) {
+     
+     
+     /* Update LawnDart */
+     docList.forEach((Map<String, JsonObject> docMap) {
+       
+       var keyList = docMap.keys;
+       String id = keyList.first;
+       JsonObject document = docMap[id];
+      _updateLocalStorageObject(id,
+           document,
+           _NOT_UPDATED);
+     });
+     
+     /* If we are offline just return */
+     if ( !online ) {
+       
+       JsonObject res = new JsonObject();
+       res.localResponse = true;
+       res.operation = BULK_CREATE;
+       res.ok = true;
+       res.payload = docList;
+       res.id = null;
+       res.rev = null;
+       _completionResponse = _createCompletionResponse(res);
+       _clientCompleter();
+       return;
+       
+     }
+     
+     /* Complete locally, then boomerang to the client */
+     void completer() {
+       
+       /* If success, mark the update as UPDATED in local storage */
+       JsonObject res = _database.wilt.completionResponse;
+       res.ok = false;
+       res.localResponse = false;
+       res.operation = BULK_CREATE;
+       res.id = null;
+       res.payload = docList;
+       res.rev = null;
+       if ( !res.error) {
+         
+         docList.forEach((Map<String, JsonObject> docMap) {
+           
+           var keyList = docMap.keys;
+           String id = keyList.first;
+           JsonObject document = docMap[id];
+           _updateLocalStorageObject(id,
+               document,
+               _UPDATED);
+         });
+         
+         List revisions = new List<String>();
+         JsonObject couchResp = res.jsonCouchResponse;
+         couchResp.forEach((resp){
+           
+           revisions.add(resp.rev);
+           
+         });
+         res.rev = revisions;
+         res.ok = true;
+               
+       } 
+       
+       _completionResponse = _createCompletionResponse(res);
+       _clientCompleter();
+       
+     };
+
+     /* Prepare the documents */
+     List documentList = new List<String>();
+     docList.forEach((Map<String, JsonObject> docMap) {
+       
+       var keyList = docMap.keys;
+       String id = keyList.first;
+       JsonObject document = docMap[id];
+       String docString = WiltUserUtils.addDocumentId(document,
+                                                      id); 
+       documentList.add(docString);
+       
+     });
+     
+     String docs = WiltUserUtils.createBulkInsertString(documentList);
+        
+     /* Do the bulk create*/
+     _database.wilt.completionResponse;
+     _database.wilt.resultCompletion = completer;
+     _database.wilt.bulkString(docs);
      
      
    }
