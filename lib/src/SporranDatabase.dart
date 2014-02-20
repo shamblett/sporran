@@ -210,11 +210,18 @@ class _SporranDatabase {
     if ( e.type == WiltChangeNotificationEvent.UPDATE ) {
       
       
+      updateLocalStorageObject(e.docId,
+                               e.document,
+                               UPDATED);
       
     } else {
       
+      /* Tidy up any pending deletes */
+      removePendingDelete(e.docId);
       
-      
+      /* Do the delete */
+      remove(e.docId);
+      _lawndart.removeByKey(e.docId);
       
     }
     
