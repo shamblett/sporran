@@ -12,6 +12,7 @@ import 'dart:html';
 
 import '../lib/sporran.dart';
 import 'package:json_object/json_object.dart';
+import 'package:wilt/wilt.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
 import 'sporran_test_config.dart';
@@ -742,7 +743,7 @@ main() {
   });
   
   /* Group 5 - Sporran Bulk Documents tests */
-  solo_group("5. Bulk Document Tests - ", () {
+  group("5. Bulk Document Tests - ", () {
     
     Sporran sporran;
     String docid1rev;
@@ -994,6 +995,346 @@ main() {
     sporran.delete('docid3', docid3rev);
     
   });
+  
+  });
+  
+  /* Group 6 - Sporran Change notification tests */
+  solo_group("6. Change notification Tests - ", () {
+    
+    Sporran sporran;
+    
+    /* We use Wilt here to change the CouchDb database independently
+     * of Sporran, these change will be picked up in change notifications.
+     */
+    
+    /* Create our Wilt */
+    Wilt wilting = new Wilt(hostName, 
+        port,
+        scheme);
+   
+   /* Login if we are using authentication */
+    if ( userName != null ) {
+      
+      wilting.login(userName,
+                    userPassword);
+    }
+    
+    wilting.db = databaseName;
+    String docId1Rev;
+    String docId2Rev;
+    String docId3Rev;
+    
+    test("Create and Open Sporran", () { 
+      
+    
+    var wrapper = expectAsync0(() {
+      
+      expect(sporran.dbName, databaseName);
+      expect(sporran.lawnIsOpen, isTrue);
+      sporran.online = true;
+      
+    });
+    
+    sporran = new Sporran(databaseName,
+        hostName,
+        port,
+        scheme,
+        userName,
+        userPassword);
+    
+    
+    sporran.onReady.listen((e) => wrapper());  
+  
+    });
+    
+    test("Wilt - Bulk Insert Supplied Keys", () {  
+      
+      var completer = expectAsync0((){
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Bulk Insert Supplied Keys");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse[0].id, equals("MyBulkId1"));
+        expect(successResponse[1].id, equals("MyBulkId2")); 
+        expect(successResponse[2].id, equals("MyBulkId3"));
+        docId1Rev = successResponse[0].rev;
+        docId2Rev = successResponse[1].rev;
+        docId3Rev = successResponse[2].rev;
+        
+      });
+      
+      wilting.resultCompletion = completer;
+      
+      JsonObject document1 = new JsonObject();
+      document1.title = "Document 1";
+      document1.version = 1;
+      document1.attribute = "Doc 1 attribute";
+      String doc1 = WiltUserUtils.addDocumentId(document1, 
+      "MyBulkId1");
+      JsonObject document2 = new JsonObject();
+      document2.title = "Document 2";
+      document2.version = 2;
+      document2.attribute = "Doc 2 attribute";
+      String doc2 = WiltUserUtils.addDocumentId(document2,
+      "MyBulkId2");
+      JsonObject document3 = new JsonObject();
+      document3.title = "Document 3";
+      document3.version = 3;
+      document3.attribute = "Doc 3 attribute";
+      String doc3 = WiltUserUtils.addDocumentId(document3,
+      "MyBulkId3");       
+      List docList = new List<String>();
+      docList.add(doc1);
+      docList.add(doc2);
+      docList.add(doc3);
+      String docs = WiltUserUtils.createBulkInsertString(docList);
+      wilting.bulkString(docs);    
+      
+    });  
+    
+    /* Pause a little for the notifications to come through */
+    test("Notification Pause", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        
+      });
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });
+    
+    /* Go offline and get our created documents, from local storage */
+    test("Get Document Offline MyBulkId1", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        expect(res.id, "MyBulkId1");
+        expect(res.payload.title, "Document 1");
+        expect(res.payload.version,1);
+        expect(res.payload.attribute, "Doc 1 attribute");
+        
+      });
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.get("MyBulkId1");
+    
+    
+  });
+  
+  test("Get Document Offline MyBulkId2", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        expect(res.id, "MyBulkId2");
+        expect(res.payload.title, "Document 2");
+        expect(res.payload.version,2);
+        expect(res.payload.attribute, "Doc 2 attribute");
+        
+      });
+     
+      sporran.clientCompleter = wrapper;
+      sporran.get("MyBulkId2");
+    
+  });
+  
+  test("Get Document Offline MyBulkId3", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        expect(res.id, "MyBulkId3");
+        expect(res.payload.title, "Document 3");
+        expect(res.payload.version,3);
+        expect(res.payload.attribute, "Doc 3 attribute");
+        
+      });
+     
+      sporran.clientCompleter = wrapper;
+      sporran.get("MyBulkId3");
+    
+  });
+  
+  test("Wilt - Delete Document MyBulkId1", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Delete Document MyBulkId1");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.id, "MyBulkId1");
+        
+      });
+      
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId1", docId1Rev);
+    
+  });
+  
+  test("Wilt - Delete Document MyBulkId2", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Delete Document MyBulkId2");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.id, "MyBulkId2");
+        
+      });
+      
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId2", docId2Rev);
+    
+  });
+  
+  test("Wilt - Delete Document MyBulkId3", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Delete Document MyBulkId3");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.id, "MyBulkId3");
+        
+      });
+      
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId3", docId3Rev);
+    
+  });
+  
+    /* Pause a little for the notifications to come through */
+    test("Notification Pause", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        
+      });
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });
+    
+    /* Go offline and get our created documents, from local storage */
+    test("Get Document Offline Deleted MyBulkId1", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        
+      });
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.get("MyBulkId1");
+    
+    
+  });
+  
+  test("Get Document Offline Deleted MyBulkId2", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        
+      });
+     
+      sporran.clientCompleter = wrapper;
+      sporran.get("MyBulkId2");
+    
+  });
+  
+  test("Get Document Offline Deleted MyBulkId3", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        
+      });
+     
+      sporran.clientCompleter = wrapper;
+      sporran.get("MyBulkId3");
+    
+  });
+  
+  
   
   });
   
