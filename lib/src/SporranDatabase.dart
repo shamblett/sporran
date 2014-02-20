@@ -13,6 +13,9 @@ part of sporran;
 
 class _SporranDatabase {
   
+  static final NOT_UPDATED = "not_updated";
+  static final UPDATED = "updated";
+  
   /**
    * The Wilt database
    */
@@ -55,6 +58,79 @@ class _SporranDatabase {
    */
   final _onReady = new StreamController.broadcast();
   Stream get onReady => _onReady.stream;
+  
+  
+  /**
+   * Create local storage updated entry 
+   */
+  JsonObject _createUpdated(String key,
+                           JsonObject payload) {
+    
+    /* Add our type marker and set to 'not updated' */
+    JsonObject update = new JsonObject();
+    update.status = UPDATED;
+    update.payload = payload;
+    return update;
+    
+    
+  }
+  
+  /**
+   * Create local storage not updated entry
+   */
+  JsonObject _createNotUpdated(String key,
+                               JsonObject payload) {
+    
+    /* Add our type marker and set to 'not updated' */
+    JsonObject update = new JsonObject();
+    update.status = NOT_UPDATED;
+    update.payload = payload;
+    return update;
+    
+    
+  }
+  
+  /**
+   * Update local storage.
+   * 
+   * This will eventually become consistent, no need to wait on the future 
+   * completion
+   */
+  void updateLocalStorageObject(String key,
+                                JsonObject update,
+                                String updateStatus) {
+    
+    /* Check for not initialized */
+    if ( (lawndart == null) || 
+         (!lawndart.isOpen ) )
+      throw new SporranException("Initialisation Failure, Lawndart is not initialized");
+    
+    
+    /* Do the update */
+    JsonObject localUpdate = new JsonObject();
+    if ( updateStatus == NOT_UPDATED) {
+      localUpdate = _createNotUpdated(key,
+                                      update);
+    } else {
+      localUpdate = _createUpdated(key,
+          update);
+    }
+    
+    /**
+     * Update the hot cache, then Lawndart.
+     * When Lawndart has saved the item remove it from the
+     * hot cache.
+     */
+    put(key, localUpdate);
+    _lawndart.save(localUpdate, key)
+    ..then((String key) {
+      
+      remove(key);
+      
+    });
+  
+    
+  }
   
   /**
    * Construction, for Wilt we need URL and authentication parameters.
@@ -126,6 +202,21 @@ class _SporranDatabase {
   _processChange(WiltChangeNotificationEvent e) {
     
     
+    /* Ignore error events */
+    if ( !(e.type == WiltChangeNotificationEvent.UPDATE ||
+           e.type == WiltChangeNotificationEvent.DELETE) ) return;
+    
+    /* Process the update or delete event */
+    if ( e.type == WiltChangeNotificationEvent.UPDATE ) {
+      
+      
+      
+    } else {
+      
+      
+      
+      
+    }
     
     
   }

@@ -27,8 +27,7 @@ class Sporran {
   /**
    * Constants
    */
-  static final _NOT_UPDATED = "not_updated";
-  static final _UPDATED = "updated";
+  
   static final _ATTACHMENTMARKER = "sporranAttachment";
   
   static final PUT = "put";
@@ -182,78 +181,7 @@ class Sporran {
       
   }
   
-  /**
-   * Create local storage updated entry 
-   */
-  JsonObject _createUpdated(String key,
-                           JsonObject payload) {
-    
-    /* Add our type marker and set to 'not updated' */
-    JsonObject update = new JsonObject();
-    update.status = _UPDATED;
-    update.payload = payload;
-    return update;
-    
-    
-  }
   
-  /**
-   * Create local storage not updated entry
-   */
-  JsonObject _createNotUpdated(String key,
-                               JsonObject payload) {
-    
-    /* Add our type marker and set to 'not updated' */
-    JsonObject update = new JsonObject();
-    update.status = _NOT_UPDATED;
-    update.payload = payload;
-    return update;
-    
-    
-  }
-  
-  
-  /**
-   * Update local storage.
-   * 
-   * This will eventually become consistent, no need to wait on the future 
-   * completion
-   */
-  void _updateLocalStorageObject(String key,
-                       JsonObject update,
-                       String updateStatus) {
-    
-    /* Check for not initialized */
-    if ( (_database.lawndart == null) || 
-         (!_database.lawndart.isOpen ) )
-      throw new SporranException("Initialisation Failure, Lawndart is not initialized");
-    
-    
-    /* Do the update */
-    JsonObject localUpdate = new JsonObject();
-    if ( updateStatus == _NOT_UPDATED) {
-      localUpdate = _createNotUpdated(key,
-                                      update);
-    } else {
-      localUpdate = _createUpdated(key,
-          update);
-    }
-    
-    /**
-     * Update the hot cache, then Lawndart.
-     * When Lawndart has saved the item remove it from the
-     * hot cache.
-     */
-    _database.put(key, localUpdate);
-    _database._lawndart.save(localUpdate, key)
-    ..then((String key) {
-      
-      _database.remove(key);
-      
-    });
-  
-    
-  }
   
   /**
    * Get an object from local storage
@@ -343,9 +271,9 @@ class Sporran {
            [String rev = null]){
     
     /* Update LawnDart */
-    _updateLocalStorageObject(id,
+    _database.updateLocalStorageObject(id,
                     document,
-                    _NOT_UPDATED);
+                    _SporranDatabase.NOT_UPDATED);
     
     
     /* If we are offline just return */
@@ -376,9 +304,9 @@ class Sporran {
       res.payload = document;
       if ( !res.error) {
         
-        _updateLocalStorageObject(id,
+        _database.updateLocalStorageObject(id,
             document,
-            _UPDATED);
+            _SporranDatabase.UPDATED);
         
         res.ok = true;
        
@@ -451,9 +379,9 @@ class Sporran {
           res.localResponse = false;
           if ( !res.error ) {
         
-            _updateLocalStorageObject(id,
+            _database.updateLocalStorageObject(id,
                             res.jsonCouchResponse,
-                            _UPDATED);  
+                            _SporranDatabase.UPDATED);  
             res.ok = true;
             res.rev = WiltUserUtils.getDocumentRev(res.jsonCouchResponse);
             res.payload = res.jsonCouchResponse;           
@@ -582,9 +510,9 @@ class Sporran {
      
      /* Update LawnDart */
      String key = "$id-${attachment.attachmentName}-$_ATTACHMENTMARKER";
-     _updateLocalStorageObject(key,
+     _database.updateLocalStorageObject(key,
          attachment,
-         _NOT_UPDATED);
+         _SporranDatabase.NOT_UPDATED);
      
      
      /* If we are offline just return */
@@ -611,9 +539,9 @@ class Sporran {
        res.ok = false;
        if ( !res.error) {
          
-         _updateLocalStorageObject(key,
+         _database.updateLocalStorageObject(key,
              attachment,
-             _UPDATED);
+             _SporranDatabase.UPDATED);
          res.ok = true;
          
        }
@@ -802,9 +730,9 @@ class Sporran {
            attachment.payload = res.responseText;
            res.payload = attachment;
             
-           _updateLocalStorageObject(key,
+           _database.updateLocalStorageObject(key,
                attachment,
-               _UPDATED);
+               _SporranDatabase.UPDATED);
            
          } else {
            
@@ -840,9 +768,9 @@ class Sporran {
      /* Update LawnDart */
      docList.forEach((key, document) {
  
-      _updateLocalStorageObject(key,
+      _database.updateLocalStorageObject(key,
            document,
-           _NOT_UPDATED);
+           _SporranDatabase.NOT_UPDATED);
      });
      
      /* If we are offline just return */
@@ -876,9 +804,9 @@ class Sporran {
          
          docList.forEach((key, document) {
            
-           _updateLocalStorageObject(key,
+           _database.updateLocalStorageObject(key,
                document,
-               _UPDATED);
+               _SporranDatabase.UPDATED);
          });
          
          List revisions = new List<String>();
