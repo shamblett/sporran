@@ -13,8 +13,39 @@ part of sporran;
 
 class _SporranDatabase {
   
+  /**
+   * Constants
+   */
   static final NOT_UPDATED = "not_updated";
   static final UPDATED = "updated";
+  static final ATTACHMENTMARKER = "sporranAttachment";
+  
+  /** 
+   * Host name
+   */
+  String _host = null;  
+  String get host => _host;
+  
+  /** 
+   * Port number
+   */
+  String _port = null; 
+  String get port => _port;
+  
+  /** 
+   * HTTP scheme
+   */
+  String _scheme = null; 
+  String get scheme => _scheme;
+  
+  /**
+   *  Authentication, user name
+   */
+  String _user = null; 
+  /**
+   *  Authentication, user password
+   */
+  String _password = null;   
   
   /**
    * The Wilt database
@@ -137,11 +168,11 @@ class _SporranDatabase {
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
   _SporranDatabase(this._dbName,
-                  String hostName,
-                  [String port = "5984",
-                   String scheme = "http://",
-                   String userName = null,
-                   String password = null]) {
+                   this._host,
+                  [this._port = "5984",
+                   this._scheme = "http://",
+                   this._user = null,
+                   this._password = null]) {
     
     
     /**
@@ -162,14 +193,14 @@ class _SporranDatabase {
     /**
      * Instantiate a Wilt object
      */
-    _wilt = new Wilt(hostName,
-                     port,
-                     scheme);
+    _wilt = new Wilt(_host,
+                     _port,
+                     _scheme);
     
-    if ( userName != null ) {
+    if ( _user != null ) {
       
-      _wilt.login(userName,
-                  password);
+      _wilt.login(_user,
+                  _password);
     }
     
     /**
@@ -214,14 +245,20 @@ class _SporranDatabase {
                                e.document,
                                UPDATED);
       
+      /* Now update the attachments */
+      deleteDocumentAttachments(e.docId,
+                                e.document);
+      updateDocumentAttachments(e.docId,
+                                e.document);
+      
     } else {
       
       /* Tidy up any pending deletes */
       removePendingDelete(e.docId);
       
       /* Do the delete */
-      remove(e.docId);
-      _lawndart.removeByKey(e.docId);
+      _lawndart.removeByKey(e.docId)
+      ..then((key) =>  remove(e.docId));
       
     }
     
@@ -391,4 +428,95 @@ class _SporranDatabase {
     
   }
   
+  /**
+   * Remove deleted document attachments from local storage
+   */
+  void deleteDocumentAttachments(String id,
+                                 JsonObject document) {
+    
+    
+   /* Get a list of attachments from the document */   
+   List attachments = WiltUserUtils.getAttachments(document);
+   
+   /* Exit if none */
+   if ( attachments.length == 0 ) return;
+   
+   /* Remove deleted ones */
+   attachments.forEach((attachment) {
+     
+     String key = "$id-${attachment.name}-$ATTACHMENTMARKER";
+     _lawndart.exists(key)
+     ..then((exists) {
+       
+       if ( !exists ) {
+         
+         _lawndart.removeByKey(key)
+         ..then((key) => remove(key));
+         
+         removePendingDelete(key);
+         
+       }
+       
+     });     
+     
+   });
+    
+  }
+  
+ /**
+  * Update document attachments 
+  */
+  void updateDocumentAttachments(String id,
+                                 JsonObject document) {
+    
+    /* Get a list of attachments from the document */   
+    List attachments = WiltUserUtils.getAttachments(document);
+    
+    /* Exit if none */
+    if ( attachments.length == 0 ) return;
+    
+    /* Create our own Wilt instance */
+    Wilt wilting = new Wilt(_host, 
+                            _port,
+                            _scheme);
+   
+   /* Login if we are using authentication */
+    if ( _user != null ) {
+      
+      wilting.login(_user,
+                    _password);
+    }
+    /* Get and update all the attachments */
+    attachments.forEach((attachment) {
+      
+      void completer() {
+        
+        JsonObject res = _wilt.completionResponse;
+        if ( !res.error ) {
+          
+          JsonObject successResponse = res.jsonCouchResponse;
+          JsonObject newAttachment = new JsonObject();
+          newAttachment.attachmentName = attachment.name;
+          newAttachment.rev = WiltUserUtils.getDocumentRev(document);
+          newAttachment.contentType = successResponse.contentType;
+          newAttachment.payload = successResponse.responseText;
+          String key = "$id-${attachment.attachmentName}-${_SporranDatabase.ATTACHMENTMARKER}";
+          updateLocalStorageObject(key,
+              newAttachment,
+              _SporranDatabase.UPDATED);
+        
+        }
+        
+      }
+      
+      /* Get the attachment */
+      wilting.db = _dbName;
+      wilting.resultCompletion = completer;
+      wilting.getAttachment(id, 
+                          attachment.name);
+        
+    });
+    
+    
+  }
 }

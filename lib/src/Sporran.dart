@@ -27,9 +27,6 @@ class Sporran {
   /**
    * Constants
    */
-  
-  static final _ATTACHMENTMARKER = "sporranAttachment";
-  
   static final PUT = "put";
   static final GET = "get";
   static final DELETE = "delete";
@@ -509,7 +506,7 @@ class Sporran {
      
      
      /* Update LawnDart */
-     String key = "$id-${attachment.attachmentName}-$_ATTACHMENTMARKER";
+     String key = "$id-${attachment.attachmentName}-${_SporranDatabase.ATTACHMENTMARKER}";
      _database.updateLocalStorageObject(key,
          attachment,
          _SporranDatabase.NOT_UPDATED);
@@ -537,21 +534,27 @@ class Sporran {
        /* If success, mark the update as UPDATED in local storage */
        JsonObject res = _database.wilt.completionResponse;
        res.ok = false;
+       res.localResponse = false;
+       res.id = id;
+       res.operation = PUT_ATTACHMENT;
+       res.rev = null;
+       res.payload = null;
+      
        if ( !res.error) {
          
+         JsonObject newAttachment = new JsonObject.fromMap(attachment); 
+         newAttachment.contentType = attachment.contentType;
+         newAttachment.payload = attachment.payload;
+         newAttachment.attachmentName = attachment.attachmentName;
+         res.payload = newAttachment;  
+         res.rev = res.jsonCouchResponse.rev;
+         newAttachment.rev = res.jsonCouchResponse.rev;
          _database.updateLocalStorageObject(key,
-             attachment,
+             newAttachment,
              _SporranDatabase.UPDATED);
          res.ok = true;
          
        }
-       res.localResponse = false;
-       res.id = id;
-       res.operation = PUT_ATTACHMENT;
-       JsonObject newAttachment = new JsonObject.fromMap(attachment);
-       newAttachment.rev = res.jsonCouchResponse.rev;
-       res.rev = res.jsonCouchResponse.rev;
-       res.payload = newAttachment;
        _completionResponse = _createCompletionResponse(res);
        _clientCompleter();
        return;
@@ -590,7 +593,7 @@ class Sporran {
                          String attachmentName,
                          String rev) { 
      
-     String key = "$id-$attachmentName-$_ATTACHMENTMARKER";
+     String key = "$id-$attachmentName-${_SporranDatabase.ATTACHMENTMARKER}";
      
      /* Remove from the hot cache */
      _database.remove(key);
@@ -677,7 +680,7 @@ class Sporran {
    void getAttachment(String id,
                       String attachmentName) {
      
-     String key = "$id-$attachmentName-$_ATTACHMENTMARKER";
+     String key = "$id-$attachmentName-${_SporranDatabase.ATTACHMENTMARKER}";
      
      /* Check for offline, if so try the get from local storage */
      if ( !online ) {

@@ -999,7 +999,7 @@ main() {
   });
   
   /* Group 6 - Sporran Change notification tests */
-  solo_group("6. Change notification Tests - ", () {
+  group("6. Change notification Tests Documents - ", () {
     
     Sporran sporran;
     
@@ -1334,8 +1334,206 @@ main() {
     
   });
   
+  });
   
+  /* Group 7 - Sporran Change notification tests */
+  solo_group("7. Change notification Tests Attachments - ", () {
+    
+    Sporran sporran;
+    
+    /* We use Wilt here to change the CouchDb database independently
+     * of Sporran, these change will be picked up in change notifications.
+     */
+    
+    /* Create our Wilt */
+    Wilt wilting = new Wilt(hostName, 
+        port,
+        scheme);
+   
+   /* Login if we are using authentication */
+    if ( userName != null ) {
+      
+      wilting.login(userName,
+                    userPassword);
+    }
+    
+    wilting.db = databaseName;
+    String docId1Rev;
+    String docId2Rev;
+    String docId3Rev;
+    String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'+
+        'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'+
+        'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'+
+        '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+    
+    test("Create and Open Sporran", () { 
+      
+    
+    var wrapper = expectAsync0(() {
+      
+      expect(sporran.dbName, databaseName);
+      expect(sporran.lawnIsOpen, isTrue);
+      sporran.online = true;
+      
+    });
+    
+    sporran = new Sporran(databaseName,
+        hostName,
+        port,
+        scheme,
+        userName,
+        userPassword);
+    
+    
+    sporran.onReady.listen((e) => wrapper());  
   
+    });
+    
+    test("Wilt - Bulk Insert Supplied Keys", () {  
+      
+      var completer = expectAsync0((){
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Bulk Insert Supplied Keys");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse[0].id, equals("MyBulkId1"));
+        expect(successResponse[1].id, equals("MyBulkId2")); 
+        expect(successResponse[2].id, equals("MyBulkId3"));
+        docId1Rev = successResponse[0].rev;
+        docId2Rev = successResponse[1].rev;
+        docId3Rev = successResponse[2].rev;
+        
+      });
+      
+      wilting.resultCompletion = completer;
+      
+      JsonObject document1 = new JsonObject();
+      document1.title = "Document 1";
+      document1.version = 1;
+      document1.attribute = "Doc 1 attribute";
+      String doc1 = WiltUserUtils.addDocumentId(document1, 
+      "MyBulkId1");
+      JsonObject document2 = new JsonObject();
+      document2.title = "Document 2";
+      document2.version = 2;
+      document2.attribute = "Doc 2 attribute";
+      String doc2 = WiltUserUtils.addDocumentId(document2,
+      "MyBulkId2");
+      JsonObject document3 = new JsonObject();
+      document3.title = "Document 3";
+      document3.version = 3;
+      document3.attribute = "Doc 3 attribute";
+      String doc3 = WiltUserUtils.addDocumentId(document3,
+      "MyBulkId3");       
+      List docList = new List<String>();
+      docList.add(doc1);
+      docList.add(doc2);
+      docList.add(doc3);
+      String docs = WiltUserUtils.createBulkInsertString(docList);
+      wilting.bulkString(docs);    
+      
+    });  
+    
+    /* Pause a little for the notifications to come through */
+    test("Notification Pause", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        
+      });
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });
+    
+    test("Create Attachment Online MyBulkId1 Attachment 1", () { 
+      
+      var wrapper = expectAsync0(() {
+      
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.PUT_ATTACHMENT); 
+        expect(res.id, "MyBulkId1");
+        expect(res.localResponse, isFalse);
+        expect(res.rev, anything);
+        docId1Rev = res.rev;
+        expect(res.payload.attachmentName,"AttachmentName1");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
+      
+      });
+    
+    sporran.online = true;
+    sporran.clientCompleter = wrapper;
+    JsonObject attachment = new JsonObject();
+    attachment.attachmentName = "AttachmentName1";
+    attachment.rev = docId1Rev;
+    attachment.contentType = 'image/png';
+    attachment.payload = attachmentPayload;
+    sporran.putAttachment("MyBulkId1", 
+                          attachment);
+    
+    
+    });
+    
+    test("Create Attachment Online MyBulkId1 Attachment 2", () { 
+      
+      var wrapper = expectAsync0(() {
+      
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.PUT_ATTACHMENT); 
+        expect(res.id, "MyBulkId1");
+        expect(res.localResponse, isFalse);
+        expect(res.rev, anything);
+        docId2Rev = res.rev;
+        expect(res.payload.attachmentName,"AttachmentName2");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
+      
+      });
+    
+    sporran.online = true;
+    sporran.clientCompleter = wrapper;
+    JsonObject attachment = new JsonObject();
+    attachment.attachmentName = "AttachmentName2";
+    attachment.rev = docId1Rev;
+    attachment.contentType = 'image/png';
+    attachment.payload = attachmentPayload;
+    sporran.putAttachment("MyBulkId1", 
+                          attachment);
+    
+    
+    });
+    
+    /* Pause a little for the notifications to come through */
+    test("Notification Pause", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        
+      });
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });
+    
+    
+    
   });
   
 }
