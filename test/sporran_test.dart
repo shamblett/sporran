@@ -1490,7 +1490,7 @@ main() {
     
     });
     
-    test("Create Attachment Online MyBulkId1 Attachment 2", () { 
+    /*test("Create Attachment Online MyBulkId1 Attachment 2", () { 
       
       var wrapper = expectAsync0(() {
       
@@ -1518,7 +1518,7 @@ main() {
                           attachment);
     
     
-    });
+    });*/
     
     /* Pause a little for the notifications to come through */
     test("Notification Pause", () { 

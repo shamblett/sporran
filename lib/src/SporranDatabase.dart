@@ -486,25 +486,28 @@ class _SporranDatabase {
       wilting.login(_user,
                     _password);
     }
+    
+      
     /* Get and update all the attachments */
     attachments.forEach((attachment) {
       
+      
       void completer() {
         
-        JsonObject res = _wilt.completionResponse;
+        JsonObject res = wilting.completionResponse;
         if ( !res.error ) {
           
           JsonObject successResponse = res.jsonCouchResponse;
           JsonObject newAttachment = new JsonObject();
           newAttachment.attachmentName = attachment.name;
-          newAttachment.rev = WiltUserUtils.getDocumentRev(document);
+          newAttachment.rev = successResponse.rev;
           newAttachment.contentType = successResponse.contentType;
           newAttachment.payload = successResponse.responseText;
           String key = "$id-${attachment.attachmentName}-${_SporranDatabase.ATTACHMENTMARKER}";
           updateLocalStorageObject(key,
               newAttachment,
               _SporranDatabase.UPDATED);
-        
+          
         }
         
       }
@@ -513,7 +516,7 @@ class _SporranDatabase {
       wilting.db = _dbName;
       wilting.resultCompletion = completer;
       wilting.getAttachment(id, 
-                          attachment.name);
+                            attachment.name);
         
     });
     
