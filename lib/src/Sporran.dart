@@ -152,6 +152,7 @@ class Sporran {
     _online = true;
     
   }
+  
   /**
    * Common completion response creator for all databases
    */
@@ -735,16 +736,15 @@ class Sporran {
          res.operation = GET_ATTACHMENT;
          res.id = id;
          res.localResponse = false; 
+         res.rev = null;
          
          if ( !res.error ) {
            
            JsonObject successResponse = res.jsonCouchResponse;
             
            res.ok = true;       
-           res.rev = successResponse.rev;
            JsonObject attachment = new JsonObject();
            attachment.attachmentName = attachmentName;
-           attachment.rev = successResponse.rev;
            attachment.contentType = successResponse.contentType;
            attachment.payload = res.responseText;
            res.payload = attachment;
@@ -756,7 +756,6 @@ class Sporran {
          } else {
            
            res.ok = false;
-           res.rev = null;
            res.payload = null;
            
          }

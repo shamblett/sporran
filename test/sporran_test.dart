@@ -1337,7 +1337,7 @@ main() {
   });
   
   /* Group 7 - Sporran Change notification tests */
-  solo_group("7. Change notification Tests Attachments - ", () {
+  group("7. Change notification Tests Attachments - ", () {
     
     Sporran sporran;
     
