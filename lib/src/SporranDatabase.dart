@@ -246,8 +246,61 @@ class _SporranDatabase {
                                UPDATED);
       
       /* Now update the attachments */
-      deleteDocumentAttachments(e.docId,
-                                e.document);
+      
+      /* Get a list of attachments from the document */   
+      List attachments = WiltUserUtils.getAttachments(e.document);
+      List attachmentsToDelete = new List<String>();
+       
+      /* For all the keys... */  
+      _lawndart.keys().listen((String key) {
+     
+        /* If an attachment... */
+        List keyList = key.split('-');
+        if ( (keyList.length == 3) &&
+             (keyList[2] == ATTACHMENTMARKER) ) {
+           
+                /* ...for this document... */
+                if ( e.docId == keyList[0]) {
+            
+                  /* ..potentially now deleted... */
+                  attachmentsToDelete.add(key);
+              
+                  /* ...check against all the documents current attachments */
+                  attachments.forEach((attachment) {
+                
+                      if ( (keyList[1] == attachment.name) &&
+                           (keyList[0] == e.docId ) &&
+                           (keyList[2] == ATTACHMENTMARKER) ) {
+                      
+                              /* If still valid remove it from the delete list */
+                              attachmentsToDelete.remove(key);
+                          
+                      }
+            
+                  }); 
+              
+               }
+                
+          }
+        
+        }, onDone:() {
+          
+          /* We now have a list of attachments for this document that 
+          * are not present in the document itself so remove them.
+          */
+          attachmentsToDelete.forEach((key) {
+          
+            _lawndart.removeByKey(key)
+              ..then((key) => remove(key));
+          
+            removePendingDelete(key);
+          
+          });
+          
+        });
+        
+      
+      /* Now update already existing ones and add any new ones */
       updateDocumentAttachments(e.docId,
                                 e.document);
       
@@ -260,8 +313,20 @@ class _SporranDatabase {
       _lawndart.removeByKey(e.docId)
       ..then((key) =>  remove(e.docId));
       
+      /* Remove all document attachments */
+      _lawndart.keys().listen((String key) {
+        
+        List keyList = key.split('-');
+        if ( (keyList.length == 3) &&
+             (keyList[2] == ATTACHMENTMARKER) ) {
+            
+            _lawndart.removeByKey(key)
+              ..then((key) => remove(key));
+        } 
+        
+      });
+       
     }
-    
     
   }
   
@@ -425,41 +490,6 @@ class _SporranDatabase {
     
     
     return _pendingDeletes.length;
-    
-  }
-  
-  /**
-   * Remove deleted document attachments from local storage
-   */
-  void deleteDocumentAttachments(String id,
-                                 JsonObject document) {
-    
-    
-   /* Get a list of attachments from the document */   
-   List attachments = WiltUserUtils.getAttachments(document);
-   
-   /* Exit if none */
-   if ( attachments.length == 0 ) return;
-   
-   /* Remove deleted ones */
-   attachments.forEach((attachment) {
-     
-     String key = "$id-${attachment.name}-$ATTACHMENTMARKER";
-     _lawndart.exists(key)
-     ..then((exists) {
-       
-       if ( !exists ) {
-         
-         _lawndart.removeByKey(key)
-         ..then((key) => remove(key));
-         
-         removePendingDelete(key);
-         
-       }
-       
-     });     
-     
-   });
     
   }
   

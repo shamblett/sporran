@@ -1500,7 +1500,7 @@ main() {
         expect(res.id, "MyBulkId1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
-        docId2Rev = res.rev;
+        docId1Rev = res.rev;
         expect(res.payload.attachmentName,"AttachmentName2");
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -1531,6 +1531,160 @@ main() {
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
+    
+    test("Delete Attachment Online MyBulkId1 Attachment 1", () {  
+      
+      var completer = expectAsync0((){
+      
+        JsonObject res = wilting.completionResponse;
+        try {
+        expect(res.error, isFalse);
+        } catch(e) {
+        
+          logMessage("WILT::Delete Attachment Failed");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.ok, isTrue);
+        docId1Rev = successResponse.rev;
+      
+      });
+    
+      wilting.resultCompletion = completer;
+      wilting.db = databaseName;
+      wilting.deleteAttachment('MyBulkId1',
+                               'AttachmentName1',
+                               docId1Rev);
+    
+    }); 
+    
+    test("Notification Pause", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        
+      });
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });
+    
+    test("Get Attachment Offline MyBulkId1 AttachmentName1", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isFalse);
+        expect(res.operation, Sporran.GET_ATTACHMENT); 
+        expect(res.localResponse, isTrue);
+        
+      });
+      
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      sporran.getAttachment('MyBulkId1', 
+                            'AttachmentName1');
+      
+      
+    });
+    
+    test("Wilt - Delete Document MyBulkId1", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Delete Document MyBulkId1");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.id, "MyBulkId1");
+        
+      });
+      
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId1", docId1Rev);
+    
+  });
+  
+  test("Wilt - Delete Document MyBulkId2", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Delete Document MyBulkId2");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.id, "MyBulkId2");
+        
+      });
+      
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId2", docId2Rev);
+    
+  });
+  
+  test("Wilt - Delete Document MyBulkId3", () { 
+      
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
+        try {
+          expect(res.error, isFalse);
+        } catch(e) {
+          
+          logMessage("WILT::Delete Document MyBulkId3");
+          JsonObject errorResponse = res.jsonCouchResponse;
+          String errorText = errorResponse.error;
+          logMessage("WILT::Error is $errorText");
+          String reasonText = errorResponse.reason;
+          logMessage("WILT::Reason is $reasonText");
+          int statusCode = res.errorCode;
+          logMessage("WILT::Status code is $statusCode");
+          return;
+        }
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        expect(successResponse.id, "MyBulkId3");
+        
+      });
+      
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId3", docId3Rev);
+    
+  });
     
     
     
