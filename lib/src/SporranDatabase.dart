@@ -206,7 +206,7 @@ class _SporranDatabase {
     /**
      * Connect to CouchDb
      */
-    _connectToCouch();
+    connectToCouch();
    
   }
   
@@ -333,7 +333,7 @@ class _SporranDatabase {
   /**
    * Create and/or connect to CouchDb
    */
-  _connectToCouch() {
+ void connectToCouch() {
     
     
     /**

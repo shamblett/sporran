@@ -70,15 +70,20 @@ class Sporran {
   bool _online = true;
   bool get online {
     
-    /* If we are not online or the CouchDb database is not 
+    /* If we are not online or we are and the CouchDb database is not 
      * available we are offline
      */
     if ( (!_online) || (_database.noCouchDb) ) return false;
     return true;
     
   }
-  set online(bool state) => _online = state;
+  set online(bool state) {
     
+    _online = state;
+    if ( state ) _transitionToOnline();
+    
+  }
+  
   /**
    * Completion function 
    */
@@ -130,12 +135,23 @@ class Sporran {
      /**
       * Online/offline listeners
       */
-      window.onOnline.listen((_) => _online = true);
+      window.onOnline.listen((_) => _transitionToOnline());
       window.onOffline.listen((_) => _online = false);
      
   }
   
-  
+  /**
+   * Online transition 
+   */
+  void _transitionToOnline() {
+    
+    /**
+     * If we have never connected to CouchDb try now
+     */
+    if ( _database.noCouchDb ) _database.connectToCouch();
+    _online = true;
+    
+  }
   /**
    * Common completion response creator for all databases
    */
