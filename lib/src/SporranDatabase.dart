@@ -500,10 +500,10 @@ class _SporranDatabase {
           JsonObject successResponse = res.jsonCouchResponse;
           JsonObject newAttachment = new JsonObject();
           newAttachment.attachmentName = attachment.name;
-          newAttachment.rev = successResponse.rev;
+          newAttachment.rev = WiltUserUtils.getDocumentRev(document);
           newAttachment.contentType = successResponse.contentType;
-          newAttachment.payload = successResponse.responseText;
-          String key = "$id-${attachment.attachmentName}-${_SporranDatabase.ATTACHMENTMARKER}";
+          newAttachment.payload = res.responseText;
+          String key = "$id-${attachment.name}-${_SporranDatabase.ATTACHMENTMARKER}";
           updateLocalStorageObject(key,
               newAttachment,
               _SporranDatabase.UPDATED);
