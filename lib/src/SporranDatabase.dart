@@ -87,8 +87,10 @@ class _SporranDatabase {
    */
   Queue _pendingDeletes = new Queue<String>();
   
-  bool _lawnIsOpen = false;
-  bool get lawnIsOpen => _lawnIsOpen;
+  /**
+   * Lawndart open indication
+   */
+  bool get lawnIsOpen => _lawndart.isOpen;
   
   /**
    * Event stream for Ready events
@@ -189,14 +191,12 @@ class _SporranDatabase {
                           "Sporran");
     
     /**
-     * Open it, note the when ready event is raised
-     * from the CouchDb open processing, not here, this will
-     * always have completed before CouchDb does.
+     * Open it, don't worry about waiting
      */
+    
     _lawndart.open()
-      ..then((_) => _lawndart.nuke())
-      ..then((_) => _lawnIsOpen = true);
-      
+      ..then((_) => _lawndart.nuke());
+    
     /**
      * Instantiate a Wilt object
      */
@@ -204,24 +204,22 @@ class _SporranDatabase {
                      _port,
                      _scheme);
     
-    /**
-     * Connect to CouchDb
-     */
+   /*
+    * Open CouchDb
+    */
     connectToCouch();
-   
+    
   }
+  
   
   /**
    * Start change notifications
    */
-  _startChangeNotifications() {
+ startChangeNotifications() {
     
     WiltChangeNotificationParameters parameters = new WiltChangeNotificationParameters();
     parameters.includeDocs = true;
    _wilt.startChangeNotification(parameters);
-   
-   /* Immediately pause if manual control is seleected */
-   if ( manualNotificationControl ) _wilt.pauseChangeNotifications();
    
    /* Listen for and process changes */
    _wilt.changeNotification.listen((e) {
@@ -336,11 +334,20 @@ class _SporranDatabase {
   }
   
   /**
+   * Signal we are ready 
+   */
+  void _signalReady() {
+   
+    Event e = new Event.eventType('Event', 'SporranReady');
+    _onReady.add(e);
+    
+  }
+  
+  /**
    * Create and/or connect to CouchDb
    */
  void connectToCouch() {
-    
-    
+      
     /**
      * If the CouchDb database does not exist create it.
      */
@@ -362,13 +369,12 @@ class _SporranDatabase {
       /**
        * Start change notifications 
        */
-      _startChangeNotifications();
+      if ( !manualNotificationControl ) startChangeNotifications();
       
       /**
        * Signal we are ready
        */
-      Event e = new Event.eventType('Event', 'ready');
-      _onReady.add(e);
+      _signalReady();
       
       
     };
@@ -393,21 +399,19 @@ class _SporranDatabase {
           /**
            * Start change notifications 
            */
-          _startChangeNotifications();
+          if ( !manualNotificationControl ) startChangeNotifications();
           
          /**
           * Signal we are ready
           */
-          Event e = new Event.eventType('Event', 'ready');
-          _onReady.add(e);
+          _signalReady();
           
         }
         
       } else {
         
         _noCouchDb = true;
-        Event e = new Event.eventType('Event', 'ready');
-        _onReady.add(e);
+        _signalReady();
         
       }
       

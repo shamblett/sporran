@@ -30,7 +30,7 @@ main() {
     
     test("Online/Offline", () {  
       
-      window.onOffline.listen((e){
+      window.onOffline.first.then((e){
         
         expect(status, "offline");
         /* Because we aren't really offline */
@@ -38,7 +38,7 @@ main() {
         
       });
       
-      window.onOnline.listen((e){
+      window.onOnline.first.then((e){
         
         expect(status, "online");
         expect(window.navigator.onLine, isTrue);
@@ -64,70 +64,67 @@ main() {
     test("1. Construction New Database ", () {  
       
       print("2.1");
-      void wrapper() {
-        
-        Sporran sporran = new Sporran(databaseName,
+      Sporran sporran = new Sporran(databaseName,
             hostName,
             true,
             port,
             scheme,
             userName,
             userPassword);
-        
+      
+      var wrapper = expectAsync0(() {   
+  
         expect(sporran, isNotNull);
         expect(sporran.dbName, databaseName);
         
-      };
+      });
       
-
-      expect(wrapper, returnsNormally);
+      sporran.onReady.first.then((e) => wrapper());
      
-      
     });
     
     test("2. Construction Existing Database ", () {  
       
-      print("2.2");
-      void wrapper() {
-        
-        
-        Sporran sporran = new Sporran(databaseName,
+      print("2.2");  
+      Sporran sporran = new Sporran(databaseName,
             hostName,
             true,
             port,
             scheme,
             userName,
             userPassword);
-        
+      
+      var wrapper = expectAsync0(() {   
+  
         expect(sporran, isNotNull);
         expect(sporran.dbName, databaseName);
         
-      };
+      });
       
-
-      expect(wrapper, returnsNormally);
-     
+      sporran.onReady.first.then((e) => wrapper());
       
     });
     
     test("3. Construction Invalid Database ", () {  
       
       print("2.3");
-      void wrapper() {
-        
-        Sporran sporran = new Sporran('freddy',
+      Sporran sporran = new Sporran('freddy',
             hostName,
             true,
             port,
             scheme,
             userName,
-            'notreal');
+            'none');
+      
+      var wrapper = expectAsync0(() {   
+  
+        expect(sporran, isNotNull);
+        expect(sporran.dbName, databaseName);
+        expect(sporran.online, false);
         
-        expect(sporran, isNotNull); 
-          
-        };
-     
-      expect(wrapper, returnsNormally);
+      });
+      
+      sporran.onReady.first.then((e) => wrapper());
      
       
     });
@@ -143,6 +140,12 @@ main() {
             userName,
             userPassword);
       
+      var wrapper2 = expectAsync0(() {
+        
+        expect(sporran.online, isTrue); 
+        
+      });
+      
       var wrapper = expectAsync0(() {
         
         Event offline = new Event.eventType('Event', 'offline');
@@ -150,22 +153,18 @@ main() {
         expect(sporran.online, isFalse); 
         Event online = new Event.eventType('Event', 'online');
         window.dispatchEvent(online);
-        expect(sporran.online, isTrue); 
-        
+        sporran.onReady.first.then((e) => wrapper2());
         
       });     
-          
-      expect(sporran, isNotNull);
-      expect(sporran.online, isFalse);
-      sporran.onReady.listen((e) => wrapper());
+      
+      sporran.onReady.first.then((e) => wrapper());
       
     });
-    
    
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  group("3. Document Put/Get/Delete Tests - ", () {
+  solo_group("3. Document Put/Get/Delete Tests - ", () {
     
     Sporran sporran;
     
@@ -177,28 +176,35 @@ main() {
     
     test("1. Create and Open Sporran", () { 
       
-    print("3.1"); 
-    var wrapper = expectAsync0(() {
+      print("3.1"); 
       
-      expect(sporran.dbName, databaseName);
-      expect(sporran.lawnIsOpen, isTrue);
+      var wrapper1 = expectAsync0(() {
+   
+        expect(sporran.lawnIsOpen, isTrue);
+        
+      });
       
-    });
+      var wrapper = expectAsync0(() {
+      
+        expect(sporran.dbName, databaseName);
+        Timer timer = new Timer(new Duration(seconds:3), wrapper1);
+     
+      });
     
-    sporran = new Sporran(databaseName,
+      sporran = new Sporran(databaseName,
         hostName,
         true,
         port,
         scheme,
         userName,
         userPassword);
-    
-    
-    sporran.onReady.listen((e) => wrapper());
+ 
+      sporran.onReady.first.then((e) => wrapper());
+       
   
     });
     
-     test("2. Put Document Online docIdPutOnline", () { 
+    test("2. Put Document Online docIdPutOnline", () { 
       
       print("3.2");
       var wrapper = expectAsync0(() {
@@ -214,7 +220,6 @@ main() {
         
       });
       
-      sporran.online = true;
       sporran.clientCompleter = wrapper;
       onlineDoc.name = "Online";
       sporran.put(docIdPutOnline, 
@@ -223,28 +228,28 @@ main() {
       
     });
   
-  test("3. Put Document Offline docIdPutOffline", () { 
+    test("3. Put Document Offline docIdPutOffline", () { 
     
-    print("3.3");
-    var wrapper = expectAsync0(() {
+      print("3.3");
+      var wrapper = expectAsync0(() {
       
-      JsonObject res = sporran.completionResponse;
-      expect(res.ok, isTrue);
-      expect(res.operation, Sporran.PUT);  
-      expect(res.localResponse, isTrue);
-      expect(res.id, docIdPutOffline);
-      expect(res.payload.name, "Offline");
+        JsonObject res = sporran.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.PUT);  
+        expect(res.localResponse, isTrue);
+        expect(res.id, docIdPutOffline);
+        expect(res.payload.name, "Offline");
       
-    });
+      });
     
-    sporran.online = false;
-    sporran.clientCompleter = wrapper;
-    offlineDoc.name = "Offline";
-    sporran.put(docIdPutOffline, 
+      sporran.online = false;
+      sporran.clientCompleter = wrapper;
+      offlineDoc.name = "Offline";
+      sporran.put(docIdPutOffline, 
         offlineDoc);
     
     
-  });
+    });
   
    
    test("4. Put Document Online Conflict", () { 
@@ -282,14 +287,14 @@ main() {
        expect(res.payload.name, "Online - Updated");
        
      });
-     
-     sporran.online = true;
+   
      sporran.clientCompleter = wrapper;
      onlineDoc.name = "Online - Updated";
      sporran.put(docIdPutOnline, 
                  onlineDoc,
                  onlineDocRev);
-     
+     var wrapper1 = expectAsync0(() {});
+     Timer pause = new Timer(new Duration(seconds:1), wrapper1);
      
    });
    
@@ -395,7 +400,6 @@ main() {
         
       });
       
-      sporran.online = true;;
       sporran.clientCompleter = wrapper;
       sporran.get("Billy");
       
@@ -443,6 +447,8 @@ main() {
        sporran.online = false;
        sporran.clientCompleter = wrapper;
        sporran.delete(docIdPutOffline);
+       var wrapper1 = expectAsync0(() {});
+       Timer pause = new Timer(new Duration(seconds:1), wrapper1);
        
        
      }); 
@@ -509,7 +515,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.listen((e) => wrapper());  
+      sporran.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -797,7 +803,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.listen((e) => wrapper());  
+      sporran.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -1062,7 +1068,6 @@ main() {
       
         expect(sporran.dbName, databaseName);
         expect(sporran.lawnIsOpen, isTrue);
-        sporran.online = true;
       
       });
     
@@ -1075,7 +1080,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.listen((e) => wrapper());  
+      sporran.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -1411,7 +1416,6 @@ main() {
       
         expect(sporran.dbName, databaseName);
         expect(sporran.lawnIsOpen, isTrue);
-        sporran.online = true;
       
       });
     
@@ -1424,7 +1428,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.listen((e) => wrapper());  
+      sporran.onReady.first.then((e) => wrapper());  
   
     });
     

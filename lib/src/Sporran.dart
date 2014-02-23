@@ -121,8 +121,18 @@ class Sporran {
    */
   void startChangeNotifications() {
       
-      if ( manualNotificationControl )
-      _database.wilt.restartChangeNotifications();
+      if ( manualNotificationControl ) {
+        
+       if ( _database.wilt.changeNotificationsPaused ) {
+        
+         _database.wilt.restartChangeNotifications();
+         
+       } else {
+         
+         _database.startChangeNotifications();
+       }
+        
+      }
   }
   
   /**
