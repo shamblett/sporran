@@ -48,6 +48,12 @@ class _SporranDatabase {
   String _password = null;   
   
   /**
+   * Manual notification control 
+   */
+  bool _manualNotificationControl = false;
+  bool get manualNotificationControl => _manualNotificationControl;
+  
+  /**
    * The Wilt database
    */
   Wilt _wilt;
@@ -169,7 +175,8 @@ class _SporranDatabase {
    */
   _SporranDatabase(this._dbName,
                    this._host,
-                  [this._port = "5984",
+                  [this._manualNotificationControl = false,
+                   this._port = "5984",
                    this._scheme = "http://",
                    this._user = null,
                    this._password = null]) {
@@ -213,6 +220,10 @@ class _SporranDatabase {
     parameters.includeDocs = true;
    _wilt.startChangeNotification(parameters);
    
+   /* Immediately pause if manual control is seleected */
+   if ( manualNotificationControl ) _wilt.pauseChangeNotifications();
+   
+   /* Listen for and process changes */
    _wilt.changeNotification.listen((e) {
      
      _processChange(e);

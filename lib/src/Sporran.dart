@@ -112,11 +112,36 @@ class Sporran {
   Stream get onReady => _database.onReady;
   
   /**
-   * Construction
+   * Manual notification control 
+   */
+  bool get manualNotificationControl => _database.manualNotificationControl;
+  
+  /**
+   * Start change notification manually
+   */
+  void startChangeNotifications() {
+      
+      if ( manualNotificationControl )
+      _database.wilt.restartChangeNotifications();
+  }
+  
+  /**
+   * Stop change notification manually
+   */
+  void stopChangeNotifications() {
+      
+      if ( manualNotificationControl )
+      _database.wilt.pauseChangeNotifications();
+  }
+  
+  /**
+   * Construction.
+   * 
    */
   Sporran(this._dbName,
           String hostName,
-          [String port = "5984",
+          [bool manualNotificationControl = false,
+           String port = "5984",
            String scheme = "http://",
            String userName = null,
            String password = null]) {
@@ -127,6 +152,7 @@ class Sporran {
      */    
      _database = new _SporranDatabase(_dbName,
                                        hostName,
+                                       manualNotificationControl,
                                        port,
                                        scheme,
                                        userName,
