@@ -293,8 +293,8 @@ main() {
      sporran.put(docIdPutOnline, 
                  onlineDoc,
                  onlineDocRev);
-     var wrapper1 = expectAsync0(() {});
-     Timer pause = new Timer(new Duration(seconds:1), wrapper1);
+     //var wrapper1 = expectAsync0(() {});
+     //Timer pause = new Timer(new Duration(seconds:1), wrapper1);
      
    });
    
@@ -315,7 +315,6 @@ main() {
      sporran.online = false;
      sporran.clientCompleter = wrapper;
      sporran.get(docIdPutOnline);
-     
      
    });
    
