@@ -100,78 +100,6 @@ class _SporranDatabase {
   
   
   /**
-   * Create local storage updated entry 
-   */
-  JsonObject _createUpdated(String key,
-                           JsonObject payload) {
-    
-    /* Add our type marker and set to 'not updated' */
-    JsonObject update = new JsonObject();
-    update.status = UPDATED;
-    update.payload = payload;
-    return update;
-    
-    
-  }
-  
-  /**
-   * Create local storage not updated entry
-   */
-  JsonObject _createNotUpdated(String key,
-                               JsonObject payload) {
-    
-    /* Add our type marker and set to 'not updated' */
-    JsonObject update = new JsonObject();
-    update.status = NOT_UPDATED;
-    update.payload = payload;
-    return update;
-    
-    
-  }
-  
-  /**
-   * Update local storage.
-   * 
-   * This will eventually become consistent, no need to wait on the future 
-   * completion
-   */
-  void updateLocalStorageObject(String key,
-                                JsonObject update,
-                                String updateStatus) {
-    
-    /* Check for not initialized */
-    if ( (lawndart == null) || 
-         (!lawndart.isOpen ) )
-      throw new SporranException("Initialisation Failure, Lawndart is not initialized");
-    
-    
-    /* Do the update */
-    JsonObject localUpdate = new JsonObject();
-    if ( updateStatus == NOT_UPDATED) {
-      localUpdate = _createNotUpdated(key,
-                                      update);
-    } else {
-      localUpdate = _createUpdated(key,
-          update);
-    }
-    
-    /**
-     * Update the hot cache, then Lawndart.
-     * When Lawndart has saved the item remove it from the
-     * hot cache.
-     */
-    put(key, localUpdate);
-    _lawndart.save(localUpdate, key)
-    ..then((String key) {
-      
-      remove(key);
-      
-    });
-  
-    
-  }
-  
-  /**
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
@@ -565,6 +493,154 @@ class _SporranDatabase {
         
     });
     
+  }
+  
+  /**
+   * Create local storage updated entry 
+   */
+  JsonObject _createUpdated(String key,
+                           JsonObject payload) {
+    
+    /* Add our type marker and set to 'not updated' */
+    JsonObject update = new JsonObject();
+    update.status = UPDATED;
+    update.payload = payload;
+    return update;
+    
     
   }
+  
+  /**
+   * Create local storage not updated entry
+   */
+  JsonObject _createNotUpdated(String key,
+                               JsonObject payload) {
+    
+    /* Add our type marker and set to 'not updated' */
+    JsonObject update = new JsonObject();
+    update.status = NOT_UPDATED;
+    update.payload = payload;
+    return update;
+    
+    
+  }
+  
+  /**
+   * Update local storage.
+   * 
+   * This will eventually become consistent, no need to wait on the future 
+   * completion
+   */
+  void updateLocalStorageObject(String key,
+                                JsonObject update,
+                                String updateStatus) {
+    
+    /* Check for not initialized */
+    if ( (lawndart == null) || 
+         (!lawndart.isOpen ) )
+      throw new SporranException("Initialisation Failure, Lawndart is not initialized");
+    
+    
+    /* Do the update */
+    JsonObject localUpdate = new JsonObject();
+    if ( updateStatus == NOT_UPDATED) {
+      localUpdate = _createNotUpdated(key,
+                                      update);
+    } else {
+      localUpdate = _createUpdated(key,
+          update);
+    }
+    
+    /**
+     * Update the hot cache, then Lawndart.
+     * When Lawndart has saved the item remove it from the
+     * hot cache.
+     */
+    put(key, localUpdate);
+    _lawndart.save(localUpdate, key)
+    ..then((String key) {
+      
+      remove(key);
+      
+    });
+  
+  }
+  
+
+  /**
+   * Get an object from local storage
+   */
+  Future<JsonObject> getLocalStorageObject(String key) {
+    
+    JsonObject localObject = new JsonObject();
+    var completer = new Completer();
+    
+    /**
+     * Try Lawndart first then the hot cache
+     */
+    lawndart.getByKey(key).then((document) {
+      
+      JsonObject res = new JsonObject();
+      
+      if ( document == null ) {
+        
+        /* Try the hot cache */
+        JsonObject hotObject = get(key);
+        if ( hotObject == null ) {
+          
+          localObject = null;
+          
+        } else {
+          
+          localObject = hotObject;
+         
+        }
+        
+      } else {
+        
+        /* Got from Lawndart */
+        if ( document != null) {
+          
+        localObject.payload = document['payload'];
+       
+        } 
+      }
+      
+      completer.complete(localObject);
+      
+    });
+    
+    
+    return completer.future; 
+    
+  }
+  
+  /**
+   * Get multiple objects from local storage
+   */
+  Future<Map<String,JsonObject>> getLocalStorageObjects(List<String> keys) {
+    
+    var completer = new Completer();
+    Map results = new Map<String, JsonObject>();
+    int keyPos = 0;
+    
+    /**
+     * Try only Lawndart for objects
+     */
+    lawndart.getByKeys(keys).listen((value){
+      
+      JsonObject document = new JsonObject.fromMap(value);
+      results[keys[keyPos]] = document;
+      keyPos++;
+      
+    }, onDone:() {
+      
+      completer.complete(results);
+      
+    });
+        
+    return completer.future; 
+    
+  }
+  
 }

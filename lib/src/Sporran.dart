@@ -232,83 +232,6 @@ class Sporran {
   }
   
   
-  
-  /**
-   * Get an object from local storage
-   */
-  Future<JsonObject> _getLocalStorageObject(String key) {
-    
-    JsonObject localObject = new JsonObject();
-    var completer = new Completer();
-    
-    /**
-     * Try Lawndart first then the hot cache
-     */
-    _database.lawndart.getByKey(key).then((document) {
-      
-      JsonObject res = new JsonObject();
-      
-      if ( document == null ) {
-        
-        /* Try the hot cache */
-        JsonObject hotObject = _database.get(key);
-        if ( hotObject == null ) {
-          
-          localObject = null;
-          
-        } else {
-          
-          localObject = hotObject;
-         
-        }
-        
-      } else {
-        
-        /* Got from Lawndart */
-        if ( document != null) {
-          
-        localObject.payload = document['payload'];
-       
-        } 
-      }
-      
-      completer.complete(localObject);
-      
-    });
-    
-    
-    return completer.future; 
-    
-  }
-  
-  /**
-   * Get multiple objects from local storage
-   */
-  Future<Map<String,JsonObject>> _getLocalStorageObjects(List<String> keys) {
-    
-    var completer = new Completer();
-    Map results = new Map<String, JsonObject>();
-    int keyPos = 0;
-    
-    /**
-     * Try only Lawndart for objects
-     */
-    _database.lawndart.getByKeys(keys).listen((value){
-      
-      JsonObject document = new JsonObject.fromMap(value);
-      results[keys[keyPos]] = document;
-      keyPos++;
-      
-    }, onDone:() {
-      
-      completer.complete(results);
-      
-    });
-        
-    return completer.future; 
-    
-  }
-  
   /**
    * Update document.
    * 
@@ -392,7 +315,7 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if ( !online ) {
         
-        _getLocalStorageObject(id)
+        _database.getLocalStorageObject(id)
           ..then((document) {
          
             JsonObject res = new JsonObject();
@@ -738,7 +661,7 @@ class Sporran {
      /* Check for offline, if so try the get from local storage */
      if ( !online ) {
        
-       _getLocalStorageObject(key)
+       _database.getLocalStorageObject(key)
        ..then((document) {
        
           JsonObject res = new JsonObject();
@@ -919,7 +842,7 @@ class Sporran {
      /* Check for offline, if so try the get from local storage */
      if ( !online ) {
        
-       _getLocalStorageObjects(keys)   
+       _database.getLocalStorageObjects(keys)   
        ..then((documents) {
          
          JsonObject res = new JsonObject();
