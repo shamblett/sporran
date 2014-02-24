@@ -790,7 +790,14 @@ class Sporran {
          JsonObject couchResp = res.jsonCouchResponse;
          couchResp.forEach((resp){
            
-           revisions.add(resp.rev);
+           /* Try this, there may be an error, if so there is no
+            * revision
+            */
+           try{
+            revisions.add(resp.rev);
+           } catch(e) {
+            revisions.add(null); 
+           }
            
          });
          res.rev = revisions;
