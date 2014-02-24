@@ -197,8 +197,6 @@ class Sporran {
     
     }
     
-   
-    
   }
   
   /**
@@ -399,15 +397,16 @@ class Sporran {
    */
    void delete(String id,
                [String rev = null]) {
-     
-     /* Remove from the hot cache */
-     _database.remove(id);
+    
      
      /* Remove from Lawndart */
      _database.lawndart.exists(id)
        ..then((bool exists) {
          
          if ( exists ) {
+           
+           /* Remove from the hot cache */
+           _database.remove(id);
            
            _database.lawndart.getByKey(id)..
            then((document) {
@@ -470,7 +469,12 @@ class Sporran {
            JsonObject res = new JsonObject();
            res.localResponse = true;
            res.operation = DELETE;
+           /* Try the hot cache */
+           JsonObject document = _database.get(id);
            res.ok = false;
+           if ( document != null ) res.ok = true;
+           /* Remove from the hot cache */
+           _database.remove(id);
            res.id = id;
            res.payload = null;
            res.rev = null;

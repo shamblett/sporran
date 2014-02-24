@@ -736,11 +736,16 @@ class _SporranDatabase {
     
     wilting.db = _dbName;
     wilting.resultCompletion = null;
+    try {
     wilting.updateAttachment(key, 
                              name, 
                              revision, 
                              contentType, 
                              payload);
+    } catch (e) {
+      
+      
+    }
     
   }
   
@@ -773,11 +778,56 @@ class _SporranDatabase {
   }
   
   /**
+   * Bulk insert documents
+   */
+  Future<JsonObject> bulkInsert(Map<String, JsonObject> docList) {
+    
+    var completer = new Completer();
+    
+    /* Create our own Wilt instance */
+    Wilt wilting = new Wilt(_host, 
+                            _port,
+                            _scheme);
+   
+   /* Login if we are using authentication */
+    if ( _user != null ) {
+      
+      wilting.login(_user,
+                    _password);
+    }
+   
+     void localCompleter () {
+       
+       JsonObject res = wilting.completionResponse;
+       completer.complete(res);
+       
+     }
+     /* Prepare the documents */
+     List documentList = new List<String>();
+     docList.forEach((key, document) {
+       
+       String docString = WiltUserUtils.addDocumentId(document,
+                                                      key); 
+       documentList.add(docString);
+       
+     });
+     
+     String docs = WiltUserUtils.createBulkInsertString(documentList);
+        
+     /* Do the bulk create*/
+     wilting.resultCompletion = localCompleter;
+     wilting.bulkString(docs);
+     
+     return completer.future;
+    
+  }
+  
+  
+  /**
    * Synchronise local storage with CouchDb
    */
   void sync() {
-    
-    
+       
     /*
      * Pending deletes first
      */
@@ -804,47 +854,103 @@ class _SporranDatabase {
      }
        
    });
+    
+   pendingDeletes.clear(); 
      
+   Map documentsToUpdate  = new Map<String, JsonObject>();
+   Map attachmentsToUpdate = new Map<String, JsonObject>();
+   Map revisions = new Map<String, String>();
+   
    /**
-    * Non updated documents and attachments  
+    * Get a list of non updated documents and attachments from Lawndart and the hot cache
     */
-   lawndart.keys().forEach((String key) {
+   lawndart.keys().listen((String key) {
      
      lawndart.getByKey(key)..
      then((document) {
        
-       if ( document.status = NOT_UPDATED) {
+       if ( document['status'] == NOT_UPDATED ) {
          
-         /* Check for an attachment */
+         JsonObject payload = new JsonObject.fromMap(document['payload']);
+         /* If an attachment just stack it */
          List keyList = key.split('-');
          if ( (keyList.length == 3) &&
-              (keyList[2] == ATTACHMENTMARKER) ) {
+             (keyList[2] == ATTACHMENTMARKER) ) {
            
-           JsonObject attachment = document.payload;
-           updateAttachment(key,
-                            attachment.attachmentName, 
-                            attachment.rev, 
-                            attachment.contentType, 
-                            attachment.payload);
-           
+           attachmentsToUpdate[key] = payload;
            
          } else {
            
-           String revision = WiltUserUtils.getDocumentRev(document);
-           update(key,
-                  document.payload,
-                  revision);
-           
+          documentsToUpdate[key] = payload;
+          
          }
          
        }
        
      });
      
+   }, onDone:() {
+     
+     /*
+      * Loop around the hot cache, everything in here is not updated yet
+      */
+     _hotCache.forEach((String key, JsonObject document) {
+       
+       JsonObject payload = new JsonObject.fromMap(document['payload']);
+       /* If an attachment just stack it */
+       List keyList = key.split('-');
+       if ( (keyList.length == 3) &&
+           (keyList[2] == ATTACHMENTMARKER) ) {
+         
+          attachmentsToUpdate[key] = payload;
+         
+       } else {
+         
+          documentsToUpdate[key] = payload;
+       
+       }
+       
+     });
+     
+      /* Bulk insert the documents and get the revisions back */
+      bulkInsert(documentsToUpdate)..
+      then((JsonObject res) {
+     
+        if ( !res.error) {
+    
+          JsonObject couchResp = res.jsonCouchResponse;
+          couchResp.forEach((resp){
+         
+            /* Try this, there may be an error, if so there is no
+             * revision
+             */
+            try{
+              revisions[resp.id] = resp.rev;
+            } catch(e) {}
+           
+         });
+         
+       };
+     
+    })..
+    then((_) {
+      
+      /* Finally do the attachments */
+      attachmentsToUpdate.forEach((String key, JsonObject attachment) {
+        
+        if ( attachment.rev = null ) attachment.rev = revisions[key];
+        updateAttachment(key,
+                         attachment.attachmentName,
+                         attachment.rev,
+                         attachment.contentType,
+                         attachment.payload);
+        
+      });
+           
+    });
+   
    });
-    
-    
-    
-  }
+  
+  }  
   
 }
