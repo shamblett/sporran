@@ -85,7 +85,8 @@ class _SporranDatabase {
   /**
    * Pending delete queue
    */
-  Queue _pendingDeletes = new Queue<String>();
+  Map _pendingDeletes = new Map<String, JsonObject>();
+  Map get pendingDeletes => _pendingDeletes;
   
   /**
    * Lawndart open indication
@@ -411,10 +412,11 @@ class _SporranDatabase {
   /**
    * Add a key to the pending delete queue
    */
-  void addPendingDelete(String key) {
+  void addPendingDelete(String key,
+                        JsonObject document) {
     
     
-    _pendingDeletes.add(key);
+    _pendingDeletes[key] = document;
     
   }
   
@@ -424,7 +426,7 @@ class _SporranDatabase {
   void removePendingDelete(String key) {
     
     
-    if ( _pendingDeletes.contains(key) ) _pendingDeletes.remove(key);
+    if ( _pendingDeletes.containsKey(key) ) _pendingDeletes.remove(key);
     
     
   }
@@ -643,6 +645,120 @@ class _SporranDatabase {
     });
         
     return completer.future; 
+    
+  }
+  
+  /**
+   * Delete a CouchDb document
+   */
+  void delete(String key,
+              String revision) {
+    
+    
+    /* Create our own Wilt instance */
+    Wilt wilting = new Wilt(_host, 
+                            _port,
+                            _scheme);
+   
+   /* Login if we are using authentication */
+    if ( _user != null ) {
+      
+      wilting.login(_user,
+                    _password);
+    }
+    
+    wilting.db = _dbName;
+    wilting.resultCompletion = null;
+    wilting.deleteDocument(key, 
+                           revision);
+    
+  }
+  
+  /**
+   * Delete a CouchDb attachment
+   */
+  void deleteAttachment(String key,
+                        String name,
+                        String revision) {
+    
+    
+    /* Create our own Wilt instance */
+    Wilt wilting = new Wilt(_host, 
+                            _port,
+                            _scheme);
+   
+   /* Login if we are using authentication */
+    if ( _user != null ) {
+      
+      wilting.login(_user,
+                    _password);
+    }
+    
+    wilting.db = _dbName;
+    wilting.resultCompletion = null;
+    wilting.deleteAttachment(key,
+                             name,
+                             revision);
+    
+  }
+  
+  /**
+   * Update/create a CouchDb attachment
+   */
+  void updateAttachment(String key,
+                        String name,
+                        String revision,
+                        String contentType,
+                        String payload) {
+    
+    
+    /* Create our own Wilt instance */
+    Wilt wilting = new Wilt(_host, 
+                            _port,
+                            _scheme);
+   
+   /* Login if we are using authentication */
+    if ( _user != null ) {
+      
+      wilting.login(_user,
+                    _password);
+    }
+    
+    wilting.db = _dbName;
+    wilting.resultCompletion = null;
+    wilting.updateAttachment(key, 
+                             name, 
+                             revision, 
+                             contentType, 
+                             payload);
+    
+  }
+  
+  /**
+   * Update/create a CouchDb document
+   */
+  void update(String key,
+              JsonObject document,
+              String revision) {
+    
+    
+    /* Create our own Wilt instance */
+    Wilt wilting = new Wilt(_host, 
+                            _port,
+                            _scheme);
+   
+   /* Login if we are using authentication */
+    if ( _user != null ) {
+      
+      wilting.login(_user,
+                    _password);
+    }
+    
+    wilting.db = _dbName;
+    wilting.resultCompletion = null;
+    wilting.putDocument(key, 
+                        document,
+                        revision);
     
   }
   

@@ -397,24 +397,28 @@ class Sporran {
          
          if ( exists ) {
            
-           _database.lawndart.removeByKey(id);
-           
-           /* Check for offline, if so add to the pending delete queue and return */
-           if ( !online ) {
+           _database.lawndart.getByKey(id)..
+           then((document) {
+             
+             JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
+             _database.lawndart.removeByKey(id);
+                     
+             /* Check for offline, if so add to the pending delete queue and return */
+             if ( !online ) {
        
-             _database.addPendingDelete(id);
-             JsonObject res = new JsonObject();
-             res.localResponse = true;
-             res.operation = DELETE;
-             res.ok = true; 
-             res.id = id;
-             res.payload = null;
-             res.rev = null;
-             _completionResponse = _createCompletionResponse(res);
-             _clientCompleter();      
-             return;
+              _database.addPendingDelete(id, deletedDocument);
+              JsonObject res = new JsonObject();
+              res.localResponse = true;
+              res.operation = DELETE;
+              res.ok = true; 
+              res.id = id;
+              res.payload = null;
+              res.rev = null;
+               _completionResponse = _createCompletionResponse(res);
+               _clientCompleter();      
+              return;
               
-           } else { 
+             } else { 
        
               /* Online, delete from CouchDb */
               void completer() {
@@ -438,13 +442,15 @@ class Sporran {
                _completionResponse = _createCompletionResponse(res);
                _clientCompleter();
        
-            };
+             }
      
             /* Delete the document from CouchDb */
             _database.wilt.resultCompletion = completer;
             _database.wilt.deleteDocument(id, rev); 
+          
+             }
             
-           }
+           });
            
          } else {
            
@@ -580,24 +586,28 @@ class Sporran {
          
          if ( exists ) {
            
-           _database.lawndart.removeByKey(key);
-           
-           /* Check for offline, if so add to the pending delete queue and return */
-           if ( !online ) {
-       
-             _database.addPendingDelete(id);
-             JsonObject res = new JsonObject();
-             res.localResponse = true;
-             res.operation = DELETE_ATTACHMENT;
-             res.ok = true; 
-             res.id = id;
-             res.payload = null;
-             res.rev = null;
-             _completionResponse = _createCompletionResponse(res);
-             _clientCompleter();
-             return;
+           _database.lawndart.getByKey(id)..
+           then((document) {
              
-           } else { 
+              JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
+             _database.lawndart.removeByKey(key);
+           
+             /* Check for offline, if so add to the pending delete queue and return */
+             if ( !online ) {
+       
+              _database.addPendingDelete(key, deletedDocument);
+              JsonObject res = new JsonObject();
+              res.localResponse = true;
+              res.operation = DELETE_ATTACHMENT;
+              res.ok = true; 
+              res.id = id;
+              res.payload = null;
+              res.rev = null;
+              _completionResponse = _createCompletionResponse(res);
+              _clientCompleter();
+              return;
+             
+            } else { 
        
               /* Online, delete from CouchDb */
               void completer() {
@@ -630,6 +640,8 @@ class Sporran {
                                             rev); 
             
            }
+             
+          });
            
          } else {
            
@@ -981,5 +993,88 @@ class Sporran {
      }
        
    }
+   
+   /**
+    * Synchronise local storage and CouchDb when we come online or on demand.
+    * 
+    * Note we don't check for failures in this, there is nothing we can really do
+    * if we say get a conflict error or a not exists error on an update or delete.
+    * 
+    * For updates, if applied successfully we wait for the change notification to
+    * arrive to mark the update as UPDATED. Note if these are switched off sync may be
+    * lost with Couch.
+    */
+   void sync() {
+     
+     
+     /* Only if we are online */
+     if ( !online ) return;
+     
+     /*
+      * Pending deletes first
+      */
+     _database.pendingDeletes.forEach((String key, JsonObject document) {
+       
+      String revision = WiltUserUtils.getDocumentRev(document);
+      if ( revision != null ) {
+       
+         /* Check for an attachment */
+         List keyList = key.split('-');
+         if ( (keyList.length == 3) &&
+              (keyList[2] == _SporranDatabase.ATTACHMENTMARKER) ) {
+         
+          _database.deleteAttachment(key,
+                                     keyList[1],
+                                     revision);
+         
+        } else {
+         
+          _database.delete(key,
+                          revision);
+         
+        }
+     }
+       
+   });
+     
+   /**
+    * Non updated documents and attachments  
+    */
+   _database.lawndart.keys().forEach((String key) {
+     
+     _database.lawndart.getByKey(key)..
+     then((document) {
+       
+       if ( document.status = _SporranDatabase.NOT_UPDATED) {
+         
+         /* Check for an attachment */
+         List keyList = key.split('-');
+         if ( (keyList.length == 3) &&
+              (keyList[2] == _SporranDatabase.ATTACHMENTMARKER) ) {
+           
+           JsonObject attachment = document.payload;
+           _database.updateAttachment(key,
+                                      attachment.attachmentName, 
+                                      attachment.rev, 
+                                      attachment.contentType, 
+                                      attachment.payload);
+           
+           
+         } else {
+           
+           String revision = WiltUserUtils.getDocumentRev(document);
+           _database.update(key,
+                            document.payload,
+                            revision);
+           
+         }
+         
+       }
+       
+     });
+     
+   });
+     
+  }
    
 }
