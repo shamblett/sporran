@@ -60,6 +60,7 @@ main() {
   /* Group 2 - Sporran constructor tests */
   group("2. Constructor Tests - ", () {
     
+    
     test("1. Construction Online/Offline listener ", () {  
       
       print("2.1");
@@ -80,13 +81,13 @@ main() {
         Event online = new Event.eventType('Event', 'online');
         window.dispatchEvent(online);
         expect(sporran21.online, isTrue); 
+        sporran21 = null;
         
       });     
       
       sporran21.onReady.first.then((e) => wrapper());
       
     });
-   
     
     test("2. Construction Existing Database ", () {  
       
@@ -103,6 +104,7 @@ main() {
   
         expect(sporran22, isNotNull);
         expect(sporran22.dbName, databaseName);
+        sporran22 = null;
         
       });
       
@@ -126,6 +128,7 @@ main() {
         expect(sporran23, isNotNull);
         expect(sporran23.dbName, databaseName);
         expect(sporran23.online, true);
+        sporran23 = null;
         
       });
       
