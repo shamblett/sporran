@@ -284,7 +284,7 @@ class _SporranDatabase {
   /**
    * Create and/or connect to CouchDb
    */
- void connectToCouch() {
+ void connectToCouch([bool transitionToOnline = false]) {
       
     /**
      * If the CouchDb database does not exist create it.
@@ -308,6 +308,11 @@ class _SporranDatabase {
        * Start change notifications 
        */
       if ( !manualNotificationControl ) startChangeNotifications();
+      
+      /**
+       * If this is a transition to online start syncing
+       */
+      if ( transitionToOnline ) sync();
       
       /**
        * Signal we are ready
@@ -339,7 +344,12 @@ class _SporranDatabase {
            */
           if ( !manualNotificationControl ) startChangeNotifications();
           
-         /**
+          /**
+           * If this is a transition to online start syncing
+           */
+          if ( transitionToOnline ) sync();
+          
+          /**
           * Signal we are ready
           */
           _signalReady();
@@ -759,6 +769,81 @@ class _SporranDatabase {
     wilting.putDocument(key, 
                         document,
                         revision);
+    
+  }
+  
+  /**
+   * Synchronise local storage with CouchDb
+   */
+  void sync() {
+    
+    
+    /*
+     * Pending deletes first
+     */
+    pendingDeletes.forEach((String key, JsonObject document) {
+      
+      String revision = WiltUserUtils.getDocumentRev(document);
+      if ( revision != null ) {
+       
+         /* Check for an attachment */
+         List keyList = key.split('-');
+         if ( (keyList.length == 3) &&
+              (keyList[2] == _SporranDatabase.ATTACHMENTMARKER) ) {
+         
+          deleteAttachment(key,
+                           keyList[1],
+                           revision);
+         
+        } else {
+         
+          delete(key,
+                 revision);
+         
+        }
+     }
+       
+   });
+     
+   /**
+    * Non updated documents and attachments  
+    */
+   lawndart.keys().forEach((String key) {
+     
+     lawndart.getByKey(key)..
+     then((document) {
+       
+       if ( document.status = NOT_UPDATED) {
+         
+         /* Check for an attachment */
+         List keyList = key.split('-');
+         if ( (keyList.length == 3) &&
+              (keyList[2] == ATTACHMENTMARKER) ) {
+           
+           JsonObject attachment = document.payload;
+           updateAttachment(key,
+                            attachment.attachmentName, 
+                            attachment.rev, 
+                            attachment.contentType, 
+                            attachment.payload);
+           
+           
+         } else {
+           
+           String revision = WiltUserUtils.getDocumentRev(document);
+           update(key,
+                  document.payload,
+                  revision);
+           
+         }
+         
+       }
+       
+     });
+     
+   });
+    
+    
     
   }
   

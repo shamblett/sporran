@@ -181,11 +181,23 @@ class Sporran {
    */
   void _transitionToOnline() {
     
-    /**
-     * If we have never connected to CouchDb try now
-     */
-    if ( _database.noCouchDb ) _database.connectToCouch();
     _online = true;
+    
+    /**
+     * If we have never connected to CouchDb try now,
+     * otherwise we can sync straight away
+     */
+    if ( _database.noCouchDb ) {
+      
+      _database.connectToCouch(true);
+      
+    } else {
+      
+      sync();
+    
+    }
+    
+   
     
   }
   
@@ -1010,70 +1022,7 @@ class Sporran {
      /* Only if we are online */
      if ( !online ) return;
      
-     /*
-      * Pending deletes first
-      */
-     _database.pendingDeletes.forEach((String key, JsonObject document) {
-       
-      String revision = WiltUserUtils.getDocumentRev(document);
-      if ( revision != null ) {
-       
-         /* Check for an attachment */
-         List keyList = key.split('-');
-         if ( (keyList.length == 3) &&
-              (keyList[2] == _SporranDatabase.ATTACHMENTMARKER) ) {
-         
-          _database.deleteAttachment(key,
-                                     keyList[1],
-                                     revision);
-         
-        } else {
-         
-          _database.delete(key,
-                          revision);
-         
-        }
-     }
-       
-   });
-     
-   /**
-    * Non updated documents and attachments  
-    */
-   _database.lawndart.keys().forEach((String key) {
-     
-     _database.lawndart.getByKey(key)..
-     then((document) {
-       
-       if ( document.status = _SporranDatabase.NOT_UPDATED) {
-         
-         /* Check for an attachment */
-         List keyList = key.split('-');
-         if ( (keyList.length == 3) &&
-              (keyList[2] == _SporranDatabase.ATTACHMENTMARKER) ) {
-           
-           JsonObject attachment = document.payload;
-           _database.updateAttachment(key,
-                                      attachment.attachmentName, 
-                                      attachment.rev, 
-                                      attachment.contentType, 
-                                      attachment.payload);
-           
-           
-         } else {
-           
-           String revision = WiltUserUtils.getDocumentRev(document);
-           _database.update(key,
-                            document.payload,
-                            revision);
-           
-         }
-         
-       }
-       
-     });
-     
-   });
+     _database.sync();
      
   }
    
