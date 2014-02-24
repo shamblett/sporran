@@ -131,6 +131,15 @@ class _SporranDatabase {
     _wilt = new Wilt(_host,
                      _port,
                      _scheme);
+    /**
+     * Login
+     */
+    if ( _user != null ) {
+      
+      _wilt.login(_user,
+                  _password);
+      
+    }
     
    /*
     * Open CouchDb
@@ -344,12 +353,6 @@ class _SporranDatabase {
       }
       
     };
-    
-    if ( _user != null ) {
-      
-      _wilt.login(_user,
-                  _password);
-    }
     
    _wilt.resultCompletion = allCompleter;
    _wilt.getAllDbs();
