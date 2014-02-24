@@ -60,11 +60,10 @@ main() {
   /* Group 2 - Sporran constructor tests */
   group("2. Constructor Tests - ", () {
     
-    
-    test("1. Construction New Database ", () {  
+    test("1. Construction Online/Offline listener ", () {  
       
       print("2.1");
-      Sporran sporran = new Sporran(databaseName,
+      Sporran sporran21 = new Sporran(databaseName,
             hostName,
             true,
             port,
@@ -72,21 +71,27 @@ main() {
             userName,
             userPassword);
       
-      var wrapper = expectAsync0(() {   
-  
-        expect(sporran, isNotNull);
-        expect(sporran.dbName, databaseName);
+
+      var wrapper = expectAsync0(() {
         
-      });
+        Event offline = new Event.eventType('Event', 'offline');
+        window.dispatchEvent(offline);
+        expect(sporran21.online, isFalse); 
+        Event online = new Event.eventType('Event', 'online');
+        window.dispatchEvent(online);
+        expect(sporran21.online, isTrue); 
+        
+      });     
       
-      sporran.onReady.first.then((e) => wrapper());
-     
+      sporran21.onReady.first.then((e) => wrapper());
+      
     });
+   
     
     test("2. Construction Existing Database ", () {  
       
       print("2.2");  
-      Sporran sporran = new Sporran(databaseName,
+      Sporran sporran22 = new Sporran(databaseName,
             hostName,
             true,
             port,
@@ -96,19 +101,19 @@ main() {
       
       var wrapper = expectAsync0(() {   
   
-        expect(sporran, isNotNull);
-        expect(sporran.dbName, databaseName);
+        expect(sporran22, isNotNull);
+        expect(sporran22.dbName, databaseName);
         
       });
       
-      sporran.onReady.first.then((e) => wrapper());
+      sporran22.onReady.first.then((e) => wrapper());
       
     });
     
-    test("3. Construction Invalid Database ", () {  
+    test("3. Construction Invalid Authentication ", () {  
       
       print("2.3");
-      Sporran sporran = new Sporran('freddy',
+      Sporran sporran23 = new Sporran(databaseName,
             hostName,
             true,
             port,
@@ -118,55 +123,24 @@ main() {
       
       var wrapper = expectAsync0(() {   
   
-        expect(sporran, isNotNull);
-        expect(sporran.dbName, databaseName);
-        expect(sporran.online, false);
+        expect(sporran23, isNotNull);
+        expect(sporran23.dbName, databaseName);
+        expect(sporran23.online, true);
         
       });
       
-      sporran.onReady.first.then((e) => wrapper());
-     
+      sporran23.onReady.first.then((e) => wrapper());
+      
       
     });
     
-    test("4. Construction Online/Offline listener ", () {  
-        
-      print("2.4");
-      Sporran sporran = new Sporran(databaseName,
-            hostName,
-            true,
-            port,
-            scheme,
-            userName,
-            userPassword);
-      
-      var wrapper2 = expectAsync0(() {
-        
-        expect(sporran.online, isTrue); 
-        
-      });
-      
-      var wrapper = expectAsync0(() {
-        
-        Event offline = new Event.eventType('Event', 'offline');
-        window.dispatchEvent(offline);
-        expect(sporran.online, isFalse); 
-        Event online = new Event.eventType('Event', 'online');
-        window.dispatchEvent(online);
-        sporran.onReady.first.then((e) => wrapper2());
-        
-      });     
-      
-      sporran.onReady.first.then((e) => wrapper());
-      
-    });
-   
+    
   });    
   
   /* Group 3 - Sporran document put/get tests */
-  solo_group("3. Document Put/Get/Delete Tests - ", () {
+  group("3. Document Put/Get/Delete Tests - ", () {
     
-    Sporran sporran;
+    Sporran sporran3;
     
     String docIdPutOnline = "putOnline";
     String docIdPutOffline = "putOffline";
@@ -180,18 +154,18 @@ main() {
       
       var wrapper1 = expectAsync0(() {
    
-        expect(sporran.lawnIsOpen, isTrue);
+        expect(sporran3.lawnIsOpen, isTrue);
         
       });
       
       var wrapper = expectAsync0(() {
       
-        expect(sporran.dbName, databaseName);
+        expect(sporran3.dbName, databaseName);
         Timer timer = new Timer(new Duration(seconds:3), wrapper1);
      
       });
     
-      sporran = new Sporran(databaseName,
+      sporran3 = new Sporran(databaseName,
         hostName,
         true,
         port,
@@ -199,7 +173,7 @@ main() {
         userName,
         userPassword);
  
-      sporran.onReady.first.then((e) => wrapper());
+      sporran3.onReady.first.then((e) => wrapper());
        
   
     });
@@ -209,7 +183,7 @@ main() {
       print("3.2");
       var wrapper = expectAsync0(() {
                     
-          JsonObject res = sporran.completionResponse;
+          JsonObject res = sporran3.completionResponse;
           expect(res.ok, isTrue);
           expect(res.operation, Sporran.PUT); 
           expect(res.localResponse, isFalse);
@@ -220,9 +194,9 @@ main() {
         
       });
       
-      sporran.clientCompleter = wrapper;
+      sporran3.clientCompleter = wrapper;
       onlineDoc.name = "Online";
-      sporran.put(docIdPutOnline, 
+      sporran3.put(docIdPutOnline, 
                   onlineDoc);
                                 
       
@@ -233,7 +207,7 @@ main() {
       print("3.3");
       var wrapper = expectAsync0(() {
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT);  
         expect(res.localResponse, isTrue);
@@ -242,10 +216,10 @@ main() {
       
       });
     
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
+      sporran3.online = false;
+      sporran3.clientCompleter = wrapper;
       offlineDoc.name = "Offline";
-      sporran.put(docIdPutOffline, 
+      sporran3.put(docIdPutOffline, 
         offlineDoc);
     
     
@@ -257,7 +231,7 @@ main() {
      print("3.4");
      var wrapper = expectAsync0(() {
        
-       JsonObject res = sporran.completionResponse;
+       JsonObject res = sporran3.completionResponse;
        expect(res.errorCode, 409);
        expect(res.errorText, 'conflict');
        expect(res.operation, Sporran.PUT); 
@@ -266,10 +240,10 @@ main() {
        
      });
      
-     sporran.online = true;
-     sporran.clientCompleter = wrapper;
+     sporran3.online = true;
+     sporran3.clientCompleter = wrapper;
      onlineDoc.name = "Online";
-     sporran.put(docIdPutOnline,onlineDoc);                                   
+     sporran3.put(docIdPutOnline,onlineDoc);                                   
      
    });
    
@@ -278,7 +252,7 @@ main() {
      print("3.5");
      var wrapper = expectAsync0(() {
        
-       JsonObject res = sporran.completionResponse;
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.PUT); 
        expect(res.localResponse, isFalse);
@@ -288,9 +262,9 @@ main() {
        
      });
    
-     sporran.clientCompleter = wrapper;
+     sporran3.clientCompleter = wrapper;
      onlineDoc.name = "Online - Updated";
-     sporran.put(docIdPutOnline, 
+     sporran3.put(docIdPutOnline, 
                  onlineDoc,
                  onlineDocRev);
      //var wrapper1 = expectAsync0(() {});
@@ -303,7 +277,7 @@ main() {
      print("3.6");
      var wrapper = expectAsync0(() {
        
-       JsonObject res = sporran.completionResponse;
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET); 
        expect(res.localResponse, isTrue);
@@ -312,9 +286,9 @@ main() {
        
      });
      
-     sporran.online = false;
-     sporran.clientCompleter = wrapper;
-     sporran.get(docIdPutOnline);
+     sporran3.online = false;
+     sporran3.clientCompleter = wrapper;
+     sporran3.get(docIdPutOnline);
      
    });
    
@@ -323,7 +297,7 @@ main() {
      print("3.7");
      var wrapper = expectAsync0(() {
        
-       JsonObject res = sporran.completionResponse;
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
        expect(res.localResponse, isTrue);
@@ -333,9 +307,9 @@ main() {
        
      });
      
-     sporran.online = false;
-     sporran.clientCompleter = wrapper;
-     sporran.get(docIdPutOffline);
+     sporran3.online = false;
+     sporran3.clientCompleter = wrapper;
+     sporran3.get(docIdPutOffline);
      
      
    });
@@ -345,7 +319,7 @@ main() {
      print("3.8");
      var wrapper = expectAsync0(() {
        
-       JsonObject res = sporran.completionResponse;
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isFalse);
        expect(res.operation, Sporran.GET); 
        expect(res.localResponse, isTrue);
@@ -355,11 +329,11 @@ main() {
        
      });
      
-     sporran.online = false;
-     sporran.clientCompleter = wrapper;
+     sporran3.online = false;
+     sporran3.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
-     sporran.get("Billy");
-     expect(sporran.hotCacheSize, 0);
+     sporran3.get("Billy");
+     expect(sporran3.hotCacheSize, 0);
      
      
    });
@@ -369,7 +343,7 @@ main() {
      print("3.9");
      var wrapper = expectAsync0(() {
        
-       JsonObject res = sporran.completionResponse;
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
        expect(res.payload.name, "Online - Updated");
@@ -379,9 +353,9 @@ main() {
        
      });
      
-     sporran.online = true;;
-     sporran.clientCompleter = wrapper;
-     sporran.get(docIdPutOnline);
+     sporran3.online = true;;
+     sporran3.clientCompleter = wrapper;
+     sporran3.get(docIdPutOnline);
      
      
    });
@@ -391,7 +365,7 @@ main() {
       print("3.10");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran3.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET);
         expect(res.localResponse, isFalse);
@@ -399,8 +373,8 @@ main() {
         
       });
       
-      sporran.clientCompleter = wrapper;
-      sporran.get("Billy");
+      sporran3.clientCompleter = wrapper;
+      sporran3.get("Billy");
       
       
     }); 
@@ -411,7 +385,7 @@ main() {
       print("3.11");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran3.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.DELETE); 
         expect(res.id, "Billy");
@@ -420,9 +394,9 @@ main() {
         
       });
       
-      sporran.online = false;;
-      sporran.clientCompleter = wrapper;
-      sporran.delete("Billy");
+      sporran3.online = false;;
+      sporran3.clientCompleter = wrapper;
+      sporran3.delete("Billy");
       
       
     }); 
@@ -432,20 +406,20 @@ main() {
        print("3.12");
        var wrapper = expectAsync0(() {
          
-         JsonObject res = sporran.completionResponse;
+         JsonObject res = sporran3.completionResponse;
          expect(res.ok, isTrue);
          expect(res.localResponse, isTrue);
          expect(res.operation, Sporran.DELETE); 
          expect(res.id, docIdPutOffline);
          expect(res.payload, isNull);
          expect(res.rev, isNull);
-         expect(sporran.pendingDeleteSize, 1);
+         expect(sporran3.pendingDeleteSize, 1);
          
        });
        
-       sporran.online = false;
-       sporran.clientCompleter = wrapper;
-       sporran.delete(docIdPutOffline);
+       sporran3.online = false;
+       sporran3.clientCompleter = wrapper;
+       sporran3.delete(docIdPutOffline);
        var wrapper1 = expectAsync0(() {});
        Timer pause = new Timer(new Duration(seconds:1), wrapper1);
        
@@ -457,20 +431,20 @@ main() {
        print("3.13");
        var wrapper = expectAsync0(() {
          
-         JsonObject res = sporran.completionResponse;
+         JsonObject res = sporran3.completionResponse;
          expect(res.ok, isTrue);
          expect(res.localResponse, isFalse);
          expect(res.operation, Sporran.DELETE); 
          expect(res.id, docIdPutOnline);
          expect(res.payload, isNotNull);
          expect(res.rev, anything);
-         expect(sporran.pendingDeleteSize, 1);
+         expect(sporran3.pendingDeleteSize, 1);
          
        });
        
-       sporran.online = true;
-       sporran.clientCompleter = wrapper;
-       sporran.delete(docIdPutOnline,
+       sporran3.online = true;
+       sporran3.clientCompleter = wrapper;
+       sporran3.delete(docIdPutOnline,
                       onlineDocRev);
        
        
@@ -481,7 +455,7 @@ main() {
   /* Group 4 - Sporran attachment put/get tests */
   group("4. Attachment Put/Get/Delete Tests - ", () {
     
-    Sporran sporran;
+    Sporran sporran4;
     
     String docIdPutOnline = "putOnline";
     String docIdPutOffline = "putOffline";
@@ -500,12 +474,12 @@ main() {
       print("4.1");
       var wrapper = expectAsync0(() {
       
-        expect(sporran.dbName, databaseName);
-        expect(sporran.lawnIsOpen, isTrue);
+        expect(sporran4.dbName, databaseName);
+        expect(sporran4.lawnIsOpen, isTrue);
       
       });
     
-      sporran = new Sporran(databaseName,
+      sporran4 = new Sporran(databaseName,
         hostName,
         true,
         port,
@@ -514,7 +488,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.first.then((e) => wrapper());  
+      sporran4.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -523,7 +497,7 @@ main() {
       print("4.2");
       var wrapper = expectAsync0(() {
                     
-          JsonObject res = sporran.completionResponse;
+          JsonObject res = sporran4.completionResponse;
           expect(res.ok, isTrue);
           expect(res.operation, Sporran.PUT);
           expect(res.id, docIdPutOnline);
@@ -535,10 +509,10 @@ main() {
         
       });
       
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
+      sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       onlineDoc.name = "Online";
-      sporran.put(docIdPutOnline, 
+      sporran4.put(docIdPutOnline, 
                   onlineDoc);
                                 
       
@@ -549,7 +523,7 @@ main() {
       print("4.3");
       var wrapper = expectAsync0(() {
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT); 
         expect(res.id, docIdPutOffline);
@@ -558,10 +532,10 @@ main() {
       
     });
     
-    sporran.online = false;
-    sporran.clientCompleter = wrapper;
+    sporran4.online = false;
+    sporran4.clientCompleter = wrapper;
     offlineDoc.name = "Offline";
-    sporran.put(docIdPutOffline, 
+    sporran4.put(docIdPutOffline, 
         offlineDoc);
     
     
@@ -572,7 +546,7 @@ main() {
       print("4.4");
       var wrapper = expectAsync0(() {
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
@@ -585,14 +559,14 @@ main() {
       
       });
     
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
+      sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "onlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran.putAttachment(docIdPutOnline, 
+      sporran4.putAttachment(docIdPutOnline, 
                           attachment);
     
     
@@ -603,7 +577,7 @@ main() {
       print("4.5");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT);  
         expect(res.id, docIdPutOffline);
@@ -615,14 +589,14 @@ main() {
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
+      sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "offlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran.putAttachment(docIdPutOffline, 
+      sporran4.putAttachment(docIdPutOffline, 
                             attachment);
       
       
@@ -633,7 +607,7 @@ main() {
       print("4.6");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
@@ -645,9 +619,9 @@ main() {
         
       });
       
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
-      sporran.getAttachment(docIdPutOnline, 
+      sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
+      sporran4.getAttachment(docIdPutOnline, 
                             "onlineAttachment");
       
       
@@ -658,7 +632,7 @@ main() {
       print("4.7");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.id, docIdPutOffline);
@@ -670,9 +644,9 @@ main() {
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.getAttachment(docIdPutOffline, 
+      sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
+      sporran4.getAttachment(docIdPutOffline, 
                             "offlineAttachment");
       
       
@@ -683,7 +657,7 @@ main() {
       print("4.8");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
@@ -694,9 +668,9 @@ main() {
         
       });
       
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
-      sporran.deleteAttachment(docIdPutOnline, 
+      sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
+      sporran4.deleteAttachment(docIdPutOnline, 
                                "onlineAttachment",
                                 onlineDocRev);
                                 
@@ -707,7 +681,7 @@ main() {
       print("4.9");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOffline);
@@ -718,9 +692,9 @@ main() {
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.deleteAttachment(docIdPutOffline, 
+      sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
+      sporran4.deleteAttachment(docIdPutOffline, 
                                "offlineAttachment",
                                 null);
                                 
@@ -731,7 +705,7 @@ main() {
       print("4.10");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOffline);
@@ -742,9 +716,9 @@ main() {
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.deleteAttachment(docIdPutOffline, 
+      sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
+      sporran4.deleteAttachment(docIdPutOffline, 
                                "Billy",
                                 null);
                                 
@@ -755,7 +729,7 @@ main() {
       print("4.11");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.DELETE); 
@@ -765,9 +739,9 @@ main() {
         
       });
       
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
-      sporran.delete(docIdPutOnline,
+      sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
+      sporran4.delete(docIdPutOnline,
                      onlineDocRev);
       
       
@@ -778,7 +752,7 @@ main() {
   /* Group 5 - Sporran Bulk Documents tests */
   group("5. Bulk Document Tests - ", () {
     
-    Sporran sporran;
+    Sporran sporran5;
     String docid1rev;
     String docid2rev;
     String docid3rev;
@@ -788,12 +762,12 @@ main() {
       print("5.1");
       var wrapper = expectAsync0(() {
       
-        expect(sporran.dbName, databaseName);
-        expect(sporran.lawnIsOpen, isTrue);
+        expect(sporran5.dbName, databaseName);
+        expect(sporran5.lawnIsOpen, isTrue);
       
       });
     
-      sporran = new Sporran(databaseName,
+      sporran5 = new Sporran(databaseName,
         hostName,
         true,
         port,
@@ -802,7 +776,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.first.then((e) => wrapper());  
+      sporran5.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -811,7 +785,7 @@ main() {
       print("5.2");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.BULK_CREATE); 
@@ -852,9 +826,8 @@ main() {
       docs['docid2'] = document2;
       docs['docid3'] = document3;
       
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
-      sporran.bulkCreate(docs);
+      sporran5.clientCompleter = wrapper;
+      sporran5.bulkCreate(docs);
       
       
     });
@@ -864,7 +837,7 @@ main() {
       print("5.3");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.BULK_CREATE); 
@@ -899,9 +872,9 @@ main() {
       docs['docid2offline'] = document2;
       docs['docid3offline'] = document3;
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.bulkCreate(docs);
+      sporran5.online = false;
+      sporran5.clientCompleter = wrapper;
+      sporran5.bulkCreate(docs);
       
       
     });
@@ -911,7 +884,7 @@ main() {
       print("5.4");
       var wrapper = expectAsync0((){
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.GET_ALL_DOCS); 
@@ -926,9 +899,9 @@ main() {
       
       });
     
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
-      sporran.getAllDocs(includeDocs:true);
+      sporran5.online = true;
+      sporran5.clientCompleter = wrapper;
+      sporran5.getAllDocs(includeDocs:true);
     
     
     }); 
@@ -938,7 +911,7 @@ main() {
       print("5.5");
       var wrapper = expectAsync0((){
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.GET_ALL_DOCS); 
@@ -955,12 +928,12 @@ main() {
       
       });
     
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
+      sporran5.online = false;
+      sporran5.clientCompleter = wrapper;
       List keys = ['docid1offline', 'docid2offline', 'docid3offline',
                  'docid1', 'docid2', 'docid3'];
     
-      sporran.getAllDocs(keys:keys);
+      sporran5.getAllDocs(keys:keys);
     
     
     }); 
@@ -970,7 +943,7 @@ main() {
       print("5.6");
       var wrapper = expectAsync0((){
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.DB_INFO); 
@@ -987,10 +960,9 @@ main() {
       
       });
     
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
+      sporran5.clientCompleter = wrapper;
     
-      sporran.getDatabaseInfo();
+      sporran5.getDatabaseInfo();
     
     }); 
   
@@ -999,7 +971,7 @@ main() {
       print("5.7");
       var wrapper = expectAsync0((){
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.DB_INFO); 
@@ -1011,10 +983,10 @@ main() {
         
       });
       
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
+      sporran5.online = true;
+      sporran5.clientCompleter = wrapper;
       
-      sporran.getDatabaseInfo();
+      sporran5.getDatabaseInfo();
       
       
     }); 
@@ -1024,11 +996,10 @@ main() {
       print("5.8");
       var wrapper = expectAsync0((){},count:3);
     
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
-      sporran.delete('docid1', docid1rev);
-      sporran.delete('docid2', docid2rev);
-      sporran.delete('docid3', docid3rev);
+      sporran5.clientCompleter = wrapper;
+      sporran5.delete('docid1', docid1rev);
+      sporran5.delete('docid2', docid2rev);
+      sporran5.delete('docid3', docid3rev);
     
     });
   
@@ -1037,7 +1008,7 @@ main() {
   /* Group 6 - Sporran Change notification tests */
   group("6. Change notification Tests Documents - ", () {
     
-    Sporran sporran;
+    Sporran sporran6;
     
     /* We use Wilt here to change the CouchDb database independently
      * of Sporran, these change will be picked up in change notifications.
@@ -1065,12 +1036,12 @@ main() {
       print("6.1");
       var wrapper = expectAsync0(() {
       
-        expect(sporran.dbName, databaseName);
-        expect(sporran.lawnIsOpen, isTrue);
+        expect(sporran6.dbName, databaseName);
+        expect(sporran6.lawnIsOpen, isTrue);
       
       });
     
-      sporran = new Sporran(databaseName,
+      sporran6 = new Sporran(databaseName,
         hostName,
         false,
         port,
@@ -1079,7 +1050,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.first.then((e) => wrapper());  
+      sporran6.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -1159,7 +1130,7 @@ main() {
       print("6.4");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1170,9 +1141,9 @@ main() {
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.get("MyBulkId1");
+      sporran6.online = false;
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId1");
     
     
     });
@@ -1182,7 +1153,7 @@ main() {
       print("6.5");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1193,8 +1164,8 @@ main() {
         
       });
      
-      sporran.clientCompleter = wrapper;
-      sporran.get("MyBulkId2");
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId2");
     
     });
   
@@ -1203,7 +1174,7 @@ main() {
       print("6.6");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1214,8 +1185,8 @@ main() {
         
       });
      
-      sporran.clientCompleter = wrapper;
-      sporran.get("MyBulkId3");
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId3");
     
     });
   
@@ -1328,16 +1299,16 @@ main() {
       print("6.11");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.get("MyBulkId1");
+      sporran6.online = false;
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId1");
     
     
     });
@@ -1347,15 +1318,15 @@ main() {
       print("6.12");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
         
       });
      
-      sporran.clientCompleter = wrapper;
-      sporran.get("MyBulkId2");
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId2");
     
     });
   
@@ -1364,15 +1335,15 @@ main() {
       print("6.13");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
         
       });
      
-      sporran.clientCompleter = wrapper;
-      sporran.get("MyBulkId3");
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId3");
     
     });
   
@@ -1381,7 +1352,7 @@ main() {
   /* Group 7 - Sporran Change notification tests */
   group("7. Change notification Tests Attachments - ", () {
     
-    Sporran sporran;
+    Sporran sporran7;
     
     /* We use Wilt here to change the CouchDb database independently
      * of Sporran, these change will be picked up in change notifications.
@@ -1413,12 +1384,12 @@ main() {
       print("7.1");
       var wrapper = expectAsync0(() {
       
-        expect(sporran.dbName, databaseName);
-        expect(sporran.lawnIsOpen, isTrue);
+        expect(sporran7.dbName, databaseName);
+        expect(sporran7.lawnIsOpen, isTrue);
       
       });
     
-      sporran = new Sporran(databaseName,
+      sporran7 = new Sporran(databaseName,
         hostName,
         false,
         port,
@@ -1427,7 +1398,7 @@ main() {
         userPassword);
     
     
-      sporran.onReady.first.then((e) => wrapper());  
+      sporran7.onReady.first.then((e) => wrapper());  
   
     });
     
@@ -1506,7 +1477,7 @@ main() {
       print("7.4");
       var wrapper = expectAsync0(() {
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran7.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
         expect(res.id, "MyBulkId1");
@@ -1519,14 +1490,14 @@ main() {
       
       });
     
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
+      sporran7.online = true;
+      sporran7.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran.putAttachment("MyBulkId1", 
+      sporran7.putAttachment("MyBulkId1", 
                           attachment);
     
     
@@ -1537,7 +1508,7 @@ main() {
       print("7.5");
       var wrapper = expectAsync0(() {
       
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran7.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
         expect(res.id, "MyBulkId1");
@@ -1550,14 +1521,14 @@ main() {
       
       });
     
-      sporran.online = true;
-      sporran.clientCompleter = wrapper;
+      sporran7.online = true;
+      sporran7.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran.putAttachment("MyBulkId1", 
+      sporran7.putAttachment("MyBulkId1", 
                           attachment);
     
     
@@ -1622,16 +1593,16 @@ main() {
       print("7.9");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran.completionResponse;
+        JsonObject res = sporran7.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.localResponse, isTrue);
         
       });
       
-      sporran.online = false;
-      sporran.clientCompleter = wrapper;
-      sporran.getAttachment('MyBulkId1', 
+      sporran7.online = false;
+      sporran7.clientCompleter = wrapper;
+      sporran7.getAttachment('MyBulkId1', 
                             'AttachmentName1');
       
       
