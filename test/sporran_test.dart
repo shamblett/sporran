@@ -1828,7 +1828,7 @@ main() {
     
     });
     
-    test("4. Create Attachment Offline docid2 Attachment 2", () { 
+    test("4. Create Attachment Offline docid1 Attachment 2", () { 
       
       print("8.4");
       var wrapper = expectAsync0(() {
@@ -1836,10 +1836,10 @@ main() {
         JsonObject res = sporran8.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid2");
+        expect(res.id, "docid1");
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
-        docid2rev = res.rev;
+        docid1rev = res.rev;
         expect(res.payload.attachmentName,"AttachmentName2");
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -1849,6 +1849,37 @@ main() {
       sporran8.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName2";
+      attachment.rev = docid1rev;
+      attachment.contentType = 'image/png';
+      attachment.payload = attachmentPayload;
+      sporran8.putAttachment("docid1", 
+                          attachment);
+    
+    
+    });
+    
+    
+    test("5. Create Attachment Offline docid2 Attachment 1", () { 
+      
+      print("8.5");
+      var wrapper = expectAsync0(() {
+      
+        JsonObject res = sporran8.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.PUT_ATTACHMENT); 
+        expect(res.id, "docid2");
+        expect(res.localResponse, isTrue);
+        expect(res.rev, anything);
+        docid2rev = res.rev;
+        expect(res.payload.attachmentName,"AttachmentName1");
+        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload, attachmentPayload);
+      
+      });
+    
+      sporran8.clientCompleter = wrapper;
+      JsonObject attachment = new JsonObject();
+      attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
@@ -1859,9 +1890,9 @@ main() {
     });
     
 
-    test("5. Delete Document Offline docid3", () { 
+    test("6. Delete Document Offline docid3", () { 
       
-      print("8.5");
+      print("8.6");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran8.completionResponse;
@@ -1881,34 +1912,34 @@ main() {
       
     });
     
-    test("6. Sync Pause", () { 
+    test("7. Sync Pause", () { 
       
-      print("8.6");
+      print("8.7");
       var wrapper = expectAsync0(() {});
       
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
     
-    test("7. Transition to online", () { 
+    test("8. Transition to online", () { 
       
-      print("8.7");
+      print("8.8");
       sporran8.online = true;
            
     });
     
-    test("8. Sync Pause", () { 
+    test("9. Sync Pause", () { 
       
-      print("8.8");
+      print("8.9");
       var wrapper = expectAsync0(() {});
       
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
     
-    test("9. Check - Get All Docs Online", () {  
+    test("10. Check - Get All Docs Online", () {  
       
-      print("8.9");
+      print("8.10");
       var wrapper = expectAsync0((){
       
         JsonObject res = sporran8.completionResponse;
@@ -1943,9 +1974,9 @@ main() {
     
     }); 
     
-    test("10. Delete Document Online docid1", () { 
+    test("11. Delete Document Online docid1", () { 
       
-      print("8.10");
+      print("8.11");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran8.completionResponse;
@@ -1965,9 +1996,9 @@ main() {
       
     });
     
-    test("11. Delete Document Online docid2", () { 
+    test("12. Delete Document Online docid2", () { 
       
-      print("8.11");
+      print("8.12");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran8.completionResponse;
