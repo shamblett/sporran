@@ -519,6 +519,7 @@ class _SporranDatabase {
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
     update.status = UPDATED;
+    update.key = key;
     update.payload = payload;
     return update;
     
@@ -534,6 +535,7 @@ class _SporranDatabase {
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
     update.status = NOT_UPDATED;
+    update.key = key;
     update.payload = payload;
     return update;
     
@@ -736,16 +738,12 @@ class _SporranDatabase {
     
     wilting.db = _dbName;
     wilting.resultCompletion = null;
-    try {
     wilting.updateAttachment(key, 
                              name, 
                              revision, 
                              contentType, 
                              payload);
-    } catch (e) {
-      
-      
-    }
+    
     
   }
   
@@ -816,6 +814,7 @@ class _SporranDatabase {
         
      /* Do the bulk create*/
      wilting.resultCompletion = localCompleter;
+     wilting.db = _dbName;
      wilting.bulkString(docs);
      
      return completer.future;
@@ -864,11 +863,9 @@ class _SporranDatabase {
    /**
     * Get a list of non updated documents and attachments from Lawndart and the hot cache
     */
-   lawndart.keys().listen((String key) {
+   lawndart.all().listen((Map document) {
      
-     lawndart.getByKey(key)..
-     then((document) {
-       
+       String key = document['key'];
        if ( document['status'] == NOT_UPDATED ) {
          
          JsonObject payload = new JsonObject.fromMap(document['payload']);
@@ -887,7 +884,6 @@ class _SporranDatabase {
          
        }
        
-     });
      
    }, onDone:() {
      
@@ -926,7 +922,9 @@ class _SporranDatabase {
              */
             try{
               revisions[resp.id] = resp.rev;
-            } catch(e) {}
+            } catch(e) {
+              revisions[resp.id] = null;      
+            }
            
          });
          
@@ -938,12 +936,13 @@ class _SporranDatabase {
       /* Finally do the attachments */
       attachmentsToUpdate.forEach((String key, JsonObject attachment) {
         
-        if ( attachment.rev = null ) attachment.rev = revisions[key];
-        updateAttachment(key,
+        List keyList = key.split('-');
+        if ( attachment.rev == null ) attachment.rev = revisions[keyList[0]];
+        updateAttachment(keyList[0],
                          attachment.attachmentName,
                          attachment.rev,
                          attachment.contentType,
-                         attachment.payload);
+                         attachment.payload); //TODO add a completer, get the updated doc revision
         
       });
            

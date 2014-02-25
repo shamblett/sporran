@@ -400,67 +400,65 @@ class Sporran {
     
      
      /* Remove from Lawndart */
-     _database.lawndart.exists(id)
-       ..then((bool exists) {
+     _database.lawndart.getByKey(id)..
+     then((document) {
          
-         if ( exists ) {
+         if ( document != null) {
            
            /* Remove from the hot cache */
            _database.remove(id);
-           
-           _database.lawndart.getByKey(id)..
-           then((document) {
-             
-             JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
-             _database.lawndart.removeByKey(id);
-                     
-             /* Check for offline, if so add to the pending delete queue and return */
-             if ( !online ) {
-       
-              _database.addPendingDelete(id, deletedDocument);
-              JsonObject res = new JsonObject();
-              res.localResponse = true;
-              res.operation = DELETE;
-              res.ok = true; 
-              res.id = id;
-              res.payload = null;
-              res.rev = null;
-               _completionResponse = _createCompletionResponse(res);
-               _clientCompleter();      
-              return;
               
-             } else { 
-       
-              /* Online, delete from CouchDb */
-              void completer() {
-                
-                JsonObject res = _database.wilt.completionResponse;
-                res.operation = DELETE;
-                res.localResponse = false;
-                res.payload = res.jsonCouchResponse;
-                res.id = id;
-                res.rev = res.jsonCouchResponse.rev;
-                if ( res.error ) {
-                    
-                  res.ok = false; 
-                  
-                } else {
-                  
-                  res.ok = true;
-                  
-                }
-                
-               _completionResponse = _createCompletionResponse(res);
-               _clientCompleter();
-       
-             }
-     
-            /* Delete the document from CouchDb */
-            _database.wilt.resultCompletion = completer;
-            _database.wilt.deleteDocument(id, rev); 
-          
-             }
-            
+             JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
+             _database.lawndart.removeByKey(id)..
+             then((_) {
+               
+               /* Check for offline, if so add to the pending delete queue and return */
+               if ( !online ) {
+                 
+                 _database.addPendingDelete(id, deletedDocument);
+                 JsonObject res = new JsonObject();
+                 res.localResponse = true;
+                 res.operation = DELETE;
+                 res.ok = true; 
+                 res.id = id;
+                 res.payload = null;
+                 res.rev = null;
+                 _completionResponse = _createCompletionResponse(res);
+                 _clientCompleter();      
+                 return;
+                 
+               } else { 
+                 
+                 /* Online, delete from CouchDb */
+                 void completer() {
+                   
+                   JsonObject res = _database.wilt.completionResponse;
+                   res.operation = DELETE;
+                   res.localResponse = false;
+                   res.payload = res.jsonCouchResponse;
+                   res.id = id;
+                   res.rev = res.jsonCouchResponse.rev;
+                   if ( res.error ) {
+                     
+                     res.ok = false; 
+                     
+                   } else {
+                     
+                     res.ok = true;
+                     
+                   }
+                   
+                   _completionResponse = _createCompletionResponse(res);
+                   _clientCompleter();
+                   
+                 }
+                 
+                 /* Delete the document from CouchDb */
+                 _database.wilt.resultCompletion = completer;
+                 _database.wilt.deleteDocument(id, rev); 
+                 
+               }
+                     
            });
            
          } else {
@@ -472,9 +470,17 @@ class Sporran {
            /* Try the hot cache */
            JsonObject document = _database.get(id);
            res.ok = false;
-           if ( document != null ) res.ok = true;
-           /* Remove from the hot cache */
-           _database.remove(id);
+           if ( document != null ) { 
+              
+             res.ok = true;
+            /* Remove from the hot cache */
+            _database.remove(id);
+            /* Try Lawn again but don't check for a response */
+            _database.lawndart.removeByKey(id);
+            /* Pending delete if offline */
+            if ( !online ) _database.addPendingDelete(id, document);
+            
+           }
            res.id = id;
            res.payload = null;
            res.rev = null;
@@ -593,79 +599,88 @@ class Sporran {
      
      String key = "$id-$attachmentName-${_SporranDatabase.ATTACHMENTMARKER}";
      
-     /* Remove from the hot cache */
-     _database.remove(key);
-     
      /* Remove from Lawndart */
-     _database.lawndart.exists(key)
-       ..then((bool exists) {
+     _database.lawndart.getByKey(id)..
+     then((document) {
          
-         if ( exists ) {
+         if ( document != null) {
            
-           _database.lawndart.getByKey(id)..
-           then((document) {
-             
-              JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
-             _database.lawndart.removeByKey(key);
-           
-             /* Check for offline, if so add to the pending delete queue and return */
-             if ( !online ) {
-       
-              _database.addPendingDelete(key, deletedDocument);
-              JsonObject res = new JsonObject();
-              res.localResponse = true;
-              res.operation = DELETE_ATTACHMENT;
-              res.ok = true; 
-              res.id = id;
-              res.payload = null;
-              res.rev = null;
-              _completionResponse = _createCompletionResponse(res);
-              _clientCompleter();
-              return;
-             
-            } else { 
-       
-              /* Online, delete from CouchDb */
-              void completer() {
-                
-                JsonObject res = _database.wilt.completionResponse;
-                res.operation = DELETE_ATTACHMENT;
-                res.localResponse = false;
-                res.payload = res.jsonCouchResponse;
-                res.id = id;
-                res.rev = res.jsonCouchResponse.rev;
-                if ( res.error ) {
-                    
-                  res.ok = false; 
-                  
-                } else {
-                  
-                  res.ok = true;
-                  
-                }
+           /* Remove from the hot cache */
+           _database.remove(id);
+              
+             JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
+             _database.lawndart.removeByKey(id)..
+             then((_) {
                
-               _completionResponse = _createCompletionResponse(res);
-               _clientCompleter();
-       
-            };
-     
-            /* Delete the document from CouchDb */
-            _database.wilt.resultCompletion = completer;
-            _database.wilt.deleteAttachment(id, 
-                                            attachmentName,
-                                            rev); 
-            
-           }
-             
-          });
+               /* Check for offline, if so add to the pending delete queue and return */
+               if ( !online ) {
+                 
+                 _database.addPendingDelete(id, deletedDocument);
+                 JsonObject res = new JsonObject();
+                 res.localResponse = true;
+                 res.operation = DELETE_ATTACHMENT;
+                 res.ok = true; 
+                 res.id = id;
+                 res.payload = null;
+                 res.rev = null;
+                 _completionResponse = _createCompletionResponse(res);
+                 _clientCompleter();      
+                 return;
+                 
+               } else { 
+                 
+                 /* Online, delete from CouchDb */
+                 void completer() {
+                   
+                   JsonObject res = _database.wilt.completionResponse;
+                   res.operation = DELETE_ATTACHMENT;
+                   res.localResponse = false;
+                   res.payload = res.jsonCouchResponse;
+                   res.id = id;
+                   res.rev = res.jsonCouchResponse.rev;
+                   if ( res.error ) {
+                     
+                     res.ok = false; 
+                     
+                   } else {
+                     
+                     res.ok = true;
+                     
+                   }
+                   
+                   _completionResponse = _createCompletionResponse(res);
+                   _clientCompleter();
+                   
+                 }
+                 
+                 /* Delete the document from CouchDb */
+                 _database.wilt.resultCompletion = completer;
+                 _database.wilt.deleteDocument(id, rev); 
+                 
+               }
+                     
+           });
            
          } else {
            
-           /* Doesnt exists, return error */
+           /* Doesnt exist, return error */
            JsonObject res = new JsonObject();
            res.localResponse = true;
-           res.operation = DELETE_ATTACHMENT;
+           res.operation = DELETE;
+           /* Try the hot cache */
+           JsonObject document = _database.get(id);
            res.ok = false;
+           if ( document != null ) { 
+              
+             res.ok = true;
+            /* Remove from the hot cache */
+            _database.remove(id);
+            /* Try Lawn again but don't check for a response */
+            _database.lawndart.removeByKey(id);
+            /* Pending delete if offline */
+            if ( !online ) _database.addPendingDelete(id, document);
+            
+           }
            res.id = id;
            res.payload = null;
            res.rev = null;
@@ -674,7 +689,7 @@ class Sporran {
            
          }
          
-      });  
+      });
      
    }
    
