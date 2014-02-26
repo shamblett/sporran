@@ -437,7 +437,7 @@ class Sporran {
                    res.localResponse = false;
                    res.payload = res.jsonCouchResponse;
                    res.id = id;
-                   res.rev = res.jsonCouchResponse.rev;
+                   res.rev = null;
                    if ( res.error ) {
                      
                      res.ok = false; 
@@ -445,6 +445,7 @@ class Sporran {
                    } else {
                      
                      res.ok = true;
+                     res.rev = res.jsonCouchResponse.rev;
                      
                    }
                    
@@ -637,7 +638,7 @@ class Sporran {
                    res.localResponse = false;
                    res.payload = res.jsonCouchResponse;
                    res.id = id;
-                   res.rev = res.jsonCouchResponse.rev;
+                   res.rev = null;
                    if ( res.error ) {
                      
                      res.ok = false; 
@@ -645,6 +646,7 @@ class Sporran {
                    } else {
                      
                      res.ok = true;
+                     res.rev = res.jsonCouchResponse.rev;
                      
                    }
                    

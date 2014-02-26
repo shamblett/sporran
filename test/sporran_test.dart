@@ -1936,10 +1936,19 @@ main() {
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
-    
-    test("10. Check - Get All Docs Online", () {  
+          
+    test("10. Sync Pause", () { 
       
       print("8.10");
+      var wrapper = expectAsync0(() {});
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });
+    
+    test("11. Check - Get All Docs Online", () {  
+      
+      print("8.11");
       var wrapper = expectAsync0((){
       
         JsonObject res = sporran8.completionResponse;
@@ -1959,7 +1968,7 @@ main() {
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute,"Doc 1 attribute");
         List doc1Attachments = WiltUserUtils.getAttachments(successResponse.rows[0].doc);
-        expect(doc1Attachments.length, 1);
+        expect(doc1Attachments.length, 2);
         expect(successResponse.rows[1].doc.title, "Document 2" );
         expect(successResponse.rows[1].doc.version, 2);
         expect(successResponse.rows[1].doc.attribute,"Doc 2 attribute");
@@ -1974,9 +1983,9 @@ main() {
     
     }); 
     
-    test("11. Delete Document Online docid1", () { 
+    test("12. Delete Document Online docid1", () { 
       
-      print("8.11");
+      print("8.12");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran8.completionResponse;
@@ -1996,9 +2005,9 @@ main() {
       
     });
     
-    test("12. Delete Document Online docid2", () { 
+    test("13. Delete Document Online docid2", () { 
       
-      print("8.12");
+      print("8.13");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran8.completionResponse;

@@ -736,8 +736,64 @@ class _SporranDatabase {
                     _password);
     }
     
+    void getCompleter() {
+      
+      /**
+       * If the document doesnt already have an attachment 
+       * with this name get the revision and add this one.
+       * We don't care about the outcome, if it errors there's
+       * nothing we can do.
+       */
+      JsonObject res = wilting.completionResponse;
+      if ( !res.error ) {
+        
+        JsonObject successResponse = res.jsonCouchResponse;
+        List attachments = WiltUserUtils.getAttachments(successResponse);
+        bool found = false;
+        attachments.forEach((JsonObject attachment) {
+          
+          if ( attachment.name == name ) found = true;
+          
+        });
+        
+        if ( !found ) {
+          
+          String newRevision = WiltUserUtils.getDocumentRev(successResponse);
+          wilting.resultCompletion = null;
+          wilting.updateAttachment(key, 
+              name, 
+              newRevision, 
+              contentType, 
+              payload);
+                 
+        }
+        
+      }     
+      
+    }
+    
+    void putCompleter() {
+      
+      /**
+       * If we have a conflict, get the document to get its
+       * latest revision
+       */
+      JsonObject res = wilting.completionResponse;
+      if ( res.error ) {
+        
+        if ( res.errorCode == 409 ) {
+          
+          wilting.resultCompletion = getCompleter;
+          wilting.getDocument(key);
+          
+        }
+        
+      }
+      
+    }
+    
     wilting.db = _dbName;
-    wilting.resultCompletion = null;
+    wilting.resultCompletion = putCompleter;
     wilting.updateAttachment(key, 
                              name, 
                              revision, 
@@ -942,7 +998,7 @@ class _SporranDatabase {
                          attachment.attachmentName,
                          attachment.rev,
                          attachment.contentType,
-                         attachment.payload); //TODO add a completer, get the updated doc revision
+                         attachment.payload); 
         
       });
            
