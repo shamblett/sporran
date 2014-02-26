@@ -145,6 +145,18 @@ class Sporran {
   }
   
   /**
+   * Manual control of sync().
+   * 
+   * Usually Sporran syncs when a transition to online is detected,
+   * however this can be disabled, use in conjunction with manual 
+   * change notification control. If this is set to false you must
+   * call sync() explicitly.
+   */
+  bool _autoSync = true;
+  bool get autoSync => _autoSync;
+  set autoSync(bool state) => _autoSync = state;
+  
+  /**
    * Construction.
    * 
    */
@@ -193,7 +205,7 @@ class Sporran {
       
     } else {
       
-      sync();
+      if ( _autoSync ) sync();
     
     }
     
@@ -254,6 +266,7 @@ class Sporran {
            [String rev = null]){
     
     /* Update LawnDart */
+    print("putting $id");
     _database.updateLocalStorageObject(id,
                     document,
                     _SporranDatabase.NOT_UPDATED);
@@ -291,8 +304,7 @@ class Sporran {
             document,
             _SporranDatabase.UPDATED);
         
-        res.ok = true;
-       
+        res.ok = true;   
         res.rev = res.jsonCouchResponse.rev;
         
       } else {
@@ -465,6 +477,7 @@ class Sporran {
          } else {
            
            /* Doesnt exist, return error */
+           print("doesnt exist");
            JsonObject res = new JsonObject();
            res.localResponse = true;
            res.operation = DELETE;
@@ -668,7 +681,7 @@ class Sporran {
            /* Doesnt exist, return error */
            JsonObject res = new JsonObject();
            res.localResponse = true;
-           res.operation = DELETE;
+           res.operation = DELETE_ATTACHMENT;
            /* Try the hot cache */
            JsonObject document = _database.get(id);
            res.ok = false;
