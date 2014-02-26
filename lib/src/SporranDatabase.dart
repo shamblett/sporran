@@ -184,6 +184,7 @@ class _SporranDatabase {
       
       updateLocalStorageObject(e.docId,
                                e.document,
+                               e.docRevision,
                                UPDATED);
       
       /* Now update the attachments */
@@ -423,10 +424,10 @@ class _SporranDatabase {
    * Add a key to the pending delete queue
    */
   void addPendingDelete(String key,
-                        JsonObject document) {
+                        Map document) {
     
-    
-    _pendingDeletes[key] = document;
+    JsonObject deletedDocument = new JsonObject.fromMap(document);
+    _pendingDeletes[key] = deletedDocument;
     
   }
   
@@ -494,6 +495,7 @@ class _SporranDatabase {
           String key = "$id-${attachment.name}-${_SporranDatabase.ATTACHMENTMARKER}";
           updateLocalStorageObject(key,
               newAttachment,
+              newAttachment.rev,
               _SporranDatabase.UPDATED);
           
         }
@@ -514,6 +516,7 @@ class _SporranDatabase {
    * Create local storage updated entry 
    */
   JsonObject _createUpdated(String key,
+                            String revision,
                            JsonObject payload) {
     
     /* Add our type marker and set to 'not updated' */
@@ -521,6 +524,7 @@ class _SporranDatabase {
     update.status = UPDATED;
     update.key = key;
     update.payload = payload;
+    update.rev = revision;
     return update;
     
     
@@ -530,6 +534,7 @@ class _SporranDatabase {
    * Create local storage not updated entry
    */
   JsonObject _createNotUpdated(String key,
+                               String revision,
                                JsonObject payload) {
     
     /* Add our type marker and set to 'not updated' */
@@ -537,6 +542,7 @@ class _SporranDatabase {
     update.status = NOT_UPDATED;
     update.key = key;
     update.payload = payload;
+    update.rev = revision;
     return update;
     
     
@@ -550,6 +556,7 @@ class _SporranDatabase {
    */
   void updateLocalStorageObject(String key,
                                 JsonObject update,
+                                String revision,
                                 String updateStatus) {
     
     /* Check for not initialized */
@@ -562,10 +569,12 @@ class _SporranDatabase {
     JsonObject localUpdate = new JsonObject();
     if ( updateStatus == NOT_UPDATED) {
       localUpdate = _createNotUpdated(key,
+                                      revision,
                                       update);
     } else {
       localUpdate = _createUpdated(key,
-          update);
+                                   revision,
+                                   update);
     }
     
     /**
@@ -661,7 +670,10 @@ class _SporranDatabase {
   }
   
   /**
-   * Delete a CouchDb document
+   * Delete a CouchDb document.
+   * 
+   * If this fails we probably have a conflict in which case
+   * Couch wins.
    */
   void delete(String key,
               String revision) {
@@ -687,7 +699,10 @@ class _SporranDatabase {
   }
   
   /**
-   * Delete a CouchDb attachment
+   * Delete a CouchDb attachment.
+   * 
+   * If this fails we probably have a conflict in which case
+   * Couch wins.
    */
   void deleteAttachment(String key,
                         String name,
@@ -860,8 +875,14 @@ class _SporranDatabase {
      List documentList = new List<String>();
      docList.forEach((key, document) {
        
-       String docString = WiltUserUtils.addDocumentId(document,
-                                                      key); 
+       String docString = WiltUserUtils.addDocumentId(document.payload,
+                                                               key);
+       if ( document.rev != null ) {
+       
+         JsonObject temp = new JsonObject.fromJsonString(docString);
+         docString = WiltUserUtils.addDocumentRev(temp, document.rev);
+       }
+       
        documentList.add(docString);
        
      });
@@ -877,6 +898,36 @@ class _SporranDatabase {
     
   }
   
+  /**
+   * Upadate the revision of any attachments for a document
+   * if the document is updated from Couch
+   */
+  void updateAttachmentRevisions(String id,
+                                 String revision) {
+    
+    
+    lawndart.all().listen((Map document) {
+      
+      String key = document['key'];
+        List keyList = key.split('-');
+        if ( (keyList.length == 3) &&
+            (keyList[2] == ATTACHMENTMARKER) ) {
+          
+          if ( id == keyList[0]) {
+            
+            JsonObject attachment = new JsonObject.fromMap(document);
+            updateLocalStorageObject(id,
+                                     attachment,
+                                     revision,
+                                     UPDATED);
+            
+          }
+          
+        }
+       
+    });
+    
+  }
   
   /**
    * Synchronise local storage with CouchDb
@@ -888,7 +939,11 @@ class _SporranDatabase {
      */
     pendingDeletes.forEach((String key, JsonObject document) {
       
-      String revision = WiltUserUtils.getDocumentRev(document);
+      /**
+       * If there is no revision the document hasn't been updated 
+       * from Couch, we have to ignore this here.
+       */
+      String revision = document.rev;
       if ( revision != null ) {
        
          /* Check for an attachment */
@@ -896,7 +951,7 @@ class _SporranDatabase {
          if ( (keyList.length == 3) &&
               (keyList[2] == _SporranDatabase.ATTACHMENTMARKER) ) {
          
-          deleteAttachment(key,
+          deleteAttachment(keyList[0],
                            keyList[1],
                            revision);
          
@@ -924,17 +979,17 @@ class _SporranDatabase {
        String key = document['key'];
        if ( document['status'] == NOT_UPDATED ) {
          
-         JsonObject payload = new JsonObject.fromMap(document['payload']);
+         JsonObject update = new JsonObject.fromMap(document);
          /* If an attachment just stack it */
          List keyList = key.split('-');
          if ( (keyList.length == 3) &&
              (keyList[2] == ATTACHMENTMARKER) ) {
            
-           attachmentsToUpdate[key] = payload;
+           attachmentsToUpdate[key] = update;
            
          } else {
            
-          documentsToUpdate[key] = payload;
+          documentsToUpdate[key] = update;
           
          }
          
@@ -948,17 +1003,17 @@ class _SporranDatabase {
       */
      _hotCache.forEach((String key, JsonObject document) {
        
-       JsonObject payload = new JsonObject.fromMap(document['payload']);
+       JsonObject update = new JsonObject.fromMap(document);
        /* If an attachment just stack it */
        List keyList = key.split('-');
        if ( (keyList.length == 3) &&
            (keyList[2] == ATTACHMENTMARKER) ) {
          
-          attachmentsToUpdate[key] = payload;
+          attachmentsToUpdate[key] = update;
          
        } else {
          
-          documentsToUpdate[key] = payload;
+          documentsToUpdate[key] = update;
        
        }
        
@@ -995,10 +1050,10 @@ class _SporranDatabase {
         List keyList = key.split('-');
         if ( attachment.rev == null ) attachment.rev = revisions[keyList[0]];
         updateAttachment(keyList[0],
-                         attachment.attachmentName,
+                         attachment.payload.attachmentName,
                          attachment.rev,
-                         attachment.contentType,
-                         attachment.payload); 
+                         attachment.payload.contentType,
+                         attachment.payload.payload); 
         
       });
            

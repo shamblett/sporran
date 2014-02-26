@@ -4,19 +4,7 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  * 
- * Sporran allows clients to use databse facilities in both online and offline browser modes.
- * 
- * It uses Lawndart as a shadow database for CouchDb where all updates are written to Lawndart and
- * marked as 'not updated', then written to CouchDb, if the write succeeds the Lawndart update
- * is now marked as 'updated'. Similarly database reads which complete  successfully in CouchDb are 
- * updated locally before returning the result to the client. In parallel with this change notifications
- * are reieved from CouchDb and the local database synced where needed.
- * 
- * This allows the client to continue working offline, when returniing to online Sporran automatically
- * writes all 'not updated' entries to CouchDb and proceses any other change notifications as normal.
- * 
- * The online/Offline browser events trigger automatic switching between online and offline modes, the
- * client can however set this mode himself whenever he choses.
+ * TODO add header comment
  * 
  */
 
@@ -259,7 +247,7 @@ class Sporran {
    * 
    * If the document does not exist a create is performed.
    * 
-   * For an upadte operation a specific revision must be specified.
+   * For an update operation a specific revision must be specified.
    */
   void put(String id,
            JsonObject document,
@@ -268,6 +256,7 @@ class Sporran {
     /* Update LawnDart */
     _database.updateLocalStorageObject(id,
                     document,
+                    rev,
                     _SporranDatabase.NOT_UPDATED);
     
     
@@ -280,7 +269,7 @@ class Sporran {
       res.ok = true;
       res.payload = document;
       res.id = id;
-      res.rev = null;
+      res.rev = rev;
       _completionResponse = _createCompletionResponse(res);
       _clientCompleter();
       return;
@@ -299,12 +288,15 @@ class Sporran {
       res.payload = document;
       if ( !res.error) {
         
+        res.rev = res.jsonCouchResponse.rev;
         _database.updateLocalStorageObject(id,
             document,
+            rev,
             _SporranDatabase.UPDATED);
+        _database.updateAttachmentRevisions(id,
+                                            rev);
         
         res.ok = true;   
-        res.rev = res.jsonCouchResponse.rev;
         
       } else {
       
@@ -373,11 +365,12 @@ class Sporran {
           res.localResponse = false;
           if ( !res.error ) {
         
+            res.rev = WiltUserUtils.getDocumentRev(res.jsonCouchResponse);
             _database.updateLocalStorageObject(id,
                             res.jsonCouchResponse,
+                            res.rev,
                             _SporranDatabase.UPDATED);  
             res.ok = true;
-            res.rev = WiltUserUtils.getDocumentRev(res.jsonCouchResponse);
             res.payload = res.jsonCouchResponse;           
             
           } else {
@@ -419,14 +412,13 @@ class Sporran {
            /* Remove from the hot cache */
            _database.remove(id);
               
-             JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
              _database.lawndart.removeByKey(id)..
              then((_) {
                
                /* Check for offline, if so add to the pending delete queue and return */
                if ( !online ) {
                  
-                 _database.addPendingDelete(id, deletedDocument);
+                 _database.addPendingDelete(id, document);
                  JsonObject res = new JsonObject();
                  res.localResponse = true;
                  res.operation = DELETE;
@@ -460,6 +452,7 @@ class Sporran {
                      
                    }
                    
+                   _database.removePendingDelete(id);
                    _completionResponse = _createCompletionResponse(res);
                    _clientCompleter();
                    
@@ -476,7 +469,6 @@ class Sporran {
          } else {
            
            /* Doesnt exist, return error */
-           print("doesnt exist");
            JsonObject res = new JsonObject();
            res.localResponse = true;
            res.operation = DELETE;
@@ -526,6 +518,7 @@ class Sporran {
      String key = "$id-${attachment.attachmentName}-${_SporranDatabase.ATTACHMENTMARKER}";
      _database.updateLocalStorageObject(key,
          attachment,
+         attachment.rev,
          _SporranDatabase.NOT_UPDATED);
      
      
@@ -568,7 +561,10 @@ class Sporran {
          newAttachment.rev = res.jsonCouchResponse.rev;
          _database.updateLocalStorageObject(key,
              newAttachment,
+             res.jsonCouchResponse.rev,
              _SporranDatabase.UPDATED);
+         _database.updateAttachmentRevisions(id,
+                                             res.jsonCouchResponse.rev);
          res.ok = true;
          
        }
@@ -621,14 +617,14 @@ class Sporran {
            /* Remove from the hot cache */
            _database.remove(id);
               
-             JsonObject deletedDocument = new JsonObject.fromMap(document['payload']);
              _database.lawndart.removeByKey(id)..
              then((_) {
                
                /* Check for offline, if so add to the pending delete queue and return */
                if ( !online ) {
                  
-                 _database.addPendingDelete(id, deletedDocument);
+                 
+                 _database.addPendingDelete(key, document);
                  JsonObject res = new JsonObject();
                  res.localResponse = true;
                  res.operation = DELETE_ATTACHMENT;
@@ -661,7 +657,7 @@ class Sporran {
                      res.rev = res.jsonCouchResponse.rev;
                      
                    }
-                   
+                   _database.removePendingDelete(key);
                    _completionResponse = _createCompletionResponse(res);
                    _clientCompleter();
                    
@@ -682,17 +678,17 @@ class Sporran {
            res.localResponse = true;
            res.operation = DELETE_ATTACHMENT;
            /* Try the hot cache */
-           JsonObject document = _database.get(id);
+           JsonObject document = _database.get(key);
            res.ok = false;
            if ( document != null ) { 
               
              res.ok = true;
             /* Remove from the hot cache */
-            _database.remove(id);
+            _database.remove(key);
             /* Try Lawn again but don't check for a response */
-            _database.lawndart.removeByKey(id);
+            _database.lawndart.removeByKey(key);
             /* Pending delete if offline */
-            if ( !online ) _database.addPendingDelete(id, document);
+            if ( !online ) _database.addPendingDelete(key, document);
             
            }
            res.id = id;
@@ -763,10 +759,12 @@ class Sporran {
            attachment.attachmentName = attachmentName;
            attachment.contentType = successResponse.contentType;
            attachment.payload = res.responseText;
+           attachment.rev = res.rev;
            res.payload = attachment;
             
            _database.updateLocalStorageObject(key,
                attachment,
+               res.rev,
                _SporranDatabase.UPDATED);
            
          } else {
@@ -804,6 +802,7 @@ class Sporran {
  
       _database.updateLocalStorageObject(key,
            document,
+           null,
            _SporranDatabase.NOT_UPDATED);
      });
      
@@ -836,28 +835,34 @@ class Sporran {
        res.rev = null;
        if ( !res.error) {
          
-         docList.forEach((key, document) {
-           
-           _database.updateLocalStorageObject(key,
-               document,
-               _SporranDatabase.UPDATED);
-         });
-         
-         List revisions = new List<String>();
+         /* Get the revisions for the updates */
          JsonObject couchResp = res.jsonCouchResponse;
-         couchResp.forEach((resp){
+         List revisions = new List<JsonObject>();
+         Map revisionsMap = new Map<String, String>();
+    
+         couchResp.forEach((JsonObject resp) {
            
-           /* Try this, there may be an error, if so there is no
-            * revision
-            */
            try{
-            revisions.add(resp.rev);
+             revisions.add(resp);
+             revisionsMap[resp.id] = resp.rev;
            } catch(e) {
             revisions.add(null); 
            }
            
+           
          });
          res.rev = revisions;
+         
+         /* Update the documents */
+         docList.forEach((key, document) {
+           
+           _database.updateLocalStorageObject(key,
+               document,
+               revisionsMap[key],
+               _SporranDatabase.UPDATED);
+         });
+        
+         
          res.ok = true;
                
        } 
