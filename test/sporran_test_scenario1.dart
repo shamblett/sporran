@@ -56,7 +56,7 @@ main() {
     
       sporran8 = new Sporran(databaseName,
         hostName,
-        true,
+        false,
         port,
         scheme,
         userName,

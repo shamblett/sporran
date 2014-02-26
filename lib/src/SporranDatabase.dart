@@ -181,7 +181,7 @@ class _SporranDatabase {
     /* Process the update or delete event */
     if ( e.type == WiltChangeNotificationEvent.UPDATE ) {
       
-      
+      print("CN::Update ${e.docId}");
       updateLocalStorageObject(e.docId,
                                e.document,
                                e.docRevision,
@@ -248,6 +248,7 @@ class _SporranDatabase {
       
     } else {
       
+      print("CN::Delete ${e.docId}");
       /* Tidy up any pending deletes */
       removePendingDelete(e.docId);
       
@@ -821,10 +822,12 @@ class _SporranDatabase {
   /**
    * Update/create a CouchDb document
    */
-  void update(String key,
-              JsonObject document,
-              String revision) {
+  Future<String> update(String key,
+                 JsonObject document,
+                 String revision) {
     
+    
+    Completer completer = new Completer();
     
     /* Create our own Wilt instance */
     Wilt wilting = new Wilt(_host, 
@@ -838,14 +841,54 @@ class _SporranDatabase {
                     _password);
     }
     
+    void localCompleter() {
+      
+      JsonObject res = wilting.completionResponse;
+      if ( !res.error ) {
+        
+        completer.complete(res.jsonCouchResponse.rev);
+        
+      }
+      
+    }
     wilting.db = _dbName;
-    wilting.resultCompletion = null;
+    wilting.resultCompletion = localCompleter;
     wilting.putDocument(key, 
                         document,
                         revision);
     
+    return completer.future;
+    
   }
   
+  /**
+   * Manual bulk insert
+   */
+  Future<Map<String, String>> manualBulkInsert(Map<String, JsonObject> documentsToUpdate) {
+    
+    Completer completer = new Completer();
+    Map revisions = new Map<String, String>();
+    
+    int length = documentsToUpdate.length;
+    int count = 0;
+    documentsToUpdate.forEach((String key, JsonObject document) {
+      
+      update(key,
+             document.payload,
+             document.rev)..
+      then((String rev) {
+     
+        revisions[document.key] = rev;
+        count++;
+        if ( count == length ) completer.complete(revisions);
+          
+      });
+      
+    });
+      
+      return completer.future;
+  }
+    
   /**
    * Bulk insert documents
    */
@@ -899,7 +942,7 @@ class _SporranDatabase {
   }
   
   /**
-   * Upadate the revision of any attachments for a document
+   * Update the revision of any attachments for a document
    * if the document is updated from Couch
    */
   void updateAttachmentRevisions(String id,
@@ -954,6 +997,8 @@ class _SporranDatabase {
           deleteAttachment(keyList[0],
                            keyList[1],
                            revision);
+          /* Just in case */
+          lawndart.removeByKey(key);
          
         } else {
          
@@ -969,7 +1014,6 @@ class _SporranDatabase {
      
    Map documentsToUpdate  = new Map<String, JsonObject>();
    Map attachmentsToUpdate = new Map<String, JsonObject>();
-   Map revisions = new Map<String, String>();
    
    /**
     * Get a list of non updated documents and attachments from Lawndart and the hot cache
@@ -1019,30 +1063,8 @@ class _SporranDatabase {
        
      });
      
-      /* Bulk insert the documents and get the revisions back */
-      bulkInsert(documentsToUpdate)..
-      then((JsonObject res) {
-     
-        if ( !res.error) {
-    
-          JsonObject couchResp = res.jsonCouchResponse;
-          couchResp.forEach((resp){
-         
-            /* Try this, there may be an error, if so there is no
-             * revision
-             */
-            try{
-              revisions[resp.id] = resp.rev;
-            } catch(e) {
-              revisions[resp.id] = null;      
-            }
-           
-         });
-         
-       };
-     
-    })..
-    then((_) {
+     manualBulkInsert(documentsToUpdate)..
+     then((revisions) {
       
       /* Finally do the attachments */
       attachmentsToUpdate.forEach((String key, JsonObject attachment) {

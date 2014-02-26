@@ -609,21 +609,20 @@ class Sporran {
      String key = "$id-$attachmentName-${_SporranDatabase.ATTACHMENTMARKER}";
      
      /* Remove from Lawndart */
-     _database.lawndart.getByKey(id)..
+     _database.lawndart.getByKey(key)..
      then((document) {
          
          if ( document != null) {
            
            /* Remove from the hot cache */
-           _database.remove(id);
+           _database.remove(key);
               
-             _database.lawndart.removeByKey(id)..
+             _database.lawndart.removeByKey(key)..
              then((_) {
                
                /* Check for offline, if so add to the pending delete queue and return */
                if ( !online ) {
-                 
-                 
+                         
                  _database.addPendingDelete(key, document);
                  JsonObject res = new JsonObject();
                  res.localResponse = true;

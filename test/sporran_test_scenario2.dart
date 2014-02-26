@@ -59,7 +59,7 @@ main() {
     
       sporran9 = new Sporran(databaseName,
         hostName,
-        true,
+        false,
         port,
         scheme,
         userName,
@@ -91,7 +91,7 @@ main() {
         expect(res.rev[2], isNotNull);
         docid3rev = res.rev[2].rev;
         expect(docid1rev, anything);
-        JsonObject doc3 = res.payload['docid3'];
+        JsonObject doc3 = res.payload['9docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version,3);
         expect(doc3.attribute, "Doc 3 attribute");
@@ -114,9 +114,9 @@ main() {
       document3.attribute = "Doc 3 attribute";
       
       Map docs = new Map<String, JsonObject>();
-      docs['docid1'] = document1;
-      docs['docid2'] = document2;
-      docs['docid3'] = document3;
+      docs['9docid1'] = document1;
+      docs['9docid2'] = document2;
+      docs['9docid3'] = document3;
       
       sporran9.clientCompleter = wrapper;
       sporran9.bulkCreate(docs);
@@ -132,7 +132,7 @@ main() {
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid1");
+        expect(res.id, "9docid1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         docid1rev = res.rev;
@@ -148,7 +148,7 @@ main() {
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran9.putAttachment("docid1", 
+      sporran9.putAttachment("9docid1", 
                           attachment);
     
     
@@ -162,7 +162,7 @@ main() {
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid1");
+        expect(res.id, "9docid1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         docid1rev = res.rev;
@@ -178,7 +178,7 @@ main() {
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran9.putAttachment("docid1", 
+      sporran9.putAttachment("9docid1", 
                           attachment);
     
     
@@ -193,7 +193,7 @@ main() {
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid2");
+        expect(res.id, "9docid2");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         docid2rev = res.rev;
@@ -209,31 +209,31 @@ main() {
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran9.putAttachment("docid2", 
+      sporran9.putAttachment("9docid2", 
                           attachment);
     
     
     });
     
-     test("9. Sync Pause", () { 
+     test("6. Sync Pause", () { 
       
-      print("9.9");
+      print("9.6");
       var wrapper = expectAsync0(() {});
       
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
 
-    test("6. Delete Document Offline docid3", () { 
+    test("7. Delete Document Offline docid3", () { 
       
-      print("9.6");
+      print("9.7");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.DELETE); 
-        expect(res.id, "docid3");
+        expect(res.id, "9docid3");
         expect(res.payload, isNull);
         expect(res.rev, isNull);
         expect(sporran9.pendingDeleteSize, 1);
@@ -241,43 +241,43 @@ main() {
       
       sporran9.online = false;
       sporran9.clientCompleter = wrapper;
-      sporran9.delete("docid3",
+      sporran9.delete("9docid3",
                       docid3rev);
       
       
     });
     
-    test("7. Delete Attachment Offline docid1 Attachment1", () { 
-      
-      print("9.7");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = sporran9.completionResponse;
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT); 
-        expect(res.id, 'docid1');
-        expect(res.localResponse, isTrue);
-        expect(res.rev, isNull);
-        
-      });
-      
-      sporran9.clientCompleter = wrapper;
-      sporran9.deleteAttachment('docid1', 
-                                "AttachmentName1",
-                                docid1rev);
-                                
-    });
-    
-    test("8. Put Document Offline Updated docid2", () { 
+    test("8. Delete Attachment Offline docid1 Attachment1", () { 
       
       print("9.8");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
+        expect(res.operation, Sporran.DELETE_ATTACHMENT); 
+        expect(res.id, '9docid1');
+        expect(res.localResponse, isTrue);
+        expect(res.rev, isNull);
+        
+      });
+      
+      sporran9.clientCompleter = wrapper;
+      sporran9.deleteAttachment('9docid1', 
+                                "AttachmentName1",
+                                docid1rev);
+                                
+    });
+    
+    test("9. Put Document Offline Updated docid2", () { 
+      
+      print("9.9");
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran9.completionResponse;
+        expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT); 
         expect(res.localResponse, isTrue);
-        expect(res.id, 'docid2');
+        expect(res.id, '9docid2');
         expect(res.rev, docid2rev);
         expect(res.payload.title, "Document 2 Updated");
         
@@ -288,22 +288,22 @@ main() {
       document2.title = "Document 2 Updated";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute Updated";
-      sporran9.put('docid2', 
+      sporran9.put('9docid2', 
                    document2,
                    docid2rev);
       
     });
     
-    test("9. Put Document Offline New docid4", () { 
+    test("10. Put Document Offline New docid4", () { 
       
-      print("9.9");
+      print("9.10");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT); 
         expect(res.localResponse, isTrue);
-        expect(res.id, 'docid4');
+        expect(res.id, '9docid4');
         expect(res.rev, isNull);
         expect(res.payload.title, "Document 4");
         
@@ -314,29 +314,13 @@ main() {
       document4.title = "Document 4";
       document4.version = 4;
       document4.attribute = "Doc 4 attribute";
-      sporran9.put('docid4', 
+      sporran9.put('9docid4', 
                    document4,
                    null);
       
     });
     
 
-    test("9. Sync Pause", () { 
-      
-      print("9.9");
-      var wrapper = expectAsync0(() {});
-      
-      Timer pause = new Timer(new Duration(seconds:3), wrapper);
-      
-    });
-    
-    test("10. Transition to online", () { 
-      
-      print("9.10");
-      sporran9.online = true;
-           
-    });
-    
     test("11. Sync Pause", () { 
       
       print("9.11");
@@ -345,15 +329,31 @@ main() {
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
-          
-    test("12. Sync Pause", () { 
+    
+    test("12. Transition to online", () { 
       
       print("9.12");
+      sporran9.online = true;
+           
+    });
+    
+    test("13. Sync Pause", () { 
+      
+      print("9.13");
       var wrapper = expectAsync0(() {});
       
       Timer pause = new Timer(new Duration(seconds:3), wrapper);
       
     });
+          
+    /*test("14. Sync Pause", () { 
+      
+      print("9.14");
+      var wrapper = expectAsync0(() {});
+      
+      Timer pause = new Timer(new Duration(seconds:3), wrapper);
+      
+    });*/
     
    /* test("11. Check - Get All Docs Online", () {  
       
