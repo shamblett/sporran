@@ -266,7 +266,6 @@ class Sporran {
            [String rev = null]){
     
     /* Update LawnDart */
-    print("putting $id");
     _database.updateLocalStorageObject(id,
                     document,
                     _SporranDatabase.NOT_UPDATED);
