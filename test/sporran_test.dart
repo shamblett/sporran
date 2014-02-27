@@ -171,7 +171,9 @@ main() {
      
       });
     
-      sporran3 = new Sporran(databaseName,
+      var completer = expectAsync0(() { 
+        
+        sporran3 = new Sporran(databaseName,
         hostName,
         true,
         port,
@@ -179,10 +181,28 @@ main() {
         userName,
         userPassword);
  
-      sporran3.autoSync = false;
-      sporran3.onReady.first.then((e) => wrapper());
+        sporran3.autoSync = false;
+        sporran3.onReady.first.then((e) => wrapper());
+      
+      });
        
-  
+      /* Use Wilt to delete the existing database */
+      /* Create our Wilt */
+      Wilt wilting = new Wilt(hostName, 
+          port,
+          scheme);
+      
+      /* Login if we are using authentication */
+      if ( userName != null ) {
+        
+        wilting.login(userName,
+            userPassword);
+      }
+      
+      wilting.db = databaseName;
+      wilting.resultCompletion = completer;
+      wilting.deleteDatabase(databaseName);
+    
     });
     
     test("2. Put Document Online docIdPutOnline", () { 
@@ -663,9 +683,34 @@ main() {
       
     });
     
-    test("8. Delete Attachment Online docIdPutOnline", () { 
+    test("8. Get Document Online docIdPutOnline", () { 
       
       print("4.8");
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran4.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET); 
+        expect(res.id, docIdPutOnline);
+        expect(res.localResponse, isFalse);
+        expect(res.rev, onlineDocRev);
+        List attachments = WiltUserUtils.getAttachments(res.payload);
+        expect(attachments.length, 1);
+        
+      });
+      
+      sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
+      sporran4.get(docIdPutOnline,
+                   onlineDocRev);
+                   
+      
+      
+    });
+    
+    test("9. Delete Attachment Online docIdPutOnline", () { 
+      
+      print("4.9");
       var wrapper = expectAsync0(() {
         
         JsonObject res = sporran4.completionResponse;
@@ -687,9 +732,9 @@ main() {
                                 
     });
     
-    test("9. Delete Document Online docIdPutOnline", () { 
+    test("10. Delete Document Online docIdPutOnline", () { 
       
-      print("4.9");
+      print("4.10");
       var wrapper = expectAsync0(() {
         
       });
@@ -805,12 +850,12 @@ main() {
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNotNull);
-        expect(res.rev[0], anything);
-        docid1rev = res.rev[0];
-        expect(res.rev[1], anything);
-        docid2rev = res.rev[1];
-        expect(res.rev[2], anything);
-        docid3rev = res.rev[2];
+        expect(res.rev[0].rev, anything);
+        docid1rev = res.rev[0].rev;
+        expect(res.rev[1].rev, anything);
+        docid2rev = res.rev[1].rev;
+        expect(res.rev[2].rev, anything);
+        docid3rev = res.rev[2].rev;
         JsonObject doc3 = res.payload['docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version,3);
@@ -1639,107 +1684,6 @@ main() {
       
     });
     
-    test("10. Wilt - Delete Document MyBulkId1", () { 
-      
-      print("7.10");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = wilting.completionResponse;
-        try {
-          expect(res.error, isFalse);
-        } catch(e) {
-          
-          logMessage("WILT::Delete Document MyBulkId1");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
-          logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
-          logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
-          logMessage("WILT::Status code is $statusCode");
-          return;
-        }
-        
-        JsonObject successResponse = res.jsonCouchResponse;
-        expect(successResponse.id, "MyBulkId1");
-        
-      });
-      
-      wilting.resultCompletion = wrapper;
-      wilting.deleteDocument("MyBulkId1", docId1Rev);
-    
-    });
-  
-    test("11. Wilt - Delete Document MyBulkId2", () { 
-      
-      print("7.11");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = wilting.completionResponse;
-        try {
-          expect(res.error, isFalse);
-        } catch(e) {
-          
-          logMessage("WILT::Delete Document MyBulkId2");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
-          logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
-          logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
-          logMessage("WILT::Status code is $statusCode");
-          return;
-        }
-        
-        JsonObject successResponse = res.jsonCouchResponse;
-        expect(successResponse.id, "MyBulkId2");
-        
-      });
-      
-      wilting.resultCompletion = wrapper;
-      wilting.deleteDocument("MyBulkId2", docId2Rev);
-    
-    });
-  
-    test("12. Wilt - Delete Document MyBulkId3", () { 
-      
-      print("7.12");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = wilting.completionResponse;
-        try {
-          expect(res.error, isFalse);
-        } catch(e) {
-          
-          logMessage("WILT::Delete Document MyBulkId3");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
-          logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
-          logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
-          logMessage("WILT::Status code is $statusCode");
-          return;
-        }
-        
-        JsonObject successResponse = res.jsonCouchResponse;
-        expect(successResponse.id, "MyBulkId3");
-        
-      });
-      
-      wilting.resultCompletion = wrapper;
-      wilting.deleteDocument("MyBulkId3", docId3Rev);
-    
-    });
-    
-    test("13. Group Pause", () { 
-      
-      print("7.13");
-      var wrapper = expectAsync0(() {});
-      
-      Timer pause = new Timer(new Duration(seconds:3), wrapper);
-      
-    });
     
   });
   

@@ -181,7 +181,6 @@ class _SporranDatabase {
     /* Process the update or delete event */
     if ( e.type == WiltChangeNotificationEvent.UPDATE ) {
       
-      print("CN::Update ${e.docId}");
       updateLocalStorageObject(e.docId,
                                e.document,
                                e.docRevision,
@@ -248,7 +247,6 @@ class _SporranDatabase {
       
     } else {
       
-      print("CN::Delete ${e.docId}");
       /* Tidy up any pending deletes */
       removePendingDelete(e.docId);
       
@@ -1094,14 +1092,16 @@ class _SporranDatabase {
     
     /* Get the attachments and create them locally */
     List attachments = WiltUserUtils.getAttachments(document);
+    
     attachments.forEach((JsonObject attachment) {
       
       JsonObject attachmentToCreate = new JsonObject();
-      attachmentToCreate.payload.attachmentName = attachment.name;
+      attachmentToCreate.attachmentName = attachment.name;
       String attachmentKey = "$key-${attachment.name}-${ATTACHMENTMARKER}";
-      attachmentToCreate.rev = attachment.rev;
-      attachmentToCreate.payload.contentType = attachment.ContentType;
-      attachmentToCreate.payload.payload = window.btoa(attachment.data);
+      attachmentToCreate.rev = WiltUserUtils.getDocumentRev(document);
+      attachmentToCreate.contentType = attachment.data.content_type;
+      attachmentToCreate.payload = window.btoa(attachment.data.data);
+      
       updateLocalStorageObject(attachmentKey,
           attachmentToCreate,
           attachmentToCreate.rev,

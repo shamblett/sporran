@@ -54,16 +54,38 @@ main() {
       
       });
     
-      sporran8 = new Sporran(databaseName,
-        hostName,
-        false,
-        port,
-        scheme,
-        userName,
-        userPassword);
+      var wrapper1 = expectAsync0(() { 
+        
+        
+        sporran8 = new Sporran(databaseName,
+          hostName,
+          false,
+          port,
+          scheme,
+          userName,
+          userPassword);
     
     
-      sporran8.onReady.first.then((e) => wrapper());  
+        sporran8.onReady.first.then((e) => wrapper());  
+      
+      });
+      
+      /* Use Wilt to delete the existing database */
+      /* Create our Wilt */
+      Wilt wilting = new Wilt(hostName, 
+          port,
+          scheme);
+      
+      /* Login if we are using authentication */
+      if ( userName != null ) {
+        
+        wilting.login(userName,
+            userPassword);
+      }
+      
+      wilting.db = databaseName;
+      wilting.resultCompletion = wrapper1;
+      wilting.deleteDatabase(databaseName);
   
     });
     
@@ -79,7 +101,7 @@ main() {
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
-        JsonObject doc3 = res.payload['docid3'];
+        JsonObject doc3 = res.payload['8docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version,3);
         expect(doc3.attribute, "Doc 3 attribute");
@@ -102,9 +124,9 @@ main() {
       document3.attribute = "Doc 3 attribute";
       
       Map docs = new Map<String, JsonObject>();
-      docs['docid1'] = document1;
-      docs['docid2'] = document2;
-      docs['docid3'] = document3;
+      docs['8docid1'] = document1;
+      docs['8docid2'] = document2;
+      docs['8docid3'] = document3;
       
       sporran8.clientCompleter = wrapper;
       sporran8.bulkCreate(docs);
@@ -120,7 +142,7 @@ main() {
         JsonObject res = sporran8.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid1");
+        expect(res.id, "8docid1");
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
         docid1rev = res.rev;
@@ -136,7 +158,7 @@ main() {
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran8.putAttachment("docid1", 
+      sporran8.putAttachment("8docid1", 
                           attachment);
     
     
@@ -150,7 +172,7 @@ main() {
         JsonObject res = sporran8.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid1");
+        expect(res.id, "8docid1");
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
         docid1rev = res.rev;
@@ -166,7 +188,7 @@ main() {
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran8.putAttachment("docid1", 
+      sporran8.putAttachment("8docid1", 
                           attachment);
     
     
@@ -181,7 +203,7 @@ main() {
         JsonObject res = sporran8.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
-        expect(res.id, "docid2");
+        expect(res.id, "8docid2");
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
         docid2rev = res.rev;
@@ -197,7 +219,7 @@ main() {
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran8.putAttachment("docid2", 
+      sporran8.putAttachment("8docid2", 
                           attachment);
     
     
@@ -213,14 +235,14 @@ main() {
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.DELETE); 
-        expect(res.id, "docid3");
+        expect(res.id, "8docid3");
         expect(res.payload, isNull);
         expect(res.rev, isNull);
         expect(sporran8.pendingDeleteSize, 1);
       });
       
       sporran8.clientCompleter = wrapper;
-      sporran8.delete("docid3",
+      sporran8.delete("8docid3",
                       docid3rev);
       
       
@@ -274,9 +296,9 @@ main() {
         expect(res.payload, isNotNull);
         JsonObject successResponse = res.payload;
         expect(successResponse.total_rows, equals(2));
-        expect(successResponse.rows[0].id, equals('docid1'));
+        expect(successResponse.rows[0].id, equals('8docid1'));
         docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
-        expect(successResponse.rows[1].id, equals('docid2'));
+        expect(successResponse.rows[1].id, equals('8docid2'));
         docid2rev = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
         expect(successResponse.rows[0].doc.title, "Document 1" );
         expect(successResponse.rows[0].doc.version, 1);
@@ -296,51 +318,6 @@ main() {
     
     
     }); 
-    
-    test("12. Delete Document Online docid1", () { 
-      
-      print("8.12");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = sporran8.completionResponse;
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE); 
-        expect(res.id, 'docid1');
-        expect(res.payload, isNotNull);
-        expect(res.rev, anything);
-        
-      });
-      
-      sporran8.clientCompleter = wrapper;
-      sporran8.delete('docid1',
-                       docid1rev);
-      
-      
-    });
-    
-    test("13. Delete Document Online docid2", () { 
-      
-      print("8.13");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = sporran8.completionResponse;
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE); 
-        expect(res.id, 'docid2');
-        expect(res.payload, isNotNull);
-        expect(res.rev, anything);
-        
-      });
-      
-      sporran8.clientCompleter = wrapper;
-      sporran8.delete('docid2',
-                       docid2rev);
-      
-      
-    });
-    
     
 
   });

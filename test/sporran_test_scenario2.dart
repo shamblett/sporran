@@ -58,6 +58,8 @@ main() {
       
       });
     
+      var wrapper1 = expectAsync0(() { 
+        
       sporran9 = new Sporran(databaseName,
         hostName,
         false,
@@ -66,8 +68,27 @@ main() {
         userName,
         userPassword);
     
-    
-      sporran9.onReady.first.then((e) => wrapper());  
+        sporran9.onReady.first.then((e) => wrapper());  
+        
+      });
+      
+      
+      /* Use Wilt to delete the existing database */
+      /* Create our Wilt */
+      Wilt wilting = new Wilt(hostName, 
+          port,
+          scheme);
+      
+      /* Login if we are using authentication */
+      if ( userName != null ) {
+        
+        wilting.login(userName,
+            userPassword);
+      }
+      
+      wilting.db = databaseName;
+      wilting.resultCompletion = wrapper1;
+      wilting.deleteDatabase(databaseName);
   
     });
     
@@ -406,71 +427,6 @@ main() {
     
     }); 
     
-    test("15. Delete Document Online 9docid1", () { 
-      
-      print("9.15");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = sporran9.completionResponse;
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE); 
-        expect(res.id, '9docid1');
-        expect(res.payload, isNotNull);
-        expect(res.rev, anything);
-        
-      });
-      
-      sporran9.clientCompleter = wrapper;
-      sporran9.delete('9docid1',
-                       docid1rev);
-      
-      
-    });
-    
-    test("16. Delete Document Online 9docid2", () { 
-      
-      print("9.16");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = sporran9.completionResponse;
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE); 
-        expect(res.id, '9docid2');
-        expect(res.payload, isNotNull);
-        expect(res.rev, anything);
-        
-      });
-      
-      sporran9.clientCompleter = wrapper;
-      sporran9.delete('9docid2',
-                       docid2rev);
-      
-      
-    });
-    
-    test("17. Delete Document Online 9docid4", () { 
-      
-      print("9.17");
-      var wrapper = expectAsync0(() {
-        
-        JsonObject res = sporran9.completionResponse;
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE); 
-        expect(res.id, '9docid4');
-        expect(res.payload, isNotNull);
-        expect(res.rev, anything);
-        
-      });
-      
-      sporran9.clientCompleter = wrapper;
-      sporran9.delete('9docid4',
-                       docid4rev);
-    
-    });
-
   });
   
 }
