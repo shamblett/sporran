@@ -11,7 +11,7 @@ import 'dart:async';
 
 import '../lib/sporran.dart';
 import 'package:json_object/json_object.dart';
-//import 'package:wilt/wilt.dart';
+import 'package:wilt/wilt.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
 import 'sporran_test_config.dart';
@@ -41,6 +41,7 @@ main() {
     String docid1rev;
     String docid2rev;
     String docid3rev;
+    String docid4rev;
     String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl'+
         'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr'+
         'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r'+
@@ -271,7 +272,7 @@ main() {
     test("9. Put Document Offline Updated docid2", () { 
       
       print("9.9");
-      var wrapper = expectAsync0(() {
+      var wrapper2 = expectAsync0(() {
         
         JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
@@ -283,15 +284,28 @@ main() {
         
       });
       
-      sporran9.clientCompleter = wrapper;
-      JsonObject document2 = new JsonObject();
-      document2.title = "Document 2 Updated";
-      document2.version = 2;
-      document2.attribute = "Doc 2 attribute Updated";
-      sporran9.put('9docid2', 
+      var wrapper1 = expectAsync0(() {
+      
+        JsonObject res = sporran9.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.operation, Sporran.GET); 
+        expect(res.localResponse, isTrue);
+        expect(res.id, '9docid2');
+        expect(res.rev, docid2rev);
+        JsonObject document2 = res.payload;
+        document2.title = "Document 2 Updated";
+        document2.version = 2;
+        document2.attribute = "Doc 2 attribute Updated";
+        sporran9.clientCompleter = wrapper2;
+        sporran9.put('9docid2', 
                    document2,
                    docid2rev);
+        
+      });
       
+      sporran9.clientCompleter = wrapper1;
+      sporran9.get('9docid2', 
+                   docid2rev);
     });
     
     test("10. Put Document Offline New docid4", () { 
@@ -346,21 +360,13 @@ main() {
       
     });
           
-    /*test("14. Sync Pause", () { 
+    
+   test("14. Check - Get All Docs Online", () {  
       
       print("9.14");
-      var wrapper = expectAsync0(() {});
-      
-      Timer pause = new Timer(new Duration(seconds:3), wrapper);
-      
-    });*/
-    
-   /* test("11. Check - Get All Docs Online", () {  
-      
-      print("8.11");
       var wrapper = expectAsync0((){
       
-        JsonObject res = sporran8.completionResponse;
+        JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.GET_ALL_DOCS); 
@@ -368,75 +374,102 @@ main() {
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
         JsonObject successResponse = res.payload;
-        expect(successResponse.total_rows, equals(2));
-        expect(successResponse.rows[0].id, equals('docid1'));
+        expect(successResponse.total_rows, equals(3));
+        expect(successResponse.rows[0].id, equals('9docid1'));
         docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
-        expect(successResponse.rows[1].id, equals('docid2'));
-        docid2rev = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
         expect(successResponse.rows[0].doc.title, "Document 1" );
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute,"Doc 1 attribute");
         List doc1Attachments = WiltUserUtils.getAttachments(successResponse.rows[0].doc);
-        expect(doc1Attachments.length, 2);
-        expect(successResponse.rows[1].doc.title, "Document 2" );
+        expect(doc1Attachments.length, 1);
+        expect(doc1Attachments[0].name,"AttachmentName2");
+        expect(successResponse.rows[1].id, equals('9docid2'));
+        docid2rev = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
+        expect(successResponse.rows[1].doc.title, "Document 2 Updated" );
         expect(successResponse.rows[1].doc.version, 2);
-        expect(successResponse.rows[1].doc.attribute,"Doc 2 attribute");
+        expect(successResponse.rows[1].doc.attribute,"Doc 2 attribute Updated");
         List doc2Attachments = WiltUserUtils.getAttachments(successResponse.rows[1].doc);
         expect(doc2Attachments.length, 1);
-      
+        expect(successResponse.rows[2].id, equals('9docid4'));
+        expect(successResponse.rows[2].doc.title, "Document 4" );
+        expect(successResponse.rows[2].doc.version, 4);
+        expect(successResponse.rows[2].doc.attribute,"Doc 4 attribute");
+        List doc4Attachments = WiltUserUtils.getAttachments(successResponse.rows[2].doc);
+        expect(doc4Attachments, isEmpty);
+        docid4rev = WiltUserUtils.getDocumentRev(successResponse.rows[2].doc);
+        
       });
     
-      sporran8.clientCompleter = wrapper;
-      sporran8.getAllDocs(includeDocs:true);
+      sporran9.clientCompleter = wrapper;
+      sporran9.getAllDocs(includeDocs:true);
     
     
     }); 
     
-    test("12. Delete Document Online docid1", () { 
+    test("15. Delete Document Online 9docid1", () { 
       
-      print("8.12");
+      print("9.15");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran8.completionResponse;
+        JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.DELETE); 
-        expect(res.id, 'docid1');
+        expect(res.id, '9docid1');
         expect(res.payload, isNotNull);
         expect(res.rev, anything);
         
       });
       
-      sporran8.clientCompleter = wrapper;
-      sporran8.delete('docid1',
+      sporran9.clientCompleter = wrapper;
+      sporran9.delete('9docid1',
                        docid1rev);
       
       
     });
     
-    test("13. Delete Document Online docid2", () { 
+    test("16. Delete Document Online 9docid2", () { 
       
-      print("8.13");
+      print("9.16");
       var wrapper = expectAsync0(() {
         
-        JsonObject res = sporran8.completionResponse;
+        JsonObject res = sporran9.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.DELETE); 
-        expect(res.id, 'docid2');
+        expect(res.id, '9docid2');
         expect(res.payload, isNotNull);
         expect(res.rev, anything);
         
       });
       
-      sporran8.clientCompleter = wrapper;
-      sporran8.delete('docid2',
+      sporran9.clientCompleter = wrapper;
+      sporran9.delete('9docid2',
                        docid2rev);
       
       
-    });*/
+    });
     
+    test("17. Delete Document Online 9docid4", () { 
+      
+      print("9.17");
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran9.completionResponse;
+        expect(res.ok, isTrue);
+        expect(res.localResponse, isFalse);
+        expect(res.operation, Sporran.DELETE); 
+        expect(res.id, '9docid4');
+        expect(res.payload, isNotNull);
+        expect(res.rev, anything);
+        
+      });
+      
+      sporran9.clientCompleter = wrapper;
+      sporran9.delete('9docid4',
+                       docid4rev);
     
+    });
 
   });
   
