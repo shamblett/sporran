@@ -345,9 +345,10 @@ class Sporran {
             
               res.ok = true;
               res.payload = new JsonObject.fromMap(document['payload']);
+              res.rev = WiltUserUtils.getDocumentRev(res.payload);
           
             }
-         
+           
             _completionResponse = _createCompletionResponse(res);
             _clientCompleter();
             
@@ -371,7 +372,12 @@ class Sporran {
                             res.rev,
                             _SporranDatabase.UPDATED);  
             res.ok = true;
-            res.payload = res.jsonCouchResponse;           
+            res.payload = res.jsonCouchResponse; 
+            /**
+             * Get the documents attachments and create them locally 
+             */
+            _database.createDocumentAttachments(id,
+                                                res.payload);
             
           } else {
             
@@ -386,9 +392,11 @@ class Sporran {
           
         };
         
-        /* Get the document from CouchDb */
+        /* Get the document from CouchDb with its attachments */
         _database.wilt.resultCompletion = completer;
-        _database.wilt.getDocument(id, rev:rev);
+        _database.wilt.getDocument(id,
+                                   rev,
+                                   true);
         
     }
     

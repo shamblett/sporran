@@ -1085,4 +1085,32 @@ class _SporranDatabase {
   
   }  
   
+  /**
+   * Create document attachments
+   */
+  void createDocumentAttachments(String key,
+                                 JsonObject document) {
+    
+    
+    /* Get the attachments and create them locally */
+    List attachments = WiltUserUtils.getAttachments(document);
+    attachments.forEach((JsonObject attachment) {
+      
+      JsonObject attachmentToCreate = new JsonObject();
+      attachmentToCreate.payload.attachmentName = attachment.name;
+      String attachmentKey = "$key-${attachment.name}-${ATTACHMENTMARKER}";
+      attachmentToCreate.rev = attachment.rev;
+      attachmentToCreate.payload.contentType = attachment.ContentType;
+      attachmentToCreate.payload.payload = window.btoa(attachment.data);
+      updateLocalStorageObject(attachmentKey,
+          attachmentToCreate,
+          attachmentToCreate.rev,
+          UPDATED);
+      
+      
+    });
+    
+    
+  }
+  
 }
