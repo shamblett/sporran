@@ -4,9 +4,16 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  * 
+ * Sporran is a pouchdb alike for Dart.
+ * 
+ * This is the main Sporran Database class.
  * 
  * A Sporran database comprises of a Wilt object, a Lawndart object and an in memory hot cache in tandem,
- * all sharing the same database name. 
+ * all sharing the same database name.
+ * 
+ * Please read the usage and interface documentation supplied for
+ * further details.
+ * 
  */
 
 part of sporran;
@@ -860,9 +867,9 @@ class _SporranDatabase {
   }
   
   /**
-   * Manual bulk insert
+   * Manual bulk insert uses update
    */
-  Future<Map<String, String>> manualBulkInsert(Map<String, JsonObject> documentsToUpdate) {
+  Future<Map<String, String>> _manualBulkInsert(Map<String, JsonObject> documentsToUpdate) {
     
     Completer completer = new Completer();
     Map revisions = new Map<String, String>();
@@ -888,7 +895,7 @@ class _SporranDatabase {
   }
     
   /**
-   * Bulk insert documents
+   * Bulk insert documents using bulk insert
    */
   Future<JsonObject> bulkInsert(Map<String, JsonObject> docList) {
     
@@ -1061,7 +1068,7 @@ class _SporranDatabase {
        
      });
      
-     manualBulkInsert(documentsToUpdate)..
+     _manualBulkInsert(documentsToUpdate)..
      then((revisions) {
       
       /* Finally do the attachments */

@@ -4,7 +4,12 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  * 
- * TODO add header comment
+ * Sporran is a pouchdb alike for Dart.
+ * 
+ * This is the main Sporran API class.
+ * 
+ * Please read the usage and interface documentation supplied for
+ * further details.
  * 
  */
 

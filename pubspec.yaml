@@ -1,7 +1,12 @@
 name: sporran
-description: A sample web application
+version: 1.0.0
+author: S. Hamblett
+description: A pouchdb alike for Dart
+homepage: https://github.com/shamblett/sporran
+documentation: http://oscf.org.uk/dart/api/sporran/index.html
 dependencies:
   browser: any
   lawndart: '>=0.6.4'
+  wilt: '>=2.3.0'
+dev_dependencies:
   unittest: <0.10.0
-  wilt: '>=2.1.0'
