@@ -1,13 +1,13 @@
 name: sporran
 version: 1.0.0
-author: S. Hamblett
-description: A pouchdb alike for Dart
+author: S. Hamblett <steve.hamblett@linux.com>
+description: A PouchDB alike for Dart
 homepage: https://github.com/shamblett/sporran
 environment:
   sdk: '>=0.8.10+6 <2.0.0'
 documentation: http://oscf.org.uk/dart/api/sporran/sporran
 dependencies:
-  browser: any
+  browser: '>=0.5.20 <0.5.21'
   lawndart: '>=0.6.4'
   wilt: '>=2.3.0'
 dev_dependencies:
