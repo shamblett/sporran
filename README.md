@@ -2,18 +2,24 @@
 
 ## Introduction
 
-Sporran is a PouchDB alike implementation for Dart.
+Sporran is a [PouchDB](http://pouchdb.com/) alike implementation for Dart.
 
-It uses the Wilt CouchDB client and the Lawndart local storage client to allow users to
-switch seamlessly between online and offline browser modes and carry on using their database.
+It uses Lawndart(browser local storage client) and Wilt(browser CouchDb client) and an in memory
+hot cache for a extra slickness to allow browser based CouchDb users to transition between 
+online and offline modes and carry on working normally.
 
-When the browser is online Sporran acts just like Wilt, i.e is a CouchDB client, if the browser
-goes offline Sporran switches to using local storage, when the browser comes back online the 
-local database is synced with CouchDB, all transparent to the user.
+When the browser is online Sporran acts just like Wilt, i.e is a CouchDB client, but all database
+transactions are reflected into local storage. 
+If the browser goes offline Sporran switches to using local storage only, when the browser comes back 
+online the local database is synced up with CouchDB, all transparent to the user.
 
-                        <--- Under Construction -->
+The CouchDb change notification interface is also used to keep Sporran in sync with any 3rd party
+changes to your database.
+
+Please read the documents under the doc folder for usage information, the API is also under
+this folder and is available [here](http://oscf.org.uk/dart/api/sporran)
 
 ## Contact
 
-Queries you can direct to me at <steve.hamblett@linux.com>
+Queries you can direct to me at <steve.hamblett@linux.com> or raise an issue here.
 
