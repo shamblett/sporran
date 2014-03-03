@@ -1,0 +1,19 @@
+
+Sporran testing comprises of the test suite under the tests directory.
+
+This is split into formal API testing in the sporran_test.dart file and scenario testing in the
+sporran_test_scenarioX.dart files.
+
+These are standard unit test based tests which delete the test database on initiation so 
+they can be run as standalone tests in any order. The tests in sporran_test.dart run with
+change notifications and autoSync set to off where needed to allow formal API tests to be
+performed without any interaction form other functional areas.
+
+Test parameters are configured in the sporran_test_config.dart file which should be edited as needed
+before running the tests.
+
+Please see these files for more detailed information.
+
+Note that some tests will be marked as 'DOM Error event' or some such, this is expected in the case
+of conflicts or non-existant documents, all tests shouild pass if you have any errors other than the
+above  these need to be investigated.
