@@ -11,9 +11,8 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:html';
 
-import 'package:wilt/wilt.dart' show WiltUserUtils, Wilt, WiltException, 
-                                     WiltChangeNotificationParameters, 
-                                     WiltChangeNotificationEvent;
+import 'package:wilt/wilt.dart';
+import 'package:wilt/wilt_browser_client.dart';
 import 'package:lawndart/lawndart.dart';
 import 'package:json_object/json_object.dart';
 

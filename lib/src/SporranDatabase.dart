@@ -136,7 +136,7 @@ class _SporranDatabase {
     /**
      * Instantiate a Wilt object
      */
-    _wilt = new Wilt(_host,
+    _wilt = new WiltBrowserClient(_host,
                      _port,
                      _scheme);
     /**
@@ -471,7 +471,7 @@ class _SporranDatabase {
     if ( attachments.length == 0 ) return;
     
     /* Create our own Wilt instance */
-    Wilt wilting = new Wilt(_host, 
+    Wilt wilting = new WiltBrowserClient(_host, 
                             _port,
                             _scheme);
    
@@ -686,7 +686,7 @@ class _SporranDatabase {
     
     
     /* Create our own Wilt instance */
-    Wilt wilting = new Wilt(_host, 
+    Wilt wilting = new WiltBrowserClient(_host, 
                             _port,
                             _scheme);
    
@@ -716,7 +716,7 @@ class _SporranDatabase {
     
     
     /* Create our own Wilt instance */
-    Wilt wilting = new Wilt(_host, 
+    Wilt wilting = new WiltBrowserClient(_host, 
                             _port,
                             _scheme);
    
@@ -746,7 +746,7 @@ class _SporranDatabase {
     
     
     /* Create our own Wilt instance */
-    Wilt wilting = new Wilt(_host, 
+    Wilt wilting = new WiltBrowserClient(_host, 
                             _port,
                             _scheme);
    
@@ -835,7 +835,7 @@ class _SporranDatabase {
     Completer completer = new Completer();
     
     /* Create our own Wilt instance */
-    Wilt wilting = new Wilt(_host, 
+    Wilt wilting = new WiltBrowserClient(_host, 
                             _port,
                             _scheme);
    
@@ -902,7 +902,7 @@ class _SporranDatabase {
     var completer = new Completer();
     
     /* Create our own Wilt instance */
-    Wilt wilting = new Wilt(_host, 
+    Wilt wilting = new WiltBrowserClient(_host, 
                             _port,
                             _scheme);
    

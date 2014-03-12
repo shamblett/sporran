@@ -12,6 +12,7 @@ import 'dart:async';
 import '../lib/sporran.dart';
 import 'package:json_object/json_object.dart';
 import 'package:wilt/wilt.dart';
+import 'package:wilt/wilt_browser_client.dart';
 import 'package:unittest/unittest.dart';  
 import 'package:unittest/html_config.dart';
 import 'sporran_test_config.dart';
@@ -72,7 +73,7 @@ main() {
       
       /* Use Wilt to delete the existing database */
       /* Create our Wilt */
-      Wilt wilting = new Wilt(hostName, 
+      Wilt wilting = new WiltBrowserClient(hostName, 
           port,
           scheme);
       
