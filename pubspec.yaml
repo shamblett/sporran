@@ -9,6 +9,6 @@ documentation: http://oscf.org.uk/dart/api/sporran/sporran
 dependencies:
   browser: '>=0.5.20 <0.5.21'
   lawndart: '>=0.6.4'
-  wilt: '>=2.3.0'
+  wilt: '>=3.0.0'
 dev_dependencies:
   unittest: <0.10.0
