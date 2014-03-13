@@ -2,7 +2,10 @@
 Sporran testing comprises of the test suite under the tests directory.
 
 This is split into formal API testing in the sporran_test.dart file and scenario testing in the
-sporran_test_scenarioX.dart files.
+sporran_test_scenarioX.dart files. These file use the futures based API.
+
+One other file is also included in the test suite, being sporran_test_completion.dart, this is
+a copy of sorran_test.dart but uses the completion callback interface.
 
 These are standard unit test based tests which delete the test database on initiation so 
 they can be run as standalone tests in any order. The tests in sporran_test.dart run with

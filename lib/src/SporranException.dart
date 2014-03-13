@@ -8,10 +8,10 @@
 part of sporran;
 
 class SporranException implements Exception {
-  
+
   String _message = 'No Message Supplied';
   SporranException([this._message]);
-  
+
   String toString() => "SporranException: message = ${_message}";
-  
+
 }

@@ -8,7 +8,6 @@
 library sporran;
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:html';
 
 import 'package:wilt/wilt.dart';

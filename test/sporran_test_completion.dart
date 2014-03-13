@@ -172,7 +172,7 @@ main() {
      
       });
     
-      var completer = expectAsync1((res) { 
+      var completer = expectAsync0(() { 
         
         sporran3 = new Sporran(databaseName,
         hostName,
@@ -201,15 +201,17 @@ main() {
       }
       
       wilting.db = databaseName;
-      wilting.deleteDatabase(databaseName)..then((res) { completer(res); });
+      wilting.resultCompletion = completer;
+      wilting.deleteDatabase(databaseName);
     
     });
     
     test("2. Put Document Online docIdPutOnline", () { 
       
       print("3.2");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
                     
+          JsonObject res = sporran3.completionResponse;
           expect(res.ok, isTrue);
           expect(res.operation, Sporran.PUT); 
           expect(res.localResponse, isFalse);
@@ -220,9 +222,10 @@ main() {
         
       });
       
+      sporran3.clientCompleter = wrapper;
       onlineDoc.name = "Online";
       sporran3.put(docIdPutOnline, 
-                  onlineDoc)..then((res) { wrapper(res); });
+                  onlineDoc);
                                 
       
     });
@@ -230,8 +233,9 @@ main() {
     test("3. Put Document Offline docIdPutOffline", () { 
     
       print("3.3");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
       
+        JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT);  
         expect(res.localResponse, isTrue);
@@ -241,9 +245,10 @@ main() {
       });
     
       sporran3.online = false;
+      sporran3.clientCompleter = wrapper;
       offlineDoc.name = "Offline";
       sporran3.put(docIdPutOffline, 
-        offlineDoc)..then((res) { wrapper(res); });
+        offlineDoc);
     
     
     });
@@ -252,8 +257,9 @@ main() {
    test("4. Put Document Online Conflict", () { 
      
      print("3.4");
-     var wrapper = expectAsync1((res) {
+     var wrapper = expectAsync0(() {
        
+       JsonObject res = sporran3.completionResponse;
        expect(res.errorCode, 409);
        expect(res.errorText, 'conflict');
        expect(res.operation, Sporran.PUT); 
@@ -263,16 +269,18 @@ main() {
      });
      
      sporran3.online = true;
+     sporran3.clientCompleter = wrapper;
      onlineDoc.name = "Online";
-     sporran3.put(docIdPutOnline,onlineDoc)..then((res) { wrapper(res); });                                  
+     sporran3.put(docIdPutOnline,onlineDoc);                                   
      
    });
    
    test("5. Put Document Online Updated docIdPutOnline", () { 
      
      print("3.5");
-     var wrapper = expectAsync1((res) {
+     var wrapper = expectAsync0(() {
        
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.PUT); 
        expect(res.localResponse, isFalse);
@@ -282,18 +290,20 @@ main() {
        
      });
    
+     sporran3.clientCompleter = wrapper;
      onlineDoc.name = "Online - Updated";
      sporran3.put(docIdPutOnline, 
                  onlineDoc,
-                 onlineDocRev)..then((res) { wrapper(res); });
+                 onlineDocRev);
      
    });
    
    test("6. Get Document Offline docIdPutOnline", () { 
      
      print("3.6");
-     var wrapper = expectAsync1((res) {
+     var wrapper = expectAsync0(() {
        
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET); 
        expect(res.localResponse, isTrue);
@@ -303,15 +313,17 @@ main() {
      });
      
      sporran3.online = false;
-     sporran3.get(docIdPutOnline)..then((res) { wrapper(res); });
+     sporran3.clientCompleter = wrapper;
+     sporran3.get(docIdPutOnline);
      
    });
    
    test("7. Get Document Offline docIdPutOffline", () { 
      
      print("3.7");
-     var wrapper = expectAsync1((res) {
+     var wrapper = expectAsync0(() {
        
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
        expect(res.localResponse, isTrue);
@@ -322,7 +334,8 @@ main() {
      });
      
      sporran3.online = false;
-     sporran3.get(docIdPutOffline)..then((res) { wrapper(res); });
+     sporran3.clientCompleter = wrapper;
+     sporran3.get(docIdPutOffline);
      
      
    });
@@ -330,8 +343,9 @@ main() {
    test("8. Get Document Offline Not Exist", () { 
      
      print("3.8");
-     var wrapper = expectAsync1((res) {
+     var wrapper = expectAsync0(() {
        
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isFalse);
        expect(res.operation, Sporran.GET); 
        expect(res.localResponse, isTrue);
@@ -342,8 +356,9 @@ main() {
      });
      
      sporran3.online = false;
+     sporran3.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
-     sporran3.get("Billy")..then((res) { wrapper(res); });
+     sporran3.get("Billy");
      expect(sporran3.hotCacheSize, 0);
      
      
@@ -352,8 +367,9 @@ main() {
    test("9. Get Document Online docIdPutOnline", () { 
      
      print("3.9");
-     var wrapper = expectAsync1((res) {
+     var wrapper = expectAsync0(() {
        
+       JsonObject res = sporran3.completionResponse;
        expect(res.ok, isTrue);
        expect(res.operation, Sporran.GET);  
        expect(res.payload.name, "Online - Updated");
@@ -364,7 +380,8 @@ main() {
      });
      
      sporran3.online = true;;
-     sporran3.get(docIdPutOnline)..then((res) { wrapper(res); });
+     sporran3.clientCompleter = wrapper;
+     sporran3.get(docIdPutOnline);
      
      
    });
@@ -373,8 +390,9 @@ main() {
     test("10. Delete Document Offline", () { 
        
        print("3.10");
-       var wrapper = expectAsync1((res) {
+       var wrapper = expectAsync0(() {
          
+         JsonObject res = sporran3.completionResponse;
          expect(res.ok, isTrue);
          expect(res.localResponse, isTrue);
          expect(res.operation, Sporran.DELETE); 
@@ -386,7 +404,8 @@ main() {
        });
        
        sporran3.online = false;
-       sporran3.delete(docIdPutOffline)..then((res) { wrapper(res); });
+       sporran3.clientCompleter = wrapper;
+       sporran3.delete(docIdPutOffline);
        
      }); 
      
@@ -394,8 +413,9 @@ main() {
      test("11. Delete Document Online", () { 
        
        print("3.11");
-       var wrapper = expectAsync1((res) {
+       var wrapper = expectAsync0(() {
          
+         JsonObject res = sporran3.completionResponse;
          expect(res.ok, isTrue);
          expect(res.localResponse, isFalse);
          expect(res.operation, Sporran.DELETE); 
@@ -406,8 +426,9 @@ main() {
        });
        
        sporran3.online = true;
+       sporran3.clientCompleter = wrapper;
        sporran3.delete(docIdPutOnline,
-                      onlineDocRev)..then((res) { wrapper(res); });
+                      onlineDocRev);
        
        
      });
@@ -415,8 +436,9 @@ main() {
      test("12. Get Document Online Not Exist", () { 
        
        print("3.12");
-       var wrapper = expectAsync1((res) {
+       var wrapper = expectAsync0(() {
          
+         JsonObject res = sporran3.completionResponse;
          expect(res.ok, isFalse);
          expect(res.operation, Sporran.GET);
          expect(res.localResponse, isFalse);
@@ -424,7 +446,8 @@ main() {
          
        });
        
-       sporran3.get("Billy")..then((res) { wrapper(res); });
+       sporran3.clientCompleter = wrapper;
+       sporran3.get("Billy");
        
        
      }); 
@@ -432,8 +455,9 @@ main() {
      test("13. Delete Document Not Exist", () { 
        
        print("3.13");
-       var wrapper = expectAsync1((res) {
+       var wrapper = expectAsync0(() {
          
+         JsonObject res = sporran3.completionResponse;
          expect(res.ok, isFalse);
          expect(res.operation, Sporran.DELETE); 
          expect(res.id, "Billy");
@@ -442,8 +466,9 @@ main() {
          
        });
        
-       sporran3.online = false;
-       sporran3.delete("Billy")..then((res) { wrapper(res); });
+       sporran3.online = false;;
+       sporran3.clientCompleter = wrapper;
+       sporran3.delete("Billy");
        
        
      }); 
@@ -502,8 +527,9 @@ main() {
     test("2. Put Document Online docIdPutOnline", () { 
       
       print("4.2");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
                     
+          JsonObject res = sporran4.completionResponse;
           expect(res.ok, isTrue);
           expect(res.operation, Sporran.PUT);
           expect(res.id, docIdPutOnline);
@@ -516,9 +542,10 @@ main() {
       });
       
       sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       onlineDoc.name = "Online";
       sporran4.put(docIdPutOnline, 
-                  onlineDoc)..then((res) { wrapper(res); });
+                  onlineDoc);
                                 
       
     });
@@ -526,8 +553,9 @@ main() {
     test("3. Put Document Offline docIdPutOffline", () { 
     
       print("4.3");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
       
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT); 
         expect(res.id, docIdPutOffline);
@@ -537,9 +565,10 @@ main() {
     });
     
     sporran4.online = false;
+    sporran4.clientCompleter = wrapper;
     offlineDoc.name = "Offline";
     sporran4.put(docIdPutOffline, 
-        offlineDoc)..then((res) { wrapper(res); });
+        offlineDoc);
     
     
     });
@@ -547,8 +576,9 @@ main() {
     test("4. Create Attachment Online docIdPutOnline", () { 
     
       print("4.4");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
       
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
@@ -562,13 +592,14 @@ main() {
       });
     
       sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "onlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
       sporran4.putAttachment(docIdPutOnline, 
-                          attachment)..then((res) { wrapper(res); });
+                          attachment);
     
     
     });
@@ -576,8 +607,9 @@ main() {
     test("5. Create Attachment Offline docIdPutOffline", () { 
       
       print("4.5");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT);  
         expect(res.id, docIdPutOffline);
@@ -590,13 +622,14 @@ main() {
       });
       
       sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "offlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
       sporran4.putAttachment(docIdPutOffline, 
-                            attachment)..then((res) { wrapper(res); });
+                            attachment);
       
       
     });
@@ -604,8 +637,9 @@ main() {
     test("6. Get Attachment Online docIdPutOnline", () { 
       
       print("4.6");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
@@ -618,8 +652,9 @@ main() {
       });
       
       sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       sporran4.getAttachment(docIdPutOnline, 
-                            "onlineAttachment")..then((res) { wrapper(res); });
+                            "onlineAttachment");
       
       
     });
@@ -627,8 +662,9 @@ main() {
     test("7. Get Attachment Offline docIdPutOffline", () { 
       
       print("4.7");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.id, docIdPutOffline);
@@ -641,8 +677,9 @@ main() {
       });
       
       sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
       sporran4.getAttachment(docIdPutOffline, 
-                            "offlineAttachment")..then((res) { wrapper(res); });
+                            "offlineAttachment");
       
       
     });
@@ -650,8 +687,9 @@ main() {
     test("8. Get Document Online docIdPutOnline", () { 
       
       print("4.8");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.id, docIdPutOnline);
@@ -663,8 +701,9 @@ main() {
       });
       
       sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       sporran4.get(docIdPutOnline,
-                   onlineDocRev)..then((res) { wrapper(res); });
+                   onlineDocRev);
                    
       
       
@@ -673,8 +712,9 @@ main() {
     test("9. Delete Attachment Online docIdPutOnline", () { 
       
       print("4.9");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOnline);
@@ -686,22 +726,24 @@ main() {
       });
       
       sporran4.online = true;
+      sporran4.clientCompleter = wrapper;
       sporran4.deleteAttachment(docIdPutOnline, 
                                "onlineAttachment",
-                                onlineDocRev)..then((res) { wrapper(res); });
+                                onlineDocRev);
                                 
     });
     
     test("10. Delete Document Online docIdPutOnline", () { 
       
       print("4.10");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
       });
       
       /* Tidy up only, tested in group 3 */
+      sporran4.clientCompleter = wrapper;
       sporran4.delete(docIdPutOnline,
-                      onlineDocRev)..then((res) { wrapper(res); });
+                      onlineDocRev);
       
       
     });
@@ -710,8 +752,9 @@ main() {
     test("11. Delete Attachment Offline docIdPutOffline", () { 
       
       print("4.11");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOffline);
@@ -723,17 +766,19 @@ main() {
       });
       
       sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
       sporran4.deleteAttachment(docIdPutOffline, 
                                "offlineAttachment",
-                                null)..then((res) { wrapper(res); });
+                                null);
                                 
     });
     
     test("12. Delete Attachment Not Exist", () { 
       
       print("4.12");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran4.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.DELETE_ATTACHMENT); 
         expect(res.id, docIdPutOffline);
@@ -745,9 +790,10 @@ main() {
       });
       
       sporran4.online = false;
+      sporran4.clientCompleter = wrapper;
       sporran4.deleteAttachment(docIdPutOffline, 
                                "Billy",
-                                null)..then((res) { wrapper(res); });
+                                null);
                                 
     });
     
@@ -796,8 +842,9 @@ main() {
     test("2. Bulk Insert Documents Online", () { 
       
       print("5.2");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.BULK_CREATE); 
@@ -838,7 +885,8 @@ main() {
       docs['docid2'] = document2;
       docs['docid3'] = document3;
       
-      sporran5.bulkCreate(docs)..then((res) { wrapper(res); });
+      sporran5.clientCompleter = wrapper;
+      sporran5.bulkCreate(docs);
       
       
     });
@@ -846,8 +894,9 @@ main() {
     test("3. Bulk Insert Documents Offline", () { 
       
       print("5.3");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.BULK_CREATE); 
@@ -883,7 +932,8 @@ main() {
       docs['docid3offline'] = document3;
       
       sporran5.online = false;
-      sporran5.bulkCreate(docs)..then((res) { wrapper(res); });
+      sporran5.clientCompleter = wrapper;
+      sporran5.bulkCreate(docs);
       
       
     });
@@ -891,8 +941,9 @@ main() {
     test("4. Get All Docs Online", () {  
     
       print("5.4");
-      var wrapper = expectAsync1((res){
+      var wrapper = expectAsync0((){
       
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.GET_ALL_DOCS); 
@@ -908,7 +959,8 @@ main() {
       });
     
       sporran5.online = true;
-      sporran5.getAllDocs(includeDocs:true)..then((res) { wrapper(res); });
+      sporran5.clientCompleter = wrapper;
+      sporran5.getAllDocs(includeDocs:true);
     
     
     }); 
@@ -916,8 +968,9 @@ main() {
     test("5. Get All Docs Offline", () {  
     
       print("5.5");
-      var wrapper = expectAsync1((res){
+      var wrapper = expectAsync0((){
       
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.GET_ALL_DOCS); 
@@ -935,10 +988,11 @@ main() {
       });
     
       sporran5.online = false;
+      sporran5.clientCompleter = wrapper;
       List keys = ['docid1offline', 'docid2offline', 'docid3offline',
                  'docid1', 'docid2', 'docid3'];
     
-      sporran5.getAllDocs(keys:keys)..then((res) { wrapper(res); });
+      sporran5.getAllDocs(keys:keys);
     
     
     }); 
@@ -946,8 +1000,9 @@ main() {
     test("6. Get Database Info Offline", () {  
     
       print("5.6");
-      var wrapper = expectAsync1((res){
+      var wrapper = expectAsync0((){
       
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
         expect(res.operation, Sporran.DB_INFO); 
@@ -964,15 +1019,18 @@ main() {
       
       });
     
-      sporran5.getDatabaseInfo()..then((res) { wrapper(res); });
+      sporran5.clientCompleter = wrapper;
+    
+      sporran5.getDatabaseInfo();
     
     }); 
   
     test("7. Get Database Info Online", () {  
       
       print("5.7");
-      var wrapper = expectAsync1((res){
+      var wrapper = expectAsync0((){
         
+        JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
         expect(res.operation, Sporran.DB_INFO); 
@@ -985,7 +1043,9 @@ main() {
       });
       
       sporran5.online = true;
-      sporran5.getDatabaseInfo()..then((res) { wrapper(res); });
+      sporran5.clientCompleter = wrapper;
+      
+      sporran5.getDatabaseInfo();
       
       
     }); 
@@ -993,11 +1053,12 @@ main() {
     test("8. Tidy Up All Docs Online", () {  
     
       print("5.8");
-      var wrapper = expectAsync1((res){},count:3);
+      var wrapper = expectAsync0((){},count:3);
     
-      sporran5.delete('docid1', docid1rev)..then((res) { wrapper(res); });
-      sporran5.delete('docid2', docid2rev)..then((res) { wrapper(res); });
-      sporran5.delete('docid3', docid3rev)..then((res) { wrapper(res); });
+      sporran5.clientCompleter = wrapper;
+      sporran5.delete('docid1', docid1rev);
+      sporran5.delete('docid2', docid2rev);
+      sporran5.delete('docid3', docid3rev);
     
     });
     
@@ -1064,8 +1125,9 @@ main() {
     test("2. Wilt - Bulk Insert Supplied Keys", () {  
       
       print("6.2");
-      var completer = expectAsync1((res){
+      var completer = expectAsync0((){
         
+        JsonObject res = wilting.completionResponse;
         try {
           expect(res.error, isFalse);
         } catch(e) {
@@ -1091,6 +1153,8 @@ main() {
         
       });
       
+      wilting.resultCompletion = completer;
+      
       JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
@@ -1114,7 +1178,7 @@ main() {
       docList.add(doc2);
       docList.add(doc3);
       String docs = WiltUserUtils.createBulkInsertString(docList);
-      wilting.bulkString(docs)..then((res) { completer(res); });    
+      wilting.bulkString(docs);    
       
     });  
     
@@ -1132,8 +1196,9 @@ main() {
     test("4. Get Document Offline MyBulkId1", () { 
       
       print("6.4");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1145,7 +1210,8 @@ main() {
       });
       
       sporran6.online = false;
-      sporran6.get("MyBulkId1")..then((res) { wrapper(res); });
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId1");
     
     
     });
@@ -1153,8 +1219,9 @@ main() {
     test("5. Get Document Offline MyBulkId2", () { 
       
       print("6.5");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1165,15 +1232,17 @@ main() {
         
       });
      
-      sporran6.get("MyBulkId2")..then((res) { wrapper(res); });
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId2");
     
     });
   
     test("6. Get Document Offline MyBulkId3", () { 
       
       print("6.6");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1184,15 +1253,17 @@ main() {
         
       });
      
-      sporran6.get("MyBulkId3")..then((res) { wrapper(res); });
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId3");
     
     });
   
     test("7. Wilt - Delete Document MyBulkId1", () { 
       
       print("6.7");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = wilting.completionResponse;
         try {
           expect(res.error, isFalse);
         } catch(e) {
@@ -1213,15 +1284,17 @@ main() {
         
       });
       
-      wilting.deleteDocument("MyBulkId1", docId1Rev)..then((res) { wrapper(res); });
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId1", docId1Rev);
     
     });
   
     test("8. Wilt - Delete Document MyBulkId2", () { 
       
       print("6.8");
-      var wrapper = expectAsync1((res) {
-       
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = wilting.completionResponse;
         try {
           expect(res.error, isFalse);
         } catch(e) {
@@ -1242,15 +1315,17 @@ main() {
         
       });
       
-      wilting.deleteDocument("MyBulkId2", docId2Rev)..then((res) { wrapper(res); });
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId2", docId2Rev);
     
     });
   
     test("9. Wilt - Delete Document MyBulkId3", () { 
       
       print("6.9");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = wilting.completionResponse;
         try {
           expect(res.error, isFalse);
         } catch(e) {
@@ -1271,7 +1346,8 @@ main() {
         
       });
       
-      wilting.deleteDocument("MyBulkId3", docId3Rev)..then((res) { wrapper(res); });
+      wilting.resultCompletion = wrapper;
+      wilting.deleteDocument("MyBulkId3", docId3Rev);
     
     });
   
@@ -1289,8 +1365,9 @@ main() {
     test("11. Get Document Offline Deleted MyBulkId1", () { 
       
       print("6.11");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
@@ -1298,7 +1375,8 @@ main() {
       });
       
       sporran6.online = false;
-      sporran6.get("MyBulkId1")..then((res) { wrapper(res); });
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId1");
     
     
     });
@@ -1306,30 +1384,34 @@ main() {
     test("12. Get Document Offline Deleted MyBulkId2", () { 
       
       print("6.12");
-      var wrapper = expectAsync1((res) {
-       
+      var wrapper = expectAsync0(() {
+        
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
         
       });
      
-      sporran6.get("MyBulkId2")..then((res) { wrapper(res); });
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId2");
     
     });
   
     test("13. Get Document Offline Deleted MyBulkId3", () { 
       
       print("6.13");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET); 
         expect(res.localResponse, isTrue);
         
       });
      
-      sporran6.get("MyBulkId3")..then((res) { wrapper(res); });
+      sporran6.clientCompleter = wrapper;
+      sporran6.get("MyBulkId3");
     
     });
     
@@ -1400,8 +1482,9 @@ main() {
     test("2. Wilt - Bulk Insert Supplied Keys", () {  
       
       print("7.2");
-      var completer = expectAsync1((res){
+      var completer = expectAsync0((){
         
+        JsonObject res = wilting.completionResponse;
         try {
           expect(res.error, isFalse);
         } catch(e) {
@@ -1427,6 +1510,8 @@ main() {
         
       });
       
+      wilting.resultCompletion = completer;
+      
       JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
@@ -1450,7 +1535,7 @@ main() {
       docList.add(doc2);
       docList.add(doc3);
       String docs = WiltUserUtils.createBulkInsertString(docList);
-      wilting.bulkString(docs)..then((res) { completer(res); });  
+      wilting.bulkString(docs);    
       
     });  
     
@@ -1467,8 +1552,9 @@ main() {
     test("4. Create Attachment Online MyBulkId1 Attachment 1", () { 
       
       print("7.4");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
       
+        JsonObject res = sporran7.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
         expect(res.id, "MyBulkId1");
@@ -1482,13 +1568,14 @@ main() {
       });
     
       sporran7.online = true;
+      sporran7.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
       sporran7.putAttachment("MyBulkId1", 
-                          attachment)..then((res) { wrapper(res); });
+                          attachment);
     
     
     });
@@ -1496,8 +1583,9 @@ main() {
     test("5. Create Attachment Online MyBulkId1 Attachment 2", () { 
       
       print("7.5");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
       
+        JsonObject res = sporran7.completionResponse;
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.PUT_ATTACHMENT); 
         expect(res.id, "MyBulkId1");
@@ -1511,13 +1599,14 @@ main() {
       });
     
       sporran7.online = true;
+      sporran7.clientCompleter = wrapper;
       JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
       sporran7.putAttachment("MyBulkId1", 
-                          attachment)..then((res) { wrapper(res); });
+                          attachment);
     
     
     });
@@ -1535,8 +1624,9 @@ main() {
     test("7. Delete Attachment Online MyBulkId1 Attachment 1", () {  
       
       print("7.7");
-      var completer = expectAsync1((res){
+      var completer = expectAsync0((){
       
+        JsonObject res = wilting.completionResponse;
         try {
         expect(res.error, isFalse);
         } catch(e) {
@@ -1558,10 +1648,11 @@ main() {
       
       });
     
+      wilting.resultCompletion = completer;
       wilting.db = databaseName;
       wilting.deleteAttachment('MyBulkId1',
                                'AttachmentName1',
-                               docId1Rev)..then((res) { completer(res); });
+                               docId1Rev);
     
     }); 
     
@@ -1577,8 +1668,9 @@ main() {
     test("9. Get Attachment Offline MyBulkId1 AttachmentName1", () { 
       
       print("7.9");
-      var wrapper = expectAsync1((res) {
+      var wrapper = expectAsync0(() {
         
+        JsonObject res = sporran7.completionResponse;
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.GET_ATTACHMENT); 
         expect(res.localResponse, isTrue);
@@ -1586,8 +1678,9 @@ main() {
       });
       
       sporran7.online = false;
+      sporran7.clientCompleter = wrapper;
       sporran7.getAttachment('MyBulkId1', 
-                            'AttachmentName1')..then((res) { wrapper(res); });
+                            'AttachmentName1');
       
       
     });

@@ -105,10 +105,12 @@ be automatically called in the transition to online if autoSync is true, which i
 4. Completion Interface
 -----------------------
 
-Sporran utilises a completion callback interface as is used by Wilt, a completion result is made available
-when the completion callback is called, example :-
+Sporran utilises either a futures based or completion callback interface as is used by Wilt, a completion result 
+is made available when the completion callback is called, example :-
 
 JsonObject res = sporran.completionResponse; 
+
+The futures interface passes the completion result as a parameter.
 
 The properties of the result interface are decribed in the Result Interface document.
 
