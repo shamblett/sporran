@@ -9,8 +9,8 @@
 /* Global configuration, please edit */
 
 /* CouchDB server */
-final String hostName = "xxx";
-final String port = "5984";
+final String hostName = "xxxxx";
+final String port = "xxxxx";
 final String scheme = "http://"; 
 
 /* Database to use for testing */
