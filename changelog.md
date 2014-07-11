@@ -1,4 +1,8 @@
 
+##2.0.1
+
+Updates for DartV1.5.3, all tests running
+
 ## 2.0.0
 
 Issues 1 and 2, Sporran now has a futures based API

@@ -9,7 +9,7 @@ library sporran_test;
 
 import 'dart:async';
 
-import '../lib/sporran.dart';
+import 'package:sporran/sporran.dart';
 import 'package:json_object/json_object.dart';
 import 'package:wilt/wilt.dart';
 import 'package:wilt/wilt_browser_client.dart';
