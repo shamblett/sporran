@@ -1,8 +1,8 @@
 /* Global configuration, please edit */
 
 /* CouchDB server */
-final String hostName = "proxy.dicerati.com";
-final String port = "8080/couch-dart";
+final String hostName = "localhost";
+final String port = "8085";
 final String scheme = "http://"; 
 
 /* Database to use for testing */

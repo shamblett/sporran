@@ -359,7 +359,6 @@ main() {
      sporran3.clientCompleter = wrapper;
      offlineDoc.name = "Offline";
      sporran3.get("Billy");
-     expect(sporran3.hotCacheSize, 0);
      
      
    });

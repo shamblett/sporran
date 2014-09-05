@@ -85,11 +85,6 @@ class _SporranDatabase {
   bool get noCouchDb => _noCouchDb;
 
   /**
-   * In memory hot cache
-   */
-  Map _hotCache = new Map<String, JsonObject>();
-
-  /**
    * Pending delete queue
    */
   Map _pendingDeletes = new Map<String, JsonObject>();
@@ -111,9 +106,7 @@ class _SporranDatabase {
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
-  _SporranDatabase(this._dbName, this._host, [this._manualNotificationControl =
-      false, this._port = "5984", this._scheme = "http://", this._user =
-      null, this._password = null]) {
+  _SporranDatabase(this._dbName, this._host, [this._manualNotificationControl = false, this._port = "5984", this._scheme = "http://", this._user = null, this._password = null]) {
 
 
     /**
@@ -153,8 +146,7 @@ class _SporranDatabase {
    */
   startChangeNotifications() {
 
-    WiltChangeNotificationParameters parameters =
-        new WiltChangeNotificationParameters();
+    WiltChangeNotificationParameters parameters = new WiltChangeNotificationParameters();
     parameters.includeDocs = true;
     _wilt.startChangeNotification(parameters);
 
@@ -174,8 +166,7 @@ class _SporranDatabase {
 
 
     /* Ignore error events */
-    if (!(e.type == WiltChangeNotificationEvent.UPDATE || e.type ==
-        WiltChangeNotificationEvent.DELETE)) return;
+    if (!(e.type == WiltChangeNotificationEvent.UPDATE || e.type == WiltChangeNotificationEvent.DELETE)) return;
 
     /* Process the update or delete event */
     if (e.type == WiltChangeNotificationEvent.UPDATE) {
@@ -204,8 +195,7 @@ class _SporranDatabase {
             /* ...check against all the documents current attachments */
             attachments.forEach((attachment) {
 
-              if ((keyList[1] == attachment.name) && (keyList[0] == e.docId) &&
-                  (keyList[2] == ATTACHMENTMARKER)) {
+              if ((keyList[1] == attachment.name) && (keyList[0] == e.docId) && (keyList[2] == ATTACHMENTMARKER)) {
 
                 /* If still valid remove it from the delete list */
                 attachmentsToDelete.remove(key);
@@ -225,9 +215,7 @@ class _SporranDatabase {
           */
         attachmentsToDelete.forEach((key) {
 
-          _lawndart.removeByKey(key)..then((key) => remove(key));
-
-          removePendingDelete(key);
+          _lawndart.removeByKey(key)..then((key) => removePendingDelete(key));
 
         });
 
@@ -243,19 +231,20 @@ class _SporranDatabase {
       removePendingDelete(e.docId);
 
       /* Do the delete */
-      _lawndart.removeByKey(e.docId)..then((key) => remove(e.docId));
+      _lawndart.removeByKey(e.docId)..then((_) {
 
-      /* Remove all document attachments */
-      _lawndart.keys().listen((String key) {
+            /* Remove all document attachments */
+            _lawndart.keys().listen((String key) {
 
-        List keyList = key.split('-');
-        if ((keyList.length == 3) && (keyList[2] == ATTACHMENTMARKER)) {
+              List keyList = key.split('-');
+              if ((keyList.length == 3) && (keyList[2] == ATTACHMENTMARKER)) {
 
-          _lawndart.removeByKey(key)..then((key) => remove(key));
-        }
+                _lawndart.removeByKey(key);
+              }
 
-      });
+            });
 
+          });
     }
 
   }
@@ -362,53 +351,6 @@ class _SporranDatabase {
   }
 
   /**
-   * Hot cache get
-   */
-  JsonObject get(String id) {
-
-    if (_hotCache.containsKey(id)) {
-
-      return _hotCache[id];
-    }
-
-    return null;
-
-  }
-
-  /**
-   * Hot cache put
-   */
-  void put(String id, JsonObject payload) {
-
-    _hotCache[id] = payload;
-
-
-  }
-
-  /**
-   * Hot cache remove
-   */
-  void remove(String id) {
-
-
-    if (_hotCache.containsKey(id)) {
-
-      _hotCache.remove(id);
-
-    }
-
-  }
-
-  /**
-   * Hot cache length
-   */
-  int length() {
-
-    return _hotCache.length;
-
-  }
-
-  /**
    * Add a key to the pending delete queue
    */
   void addPendingDelete(String key, Map document) {
@@ -474,10 +416,8 @@ class _SporranDatabase {
           newAttachment.rev = WiltUserUtils.getDocumentRev(document);
           newAttachment.contentType = successResponse.contentType;
           newAttachment.payload = res.responseText;
-          String key =
-              "$id-${attachment.name}-${_SporranDatabase.ATTACHMENTMARKER}";
-          updateLocalStorageObject(key, newAttachment, newAttachment.rev,
-              _SporranDatabase.UPDATED);
+          String key = "$id-${attachment.name}-${_SporranDatabase.ATTACHMENTMARKER}";
+          updateLocalStorageObject(key, newAttachment, newAttachment.rev, _SporranDatabase.UPDATED);
 
         }
 
@@ -512,8 +452,7 @@ class _SporranDatabase {
   /**
    * Create local storage not updated entry
    */
-  JsonObject _createNotUpdated(String key, String revision, JsonObject payload)
-      {
+  JsonObject _createNotUpdated(String key, String revision, JsonObject payload) {
 
     /* Add our type marker and set to 'not updated' */
     JsonObject update = new JsonObject();
@@ -529,15 +468,13 @@ class _SporranDatabase {
   /**
    * Update local storage.
    * 
-   * This will eventually become consistent, no need to wait on the future 
-   * completion
    */
-  void updateLocalStorageObject(String key, JsonObject update, String
-      revision, String updateStatus) {
+  Future updateLocalStorageObject(String key, JsonObject update, String revision, String updateStatus) {
+
+    var completer = new Completer();
 
     /* Check for not initialized */
-    if ((lawndart == null) || (!lawndart.isOpen)) throw new SporranException(
-        "Initialisation Failure, Lawndart is not initialized");
+    if ((lawndart == null) || (!lawndart.isOpen)) throw new SporranException("Initialisation Failure, Lawndart is not initialized");
 
 
     /* Do the update */
@@ -549,16 +486,15 @@ class _SporranDatabase {
     }
 
     /**
-     * Update the hot cache, then Lawndart.
-     * When Lawndart has saved the item remove it from the
-     * hot cache.
+     * Update LawnDart
      */
-    put(key, localUpdate);
     _lawndart.save(localUpdate, key)..then((String key) {
 
-          remove(key);
+          completer.complete();
 
         });
+
+    return completer.future;
 
   }
 
@@ -571,35 +507,14 @@ class _SporranDatabase {
     JsonObject localObject = new JsonObject();
     var completer = new Completer();
 
-    /**
-     * Try Lawndart first then the hot cache
-     */
     lawndart.getByKey(key).then((document) {
 
       JsonObject res = new JsonObject();
 
-      if (document == null) {
+      if (document != null) {
 
-        /* Try the hot cache */
-        JsonObject hotObject = get(key);
-        if (hotObject == null) {
+        localObject.payload = document['payload'];
 
-          localObject = null;
-
-        } else {
-
-          localObject = hotObject;
-
-        }
-
-      } else {
-
-        /* Got from Lawndart */
-        if (document != null) {
-
-          localObject.payload = document['payload'];
-
-        }
       }
 
       completer.complete(localObject);
@@ -620,9 +535,6 @@ class _SporranDatabase {
     Map results = new Map<String, JsonObject>();
     int keyPos = 0;
 
-    /**
-     * Try only Lawndart for objects
-     */
     lawndart.getByKeys(keys).listen((value) {
 
       JsonObject document = new JsonObject.fromMap(value);
@@ -688,8 +600,7 @@ class _SporranDatabase {
   /**
    * Update/create a CouchDb attachment
    */
-  void updateAttachment(String key, String name, String revision, String
-      contentType, String payload) {
+  void updateAttachment(String key, String name, String revision, String contentType, String payload) {
 
 
     /* Create our own Wilt instance */
@@ -723,8 +634,7 @@ class _SporranDatabase {
         if (!found) {
 
           String newRevision = WiltUserUtils.getDocumentRev(successResponse);
-          wilting.updateAttachment(key, name, newRevision, contentType, payload
-              );
+          wilting.updateAttachment(key, name, newRevision, contentType, payload);
         }
 
       }
@@ -752,8 +662,7 @@ class _SporranDatabase {
     }
 
     wilting.db = _dbName;
-    wilting.updateAttachment(key, name, revision, contentType, payload)..then(
-        (res) {
+    wilting.updateAttachment(key, name, revision, contentType, payload)..then((res) {
           putCompleter(res);
         });
 
@@ -798,8 +707,7 @@ class _SporranDatabase {
   /**
    * Manual bulk insert uses update
    */
-  Future<Map<String, String>> _manualBulkInsert(Map<String, JsonObject>
-      documentsToUpdate) {
+  Future<Map<String, String>> _manualBulkInsert(Map<String, JsonObject> documentsToUpdate) {
 
     Completer completer = new Completer();
     Map revisions = new Map<String, String>();
@@ -909,8 +817,7 @@ class _SporranDatabase {
 
         /* Check for an attachment */
         List keyList = key.split('-');
-        if ((keyList.length == 3) && (keyList[2] ==
-            _SporranDatabase.ATTACHMENTMARKER)) {
+        if ((keyList.length == 3) && (keyList[2] == _SporranDatabase.ATTACHMENTMARKER)) {
 
           deleteAttachment(keyList[0], keyList[1], revision);
           /* Just in case */
@@ -931,7 +838,7 @@ class _SporranDatabase {
     Map attachmentsToUpdate = new Map<String, JsonObject>();
 
     /**
-    * Get a list of non updated documents and attachments from Lawndart and the hot cache
+    * Get a list of non updated documents and attachments from Lawndart
     */
     lawndart.all().listen((Map document) {
 
@@ -953,39 +860,14 @@ class _SporranDatabase {
 
       }
 
-
-    }, onDone: () {
-
-      /*
-      * Loop around the hot cache, everything in here is not updated yet
-      */
-      _hotCache.forEach((String key, JsonObject document) {
-
-        JsonObject update = new JsonObject.fromMap(document);
-        /* If an attachment just stack it */
-        List keyList = key.split('-');
-        if ((keyList.length == 3) && (keyList[2] == ATTACHMENTMARKER)) {
-
-          attachmentsToUpdate[key] = update;
-
-        } else {
-
-          documentsToUpdate[key] = update;
-
-        }
-
-      });
-
       _manualBulkInsert(documentsToUpdate)..then((revisions) {
 
             /* Finally do the attachments */
             attachmentsToUpdate.forEach((String key, JsonObject attachment) {
 
               List keyList = key.split('-');
-              if (attachment.rev == null) attachment.rev =
-                  revisions[keyList[0]];
-              updateAttachment(keyList[0], attachment.payload.attachmentName,
-                  attachment.rev, attachment.payload.contentType, attachment.payload.payload);
+              if (attachment.rev == null) attachment.rev = revisions[keyList[0]];
+              updateAttachment(keyList[0], attachment.payload.attachmentName, attachment.rev, attachment.payload.contentType, attachment.payload.payload);
 
             });
 
@@ -1013,8 +895,7 @@ class _SporranDatabase {
       attachmentToCreate.contentType = attachment.data.content_type;
       attachmentToCreate.payload = window.btoa(attachment.data.data);
 
-      updateLocalStorageObject(attachmentKey, attachmentToCreate,
-          attachmentToCreate.rev, UPDATED);
+      updateLocalStorageObject(attachmentKey, attachmentToCreate, attachmentToCreate.rev, UPDATED);
 
 
     });

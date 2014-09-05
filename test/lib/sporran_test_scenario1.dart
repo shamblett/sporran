@@ -11,11 +11,10 @@ import 'dart:async';
 
 import 'package:sporran/sporran.dart';
 import 'package:json_object/json_object.dart';
-import 'package:wilt/wilt.dart';
-import 'package:wilt/wilt_browser_client.dart';
 import 'package:unittest/unittest.dart';
 import 'package:unittest/html_config.dart';
 import 'sporran_test_config.dart';
+import 'package:wilt/wilt.dart';
 
 main() {
 
@@ -38,11 +37,7 @@ main() {
     String docid1rev;
     String docid2rev;
     String docid3rev;
-    String attachmentPayload =
-        'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' +
-        'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' +
-        'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' +
-        '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+    String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' + 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' + 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' + '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test("1. Create and Open Sporran", () {
 
@@ -56,31 +51,8 @@ main() {
 
       });
 
-      var wrapper1 = expectAsync1((res) {
-
-
-        sporran8 = new Sporran(databaseName, hostName, false, port, scheme,
-            userName, userPassword);
-
-
-        sporran8.onReady.first.then((e) => wrapper());
-
-      });
-
-      /* Use Wilt to delete the existing database */
-      /* Create our Wilt */
-      Wilt wilting = new WiltBrowserClient(hostName, port, scheme);
-
-      /* Login if we are using authentication */
-      if (userName != null) {
-
-        wilting.login(userName, userPassword);
-      }
-
-      wilting.db = databaseName;
-      wilting.deleteDatabase(databaseName)..then((res) {
-            wrapper1(res);
-          });
+      sporran8 = new Sporran(databaseName, hostName, false, port, scheme, userName, userPassword);
+      sporran8.onReady.first.then((e) => wrapper());
 
     });
 
@@ -293,14 +265,12 @@ main() {
         expect(successResponse.rows[0].doc.title, "Document 1");
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute, "Doc 1 attribute");
-        List doc1Attachments = WiltUserUtils.getAttachments(
-            successResponse.rows[0].doc);
+        List doc1Attachments = WiltUserUtils.getAttachments(successResponse.rows[0].doc);
         expect(doc1Attachments.length, 2);
         expect(successResponse.rows[1].doc.title, "Document 2");
         expect(successResponse.rows[1].doc.version, 2);
         expect(successResponse.rows[1].doc.attribute, "Doc 2 attribute");
-        List doc2Attachments = WiltUserUtils.getAttachments(
-            successResponse.rows[1].doc);
+        List doc2Attachments = WiltUserUtils.getAttachments(successResponse.rows[1].doc);
         expect(doc2Attachments.length, 1);
 
       });
