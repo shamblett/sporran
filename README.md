@@ -4,9 +4,9 @@
 
 Sporran is a [PouchDB](http://pouchdb.com/) alike implementation for Dart.
 
-It uses Lawndart(browser local storage client) and Wilt(browser CouchDB client) and an in memory
-hot cache for a extra slickness to allow browser based CouchDB users to transition between 
-online and offline modes and carry on working normally.
+It uses Lawndart(browser local storage client) and Wilt(browser CouchDB client) 
+to allow browser based CouchDB users to transition between online and offline 
+modes and carry on working normally.
 
 When the browser is online Sporran acts just like Wilt, i.e is a CouchDB client, but all database
 transactions are reflected into local storage. 

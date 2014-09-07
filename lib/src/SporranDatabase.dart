@@ -8,8 +8,8 @@
  * 
  * This is the main Sporran Database class.
  * 
- * A Sporran database comprises of a WiltBrowserClient object, a Lawndart object and 
- * an in memory hot cache in tandem, all sharing the same database name.
+ * A Sporran database comprises of a WiltBrowserClient object, and a a Lawndart 
+ * object and in tandem, sharing the same database name.
  * 
  * Please read the usage and interface documentation supplied for
  * further details.
