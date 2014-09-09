@@ -62,11 +62,13 @@ main() {
   solo_group("2. Constructor/Invalid Parameter Tests - ", () {
 
 
+    Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+   
+
     test("1. Construction Online/Offline listener ", () {
 
       print("2.1");
-      Sporran sporran21 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
-
+      Sporran sporran21;
 
       var wrapper = expectAsync0(() {
 
@@ -80,8 +82,16 @@ main() {
 
       });
 
-      sporran21.autoSync = false;
-      sporran21.onReady.first.then((e) => wrapper());
+
+      var wrapper1 = expectAsync0(() {
+
+        sporran21 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+        sporran21.autoSync = false;
+        sporran21.onReady.first.then((e) => wrapper());
+      });
+
+      Timer pause = new Timer(new Duration(seconds: 2), (){wrapper1();});
+
 
     });
 
@@ -126,7 +136,6 @@ main() {
     test("4. Put No Doc Id ", () {
 
       print("2.4");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -142,7 +151,6 @@ main() {
     test("5. Get No Doc Id ", () {
 
       print("2.5");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -158,7 +166,6 @@ main() {
     test("6. Delete No Doc Id ", () {
 
       print("2.6");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -174,7 +181,6 @@ main() {
     test("7. Put Attachment No Doc Id ", () {
 
       print("2.7");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -190,7 +196,6 @@ main() {
     test("8. Put Attachment No Attachment ", () {
 
       print("2.8");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -206,7 +211,6 @@ main() {
     test("9. Delete Attachment No Doc Id ", () {
 
       print("2.9");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -222,7 +226,6 @@ main() {
     test("10. Delete Attachment No Attachment Name ", () {
 
       print("2.10");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -238,7 +241,6 @@ main() {
     test("11. Delete Attachment No Revision ", () {
 
       print("2.11");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -254,7 +256,6 @@ main() {
     test("12. Get Attachment No Doc Id ", () {
 
       print("2.12");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -270,7 +271,6 @@ main() {
     test("13. Get Attachment No Attachment Name ", () {
 
       print("2.13");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -286,7 +286,6 @@ main() {
     test("14. Bulk Create No Document List ", () {
 
       print("2.14");
-      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
