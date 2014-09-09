@@ -118,25 +118,30 @@ class _SporranDatabase {
      * Open it, don't worry about waiting
      */
 
-    _lawndart.open()..then((_) => _lawndart.nuke());
+    _lawndart.open()..then((_) {
+      
+      _lawndart.nuke();
 
-    /**
-     * Instantiate a Wilt object
-     */
-    _wilt = new WiltBrowserClient(_host, _port, _scheme);
-    /**
-     * Login
-     */
-    if (_user != null) {
+      /**
+      * Instantiate a Wilt object
+      */
+      _wilt = new WiltBrowserClient(_host, _port, _scheme);
+      
+      /**
+      * Login
+      */
+      if (_user != null) {
 
-      _wilt.login(_user, _password);
+        _wilt.login(_user, _password);
 
-    }
+      }
 
-    /*
-    * Open CouchDb
-    */
-    connectToCouch();
+      /*
+      * Open CouchDb
+      */
+      connectToCouch();
+      
+    });
 
   }
 
