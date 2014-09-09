@@ -63,7 +63,7 @@ main() {
 
 
     Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
-   
+
 
     test("1. Construction Online/Offline listener ", () {
 
@@ -90,7 +90,9 @@ main() {
         sporran21.onReady.first.then((e) => wrapper());
       });
 
-      Timer pause = new Timer(new Duration(seconds: 2), (){wrapper1();});
+      Timer pause = new Timer(new Duration(seconds: 2), () {
+        wrapper1();
+      });
 
 
     });
@@ -295,6 +297,38 @@ main() {
       sporran.bulkCreate(null)..then((_) {}, onError: (SporranException e) {
             completer(e);
           });
+
+    });
+
+    test("15. Login invalid user ", () {
+
+      print("2.15");
+
+      try {
+
+        sporran.login(null, 'password');
+
+      } catch (e) {
+
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.INVALID_LOGIN_CREDS);
+      }
+
+    });
+
+    test("16. Login invalid password ", () {
+
+      print("2.16");
+
+      try {
+
+        sporran.login('billy', null);
+
+      } catch (e) {
+
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.INVALID_LOGIN_CREDS);
+      }
 
     });
 

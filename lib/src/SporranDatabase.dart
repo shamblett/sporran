@@ -119,29 +119,29 @@ class _SporranDatabase {
      */
 
     _lawndart.open()..then((_) {
-      
-      _lawndart.nuke();
 
-      /**
+          _lawndart.nuke();
+
+          /**
       * Instantiate a Wilt object
       */
-      _wilt = new WiltBrowserClient(_host, _port, _scheme);
-      
-      /**
+          _wilt = new WiltBrowserClient(_host, _port, _scheme);
+
+          /**
       * Login
       */
-      if (_user != null) {
+          if (_user != null) {
 
-        _wilt.login(_user, _password);
+            _wilt.login(_user, _password);
 
-      }
+          }
 
-      /*
+          /*
       * Open CouchDb
       */
-      connectToCouch();
-      
-    });
+          connectToCouch();
+
+        });
 
   }
 
@@ -479,8 +479,7 @@ class _SporranDatabase {
     var completer = new Completer();
 
     /* Check for not initialized */
-    if ((lawndart == null) || (!lawndart.isOpen)) 
-      return new Future.error(new SporranException(SporranException.LAWN_NOT_INIT));
+    if ((lawndart == null) || (!lawndart.isOpen)) return new Future.error(new SporranException(SporranException.LAWN_NOT_INIT));
 
 
     /* Do the update */
@@ -906,6 +905,18 @@ class _SporranDatabase {
 
     });
 
+
+  }
+
+  /**
+   * Login 
+   */
+  void login(String user, String password) {
+
+    this._user = user;
+    this._password = password;
+
+    _wilt.login(_user, _password);
 
   }
 

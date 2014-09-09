@@ -1,7 +1,7 @@
 
 ## 2.x.x
 
-Updates for issues 7, 5, 6, x
+Updates for issues 7, 5, 6, 8,
 
 ## 2.0.1
 

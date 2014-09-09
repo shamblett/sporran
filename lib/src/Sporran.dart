@@ -1143,4 +1143,20 @@ class Sporran {
 
   }
 
+  /**
+   * Login
+   *
+   * Allows log in credentials to be changed if needed.
+   */
+  void login(String user, String password) {
+
+    if (user == null || password == null) {
+
+      throw new SporranException(SporranException.INVALID_LOGIN_CREDS);
+    }
+
+    _database.login(user, password);
+
+  }
+
 }
