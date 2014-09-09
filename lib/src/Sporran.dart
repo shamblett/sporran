@@ -164,6 +164,24 @@ class Sporran {
   }
 
   /**
+  * Raise an exception from a future API call.
+  * If we are using completion throw an exception as normal.
+  */
+  Future<SporranException> _raiseException(String name) {
+
+
+    if (_clientCompleter == null) {
+
+      return new Future.error(new SporranException(name));
+
+    } else {
+
+      throw new SporranException(name);
+    }
+
+  }
+
+  /**
    * Online transition 
    */
   void _transitionToOnline() {
@@ -236,9 +254,14 @@ class Sporran {
    * 
    * For an update operation a specific revision must be specified.
    */
-  Future<JsonObject> put(String id, JsonObject document, [String rev = null]) {
+  Future put(String id, JsonObject document, [String rev = null]) {
 
     Completer opCompleter = new Completer();
+
+    if (id == null) {
+
+      return _raiseException(SporranException.PUT_NO_DOC_ID);
+    }
 
     /* Update LawnDart */
     _database.updateLocalStorageObject(id, document, rev, _SporranDatabase.NOT_UPDATED)..then((_) {
@@ -309,9 +332,15 @@ class Sporran {
   /**
    * Get a document 
    */
-  Future<JsonObject> get(String id, [String rev = null]) {
+  Future get(String id, [String rev = null]) {
 
     Completer opCompleter = new Completer();
+
+    if (id == null) {
+
+      return _raiseException(SporranException.GET_NO_DOC_ID);
+    }
+
 
     /* Check for offline, if so try the get from local storage */
     if (!online) {
@@ -397,9 +426,14 @@ class Sporran {
    * 
    * Revision must be supplied if we are online
    */
-  Future<JsonObject> delete(String id, [String rev = null]) {
+  Future delete(String id, [String rev = null]) {
 
     Completer opCompleter = new Completer();
+
+    if (id == null) {
+
+      return _raiseException(SporranException.DELETE_NO_DOC_ID);
+    }
 
     /* Remove from Lawndart */
     _database.lawndart.getByKey(id)..then((document) {
@@ -502,9 +536,19 @@ class Sporran {
    * String contentType - mime type in the form 'image/png'
    * String payload - stringified binary blob
    */
-  Future<JsonObject> putAttachment(String id, JsonObject attachment) {
+  Future putAttachment(String id, JsonObject attachment) {
 
     Completer opCompleter = new Completer();
+
+    if (id == null) {
+
+      return _raiseException(SporranException.PUT_ATT_NO_DOC_ID);
+    }
+
+    if (attachment == null) {
+
+      return _raiseException(SporranException.PUT_ATT_NO_ATT);
+    }
 
     /* Update LawnDart */
     String key = "$id-${attachment.attachmentName}-${_SporranDatabase.ATTACHMENTMARKER}";
@@ -588,10 +632,25 @@ class Sporran {
     * 
     * Revision can be null if offline
     */
-  Future<JsonObject> deleteAttachment(String id, String attachmentName, String rev) {
+  Future deleteAttachment(String id, String attachmentName, String rev) {
 
     Completer opCompleter = new Completer();
     String key = "$id-$attachmentName-${_SporranDatabase.ATTACHMENTMARKER}";
+
+    if (id == null) {
+
+      return _raiseException(SporranException.DELETE_ATT_NO_DOC_ID);
+    }
+
+    if (attachmentName == null) {
+
+      return _raiseException(SporranException.DELETE_ATT_NO_ATT_NAME);
+    }
+
+    if (rev == null) {
+
+      return _raiseException(SporranException.DELETE_ATT_NO_REV);
+    }
 
     /* Remove from Lawndart */
     _database.lawndart.getByKey(key)..then((document) {
@@ -683,10 +742,21 @@ class Sporran {
   /**
     * Get an attachment
     */
-  Future<JsonObject> getAttachment(String id, String attachmentName) {
+  Future getAttachment(String id, String attachmentName) {
 
     Completer opCompleter = new Completer();
     String key = "$id-$attachmentName-${_SporranDatabase.ATTACHMENTMARKER}";
+
+    if (id == null) {
+
+      return _raiseException(SporranException.GET_ATT_NO_DOC_ID);
+    }
+
+    if (attachmentName == null) {
+
+      return _raiseException(SporranException.GET_ATT_NO_ATT_NAME);
+    }
+
 
     /* Check for offline, if so try the get from local storage */
     if (!online) {
@@ -777,10 +847,15 @@ class Sporran {
     * 
     * docList is a map of documents with their keys
     */
-  Future<JsonObject> bulkCreate(Map<String, JsonObject> docList) {
+  Future bulkCreate(Map<String, JsonObject> docList) {
 
 
     Completer opCompleter = new Completer();
+
+    if (docList == null) {
+
+      return _raiseException(SporranException.BULK_CREATE_NO_DOCLIST);
+    }
 
     /* Futures list for LawnDart update */
     List<Future> updateList = new List<Future>();
@@ -879,9 +954,9 @@ class Sporran {
           _database.wilt.bulkString(docs)..then((res) {
                 completer(res);
               });
-          
+
         });
-    
+
     return opCompleter.future;
 
   }

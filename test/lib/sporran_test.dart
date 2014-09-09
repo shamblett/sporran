@@ -58,8 +58,8 @@ main() {
 
   });
 
-  /* Group 2 - Sporran constructor tests */
-  group("2. Constructor Tests - ", () {
+  /* Group 2 - Sporran constructor/ invalid parameter tests */
+  solo_group("2. Constructor/Invalid Parameter Tests - ", () {
 
 
     test("1. Construction Online/Offline listener ", () {
@@ -123,6 +123,181 @@ main() {
 
     });
 
+    test("4. Put No Doc Id ", () {
+
+      print("2.4");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.PUT_NO_DOC_ID);
+      });
+
+      sporran.put(null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("5. Get No Doc Id ", () {
+
+      print("2.5");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.GET_NO_DOC_ID);
+      });
+
+      sporran.get(null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("6. Delete No Doc Id ", () {
+
+      print("2.6");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_NO_DOC_ID);
+      });
+
+      sporran.delete(null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("7. Put Attachment No Doc Id ", () {
+
+      print("2.7");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.PUT_ATT_NO_DOC_ID);
+      });
+
+      sporran.putAttachment(null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("8. Put Attachment No Attachment ", () {
+
+      print("2.8");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.PUT_ATT_NO_ATT);
+      });
+
+      sporran.putAttachment('billy', null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("9. Delete Attachment No Doc Id ", () {
+
+      print("2.9");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_DOC_ID);
+      });
+
+      sporran.deleteAttachment(null, null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("10. Delete Attachment No Attachment Name ", () {
+
+      print("2.10");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_ATT_NAME);
+      });
+
+      sporran.deleteAttachment('billy', null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("11. Delete Attachment No Revision ", () {
+
+      print("2.11");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_REV);
+      });
+
+      sporran.deleteAttachment('billy', 'fred', null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("12. Get Attachment No Doc Id ", () {
+
+      print("2.12");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.GET_ATT_NO_DOC_ID);
+      });
+
+      sporran.getAttachment(null, null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("13. Get Attachment No Attachment Name ", () {
+
+      print("2.13");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.GET_ATT_NO_ATT_NAME);
+      });
+
+      sporran.getAttachment('billy', null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
+
+    test("14. Bulk Create No Document List ", () {
+
+      print("2.14");
+      Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+
+      var completer = expectAsync1((e) {
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.BULK_CREATE_NO_DOCLIST);
+      });
+
+      sporran.bulkCreate(null)..then((_) {}, onError: (SporranException e) {
+            completer(e);
+          });
+
+    });
 
   });
 
@@ -232,7 +407,7 @@ main() {
     test("5. Put Document Online Updated docIdPutOnline", () {
 
       print("3.5");
-      
+
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
@@ -250,13 +425,13 @@ main() {
           });
 
     });
-    
+
     test("6. Get Document Offline docIdPutOnline", () {
 
       print("3.6");
       var wrapper = expectAsync1((res) {
 
-        
+
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.GET);
         expect(res.localResponse, isTrue);
@@ -267,12 +442,12 @@ main() {
 
       sporran3.online = false;
       sporran3.get(docIdPutOnline)..then((res) {
-        
+
             wrapper(res);
           });
 
     });
-    
+
     test("7. Get Document Offline docIdPutOffline", () {
 
       print("3.7");

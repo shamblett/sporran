@@ -479,7 +479,8 @@ class _SporranDatabase {
     var completer = new Completer();
 
     /* Check for not initialized */
-    if ((lawndart == null) || (!lawndart.isOpen)) throw new SporranException("Initialisation Failure, Lawndart is not initialized");
+    if ((lawndart == null) || (!lawndart.isOpen)) 
+      return new Future.error(new SporranException(SporranException.LAWN_NOT_INIT));
 
 
     /* Do the update */
