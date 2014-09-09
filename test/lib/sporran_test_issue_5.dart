@@ -1,6 +1,6 @@
 import 'dart:html';
 import 'dart:math';
-import 'dart:async';
+//import 'dart:async';
 import 'package:sporran/sporran.dart';
 import 'package:json_object/json_object.dart';
 
@@ -9,7 +9,7 @@ final String DB_NAME = "sporranlab001";
 
 void main() {
 if(sporran == null) {
-sporran = new Sporran(DB_NAME, "localhost", true, "8085", "http://", 'steve', 'wij7hwip');
+sporran = new Sporran(DB_NAME, "localhost", false, "8085", "http://", 'steve', 'wij7hwip');
 }
 
 sporran.autoSync = true;
@@ -21,13 +21,12 @@ Person person = new Person();
 person.id = generateId().toString();
 person.firstName = "Some Guy First Name " + person.id;
 person.lastName = "Last Name " + person.id;
-print("inserting Record " + person.toString());
 
 JsonObject jsonObject = new JsonObject();
 jsonObject.addAll(person.toMap());
-print("inserting Record " + person.toString() + " - " + person.hashCode.toString());
+print("inserting Record " + person.id);
 sporran.put(person.id, jsonObject, null).catchError((e) => onError);
-Timer pause = new Timer(new Duration(seconds: 20),(){print("Times up");});
+//Timer pause = new Timer(new Duration(seconds: 60),(){print("Times up");});
 }
 
 void onError(e) {
