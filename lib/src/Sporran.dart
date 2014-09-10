@@ -147,13 +147,27 @@ class Sporran {
    * Construction.
    * 
    */
-  Sporran(this._dbName, String hostName, [bool manualNotificationControl = false, String port = "5984", String scheme = "http://", String userName = null, String password = null]) {
-
+  Sporran(SporranInitialiser initialiser) {
+  
+  
+    if ( initialiser == null ) {
+      
+      throw new SporranException(SporranException.NO_INITIALISER);
+    }
+    
+    this._dbName = initialiser.dbName;
 
     /**
      * Construct our database.
      */
-    _database = new _SporranDatabase(_dbName, hostName, manualNotificationControl, port, scheme, userName, password);
+    _database = new _SporranDatabase(_dbName, 
+                                     initialiser.hostname, 
+                                     initialiser.manualNotificationControl, 
+                                     initialiser.port, 
+                                     initialiser.scheme, 
+                                     initialiser.username, 
+                                     initialiser.password,
+                                     initialiser.preserveLocal);
 
     /**
       * Online/offline listeners

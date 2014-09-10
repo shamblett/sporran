@@ -24,7 +24,8 @@ class SporranException implements Exception {
   static const BULK_CREATE_NO_DOCLIST = 'bulkCreate() expects a document list';
   static const LAWN_NOT_INIT = 'Initialisation Failure, Lawndart is not initialized';
   static const INVALID_LOGIN_CREDS = 'Invalid login credentials - user and password must be supplied';
-
+  static const NO_INITIALISER = 'You must supply an initialiser on construction';
+  
   String _message = 'No Message Supplied';
   SporranException([this._message]);
 

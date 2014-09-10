@@ -61,6 +61,11 @@ class _SporranDatabase {
   bool get manualNotificationControl => _manualNotificationControl;
 
   /**
+   * Local database preservation 
+   */
+  bool _preserveLocalDatabase = false;
+
+  /**
    * The Wilt database
    */
   WiltBrowserClient _wilt;
@@ -106,7 +111,7 @@ class _SporranDatabase {
    * Construction, for Wilt we need URL and authentication parameters.
    * For LawnDart only the database name, the store name is fixed by Sporran
    */
-  _SporranDatabase(this._dbName, this._host, [this._manualNotificationControl = false, this._port = "5984", this._scheme = "http://", this._user = null, this._password = null]) {
+  _SporranDatabase(this._dbName, this._host, [this._manualNotificationControl = false, this._port = "5984", this._scheme = "http://", this._user = null, this._password = null, this._preserveLocalDatabase = false]) {
 
 
     /**
@@ -120,14 +125,17 @@ class _SporranDatabase {
 
     _lawndart.open()..then((_) {
 
-          _lawndart.nuke();
+      /**
+       * Delete the local database unless told to preserve it.
+       */
+          if (!_preserveLocalDatabase) _lawndart.nuke();
 
-          /**
+     /**
       * Instantiate a Wilt object
       */
           _wilt = new WiltBrowserClient(_host, _port, _scheme);
 
-          /**
+     /**
       * Login
       */
           if (_user != null) {
@@ -136,7 +144,7 @@ class _SporranDatabase {
 
           }
 
-          /*
+     /*
       * Open CouchDb
       */
           connectToCouch();
