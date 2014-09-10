@@ -1,7 +1,8 @@
 
-## 2.x.x
+## 2.1.0
 
-Updates for issues 7, 5, 6, 8,
+Updates for issues 7, 5, 6, 8 and 4
+Note that issue 4 changes how Sporran is constructed and is thus breaking.
 
 ## 2.0.1
 

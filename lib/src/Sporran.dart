@@ -18,7 +18,7 @@ part of sporran;
 class Sporran {
 
   /**
-   * Constants
+   * Method constants
    */
   static final PUT = "put";
   static final GET = "get";

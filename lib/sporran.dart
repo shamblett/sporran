@@ -18,3 +18,4 @@ import 'package:json_object/json_object.dart';
 part 'src/Sporran.dart';
 part 'src/SporranException.dart';
 part 'src/SporranDatabase.dart';
+part 'src/SporranInitialiser.dart';
