@@ -31,7 +31,7 @@ class SporranInitialiser {
    */
   String _port;
   String get port => _port;
-  set port(String port) => port = port;
+  set port(String port) => _port = port;
   
   /**
    *  Scheme
