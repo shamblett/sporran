@@ -661,7 +661,7 @@ class Sporran {
       return _raiseException(SporranException.DELETE_ATT_NO_ATT_NAME);
     }
 
-    if (rev == null) {
+    if ( (online) && (rev == null)) {
 
       return _raiseException(SporranException.DELETE_ATT_NO_REV);
     }
