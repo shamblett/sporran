@@ -22,6 +22,16 @@ main() {
 
   useHtmlConfiguration();
 
+  /* Common initialiser */
+  SporranInitialiser initialiser = new SporranInitialiser();
+  initialiser.dbName = databaseName;
+  initialiser.hostname = hostName;
+  initialiser.manualNotificationControl = true;
+  initialiser.port = port;
+  initialiser.scheme = scheme;
+  initialiser.username = userName;
+  initialiser.password = userPassword;
+  initialiser.preserveLocal = false;
 
   /* Group 1 - Environment tests */
   group("1. Environment Tests - ", () {
@@ -59,10 +69,27 @@ main() {
   });
 
   /* Group 2 - Sporran constructor/ invalid parameter tests */
-  solo_group("2. Constructor/Invalid Parameter Tests - ", () {
+  group("2. Constructor/Invalid Parameter Tests - ", () {
 
+    Sporran sporran;
 
-    Sporran sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+    test("0. Sporran Initialisation", ()  {
+
+      print("2.0");
+      sporran = new Sporran(initialiser);
+
+      var wrapper = expectAsync0(() {
+
+        expect(sporran, isNotNull);
+        expect(sporran.dbName, databaseName);
+        expect(sporran.online, true);
+
+      });
+
+      sporran.autoSync = false;
+      sporran.onReady.first.then((e) => wrapper());
+      
+    });
 
 
     test("1. Construction Online/Offline listener ", () {
@@ -85,7 +112,7 @@ main() {
 
       var wrapper1 = expectAsync0(() {
 
-        sporran21 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+        sporran21 = new Sporran(initialiser);
         sporran21.autoSync = false;
         sporran21.onReady.first.then((e) => wrapper());
       });
@@ -100,7 +127,7 @@ main() {
     test("2. Construction Existing Database ", () {
 
       print("2.2");
-      Sporran sporran22 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+      Sporran sporran22 = new Sporran(initialiser);
 
       var wrapper = expectAsync0(() {
 
@@ -118,7 +145,9 @@ main() {
     test("3. Construction Invalid Authentication ", () {
 
       print("2.3");
-      Sporran sporran23 = new Sporran(databaseName, hostName, true, port, scheme, userName, 'none');
+      initialiser.password = 'none';
+      Sporran sporran23 = new Sporran(initialiser);
+      initialiser.password = userPassword;
 
       var wrapper = expectAsync0(() {
 
@@ -248,7 +277,7 @@ main() {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_REV);
       });
-
+      //sporran.online = false;
       sporran.deleteAttachment('billy', 'fred', null)..then((_) {}, onError: (SporranException e) {
             completer(e);
           });
@@ -332,6 +361,22 @@ main() {
 
     });
 
+    test("17. Null Initialiser ", () {
+
+      print("2.17");
+
+      try {
+
+        Sporran bad = new Sporran(null);
+
+      } catch (e) {
+
+        expect(e.runtimeType.toString(), 'SporranException');
+        expect(e.toString(), SporranException.HEADER + SporranException.NO_INITIALISER);
+      }
+
+    });
+
   });
 
   /* Group 3 - Sporran document put/get tests */
@@ -362,10 +407,9 @@ main() {
 
       });
 
-      sporran3 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+      sporran3 = new Sporran(initialiser);
       sporran3.autoSync = false;
       sporran3.onReady.first.then((e) => wrapper());
-
 
 
     });
@@ -669,7 +713,7 @@ main() {
 
       });
 
-      sporran4 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+      sporran4 = new Sporran(initialiser);
 
       sporran4.autoSync = false;
       sporran4.onReady.first.then((e) => wrapper());
@@ -965,7 +1009,7 @@ main() {
 
       });
 
-      sporran5 = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+      sporran5 = new Sporran(initialiser);
 
       sporran5.autoSync = false;
       sporran5.onReady.first.then((e) => wrapper());
@@ -1241,7 +1285,8 @@ main() {
 
       });
 
-      sporran6 = new Sporran(databaseName, hostName, false, port, scheme, userName, userPassword);
+      initialiser.manualNotificationControl = false;
+      sporran6 = new Sporran(initialiser);
 
       sporran6.autoSync = false;
       sporran6.onReady.first.then((e) => wrapper());
@@ -1582,7 +1627,8 @@ main() {
 
       });
 
-      sporran7 = new Sporran(databaseName, hostName, false, port, scheme, userName, userPassword);
+      initialiser.manualNotificationControl = false;
+      sporran7 = new Sporran(initialiser);
 
       sporran7.autoSync = false;
       sporran7.onReady.first.then((e) => wrapper());
