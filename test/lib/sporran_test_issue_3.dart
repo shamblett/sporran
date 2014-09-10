@@ -47,8 +47,16 @@ main() {
 
   };
 
-
-  sporran = new Sporran(databaseName, hostName, true, port, scheme, userName, userPassword);
+  SporranInitialiser initialiser = new SporranInitialiser();
+  initialiser.dbName = databaseName;
+  initialiser.hostname = hostName;
+  initialiser.manualNotificationControl = true;
+  initialiser.port = port;
+  initialiser.scheme = scheme;
+  initialiser.username = userName;
+  initialiser.password = userPassword;
+  initialiser.preserveLocal = false;
+  sporran = new Sporran(initialiser);
   sporran.autoSync = false;
   sporran.onReady.first.then((e) => wrapper());
 
