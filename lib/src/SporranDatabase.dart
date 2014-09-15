@@ -125,17 +125,17 @@ class _SporranDatabase {
 
     _lawndart.open()..then((_) {
 
-      /**
+          /**
        * Delete the local database unless told to preserve it.
        */
           if (!_preserveLocalDatabase) _lawndart.nuke();
 
-     /**
+          /**
       * Instantiate a Wilt object
       */
           _wilt = new WiltBrowserClient(_host, _port, _scheme);
 
-     /**
+          /**
       * Login
       */
           if (_user != null) {
@@ -144,7 +144,7 @@ class _SporranDatabase {
 
           }
 
-     /*
+          /*
       * Open CouchDb
       */
           connectToCouch();
@@ -872,7 +872,7 @@ class _SporranDatabase {
         }
 
       }
-
+    }, onDone: () {
       _manualBulkInsert(documentsToUpdate)..then((revisions) {
 
             /* Finally do the attachments */
