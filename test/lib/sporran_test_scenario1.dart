@@ -20,6 +20,17 @@ main() {
 
   useHtmlConfiguration();
 
+  /* Common initialiser */
+  SporranInitialiser initialiser = new SporranInitialiser();
+  initialiser.dbName = databaseName;
+  initialiser.hostname = hostName;
+  initialiser.manualNotificationControl = false;
+  initialiser.port = port;
+  initialiser.scheme = scheme;
+  initialiser.username = userName;
+  initialiser.password = userPassword;
+  initialiser.preserveLocal = false;
+
   /* Group 8 - Sporran Scenario test 1 */
   /**
    *  Start offline 
@@ -51,7 +62,7 @@ main() {
 
       });
 
-      sporran8 = new Sporran(databaseName, hostName, false, port, scheme, userName, userPassword);
+      sporran8 = new Sporran(initialiser);
       sporran8.onReady.first.then((e) => wrapper());
 
     });
@@ -211,19 +222,20 @@ main() {
 
     });
 
-    test("7. Sync Pause", () {
+
+    test("7. Transition to online", () {
 
       print("8.7");
-      var wrapper = expectAsync0(() {});
-
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      sporran8.online = true;
 
     });
 
-    test("8. Transition to online", () {
+    test("8. Sync Pause", () {
 
       print("8.8");
-      sporran8.online = true;
+      var wrapper = expectAsync0(() {});
+
+      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -236,18 +248,9 @@ main() {
 
     });
 
-    test("10. Sync Pause", () {
+    test("10. Check - Get All Docs Online", () {
 
       print("8.10");
-      var wrapper = expectAsync0(() {});
-
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
-
-    });
-
-    test("11. Check - Get All Docs Online", () {
-
-      print("8.11");
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
