@@ -148,26 +148,19 @@ class Sporran {
    * 
    */
   Sporran(SporranInitialiser initialiser) {
-  
-  
-    if ( initialiser == null ) {
-      
+
+
+    if (initialiser == null) {
+
       throw new SporranException(SporranException.NO_INITIALISER);
     }
-    
+
     this._dbName = initialiser.dbName;
 
     /**
      * Construct our database.
      */
-    _database = new _SporranDatabase(_dbName, 
-                                     initialiser.hostname, 
-                                     initialiser.manualNotificationControl, 
-                                     initialiser.port, 
-                                     initialiser.scheme, 
-                                     initialiser.username, 
-                                     initialiser.password,
-                                     initialiser.preserveLocal);
+    _database = new _SporranDatabase(_dbName, initialiser.hostname, initialiser.manualNotificationControl, initialiser.port, initialiser.scheme, initialiser.username, initialiser.password, initialiser.preserveLocal);
 
     /**
       * Online/offline listeners
@@ -661,7 +654,7 @@ class Sporran {
       return _raiseException(SporranException.DELETE_ATT_NO_ATT_NAME);
     }
 
-    if ( (online) && (rev == null)) {
+    if ((online) && (rev == null)) {
 
       return _raiseException(SporranException.DELETE_ATT_NO_REV);
     }
@@ -990,34 +983,91 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
 
-      _database.getLocalStorageObjects(keys)..then((documents) {
+      if (keys == null) {
 
-            JsonObject res = new JsonObject();
-            res.localResponse = true;
-            res.operation = GET_ALL_DOCS;
-            res.id = null;
-            res.rev = null;
-            if (documents == null) {
+        /* Get all the keys from Lawndart */
+        _database.lawndart.keys().toList()..then((keyList) {
 
-              res.ok = false;
-              res.payload = null;
+              /* Only return documents */
+              List<String> docList = new List();
+              keyList.forEach((key) {
 
-            } else {
+                List temp = key.split('-');
+                if ((temp.length == 3) && (temp[2] == _SporranDatabase.ATTACHMENTMARKER)) {
 
-              res.ok = true;
-              res.payload = documents;
+                  /* Attachment, discard the key */
 
-            }
+                } else {
 
-            opCompleter.complete(res);
-            if (_clientCompleter != null) {
-              _completionResponse = _createCompletionResponse(res);
-              _clientCompleter();
-            }
+                  docList.add(key);
+                }
+
+              });
+
+              _database.getLocalStorageObjects(docList)..then((documents) {
+
+                    JsonObject res = new JsonObject();
+                    res.localResponse = true;
+                    res.operation = GET_ALL_DOCS;
+                    res.id = null;
+                    res.rev = null;
+                    if (documents == null) {
+
+                      res.ok = false;
+                      res.payload = null;
+
+                    } else {
+
+                      res.ok = true;
+                      res.payload = documents;
+                      res.totalRows = documents.length;
+                      res.keyList = documents.keys.toList();
+
+                    }
+
+                    opCompleter.complete(res);
+                    if (_clientCompleter != null) {
+                      _completionResponse = _createCompletionResponse(res);
+                      _clientCompleter();
+                    }
 
 
-          });
+                  });
 
+            });
+
+      } else {
+
+        _database.getLocalStorageObjects(keys)..then((documents) {
+
+              JsonObject res = new JsonObject();
+              res.localResponse = true;
+              res.operation = GET_ALL_DOCS;
+              res.id = null;
+              res.rev = null;
+              if (documents == null) {
+
+                res.ok = false;
+                res.payload = null;
+
+              } else {
+
+                res.ok = true;
+                res.payload = documents;
+                res.totalRows = documents.length;
+                res.keyList = documents.keys.toList();
+
+              }
+
+              opCompleter.complete(res);
+              if (_clientCompleter != null) {
+                _completionResponse = _createCompletionResponse(res);
+                _clientCompleter();
+              }
+
+
+            });
+      }
 
     } else {
 
