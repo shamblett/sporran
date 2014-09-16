@@ -44,6 +44,18 @@ main() {
     String docid4rev;
     String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' + 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' + 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' + '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
+    /* Common initialiser */
+     SporranInitialiser initialiser = new SporranInitialiser();
+     initialiser.dbName = databaseName;
+     initialiser.hostname = hostName;
+     initialiser.manualNotificationControl = false;
+     initialiser.port = port;
+     initialiser.scheme = scheme;
+     initialiser.username = userName;
+     initialiser.password = userPassword;
+     initialiser.preserveLocal = false;
+
+     
     test("1. Create and Open Sporran", () {
 
       print("9.1");
@@ -55,7 +67,7 @@ main() {
 
       });
 
-      sporran9 = new Sporran(databaseName, hostName, false, port, scheme, userName, userPassword);
+      sporran9 = new Sporran(initialiser);
       sporran9.onReady.first.then((e) => wrapper());
 
     });
