@@ -8,27 +8,33 @@
 part of sporran;
 
 class SporranException implements Exception {
-
   /* Exception message strings */
-  static const HEADER = 'SporranException: ';
-  static const PUT_NO_DOC_ID = 'put() expects a document id';
-  static const GET_NO_DOC_ID = 'get() expects a document id';
-  static const DELETE_NO_DOC_ID = 'delete() expects a document id';
-  static const PUT_ATT_NO_DOC_ID = 'putAttachment() expects a document id';
-  static const PUT_ATT_NO_ATT = 'putAttachment() expects an attachment';
-  static const DELETE_ATT_NO_DOC_ID = 'deleteAttachment() expects a document id';
-  static const DELETE_ATT_NO_ATT_NAME = 'deleteAttachment() expects an attachment name';
-  static const DELETE_ATT_NO_REV = 'deleteAttachment() expects a revision';
-  static const GET_ATT_NO_DOC_ID = 'getAttachment() expects a document id';
-  static const GET_ATT_NO_ATT_NAME = 'getAttachment() expects an attachment name';
-  static const BULK_CREATE_NO_DOCLIST = 'bulkCreate() expects a document list';
-  static const LAWN_NOT_INIT = 'Initialisation Failure, Lawndart is not initialized';
-  static const INVALID_LOGIN_CREDS = 'Invalid login credentials - user and password must be supplied';
-  static const NO_INITIALISER = 'You must supply an initialiser on construction';
-  
+  static const String headerEx = 'SporranException: ';
+  static const String putNoDocIdEx = 'put() expects a document id';
+  static const String getNoDocIdEx = 'get() expects a document id';
+  static const String deleteNoDocIdEx = 'delete() expects a document id';
+  static const String putAttNoDocIdEx = 'putAttachment() expects a document id';
+  static const String putAttNoAttEx = 'putAttachment() expects an attachment';
+  static const String deleteAttNoDocIdEx =
+      'deleteAttachment() expects a document id';
+  static const String deleteAttNoAttNameEx =
+      'deleteAttachment() expects an attachment name';
+  static const String deleteAttNoRevEx =
+      'deleteAttachment() expects a revision';
+  static const String getAttNoDocIdEx = 'getAttachment() expects a document id';
+  static const String getAttNoAttNameEx =
+      'getAttachment() expects an attachment name';
+  static const String bulkCreateNoDocListEx =
+      'bulkCreate() expects a document list';
+  static const String lawnNotInitEx =
+      'Initialisation Failure, Lawndart is not initialized';
+  static const String invalidLoginCredsEx =
+      'Invalid login credentials - user and password must be supplied';
+  static const String noInitialiserEx =
+      'You must supply an initialiser on construction';
+
   String _message = 'No Message Supplied';
   SporranException([this._message]);
 
-  String toString() => HEADER + "${_message}";
-
+  String toString() => headerEx + "${_message}";
 }

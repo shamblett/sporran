@@ -170,7 +170,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.PUT_NO_DOC_ID);
+        expect(e.toString(), SporranException.headerEx + SporranException.putNoDocIdEx);
       });
 
       sporran.put(null, null)..then((_) {}, onError: (SporranException e) {
@@ -185,7 +185,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.GET_NO_DOC_ID);
+        expect(e.toString(), SporranException.headerEx + SporranException.getNoDocIdEx);
       });
 
       sporran.get(null, null)..then((_) {}, onError: (SporranException e) {
@@ -200,7 +200,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_NO_DOC_ID);
+        expect(e.toString(), SporranException.headerEx + SporranException.deleteNoDocIdEx);
       });
 
       sporran.delete(null, null)..then((_) {}, onError: (SporranException e) {
@@ -215,7 +215,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.PUT_ATT_NO_DOC_ID);
+        expect(e.toString(), SporranException.headerEx + SporranException.putAttNoDocIdEx);
       });
 
       sporran.putAttachment(null, null)..then((_) {}, onError: (SporranException e) {
@@ -230,7 +230,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.PUT_ATT_NO_ATT);
+        expect(e.toString(), SporranException.headerEx + SporranException.putAttNoAttEx);
       });
 
       sporran.putAttachment('billy', null)..then((_) {}, onError: (SporranException e) {
@@ -245,7 +245,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_DOC_ID);
+        expect(e.toString(), SporranException.headerEx + SporranException.deleteAttNoDocIdEx);
       });
 
       sporran.deleteAttachment(null, null, null)..then((_) {}, onError: (SporranException e) {
@@ -260,7 +260,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_ATT_NAME);
+        expect(e.toString(), SporranException.headerEx + SporranException.deleteAttNoAttNameEx);
       });
 
       sporran.deleteAttachment('billy', null, null)..then((_) {}, onError: (SporranException e) {
@@ -275,7 +275,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.DELETE_ATT_NO_REV);
+        expect(e.toString(), SporranException.headerEx + SporranException.deleteAttNoRevEx);
       });
       //sporran.online = false;
       sporran.deleteAttachment('billy', 'fred', null)..then((_) {}, onError: (SporranException e) {
@@ -290,7 +290,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.GET_ATT_NO_DOC_ID);
+        expect(e.toString(), SporranException.headerEx + SporranException.getAttNoDocIdEx);
       });
 
       sporran.getAttachment(null, null)..then((_) {}, onError: (SporranException e) {
@@ -305,7 +305,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.GET_ATT_NO_ATT_NAME);
+        expect(e.toString(), SporranException.headerEx + SporranException.getAttNoAttNameEx);
       });
 
       sporran.getAttachment('billy', null)..then((_) {}, onError: (SporranException e) {
@@ -320,7 +320,7 @@ main() {
 
       var completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.BULK_CREATE_NO_DOCLIST);
+        expect(e.toString(), SporranException.headerEx + SporranException.bulkCreateNoDocListEx);
       });
 
       sporran.bulkCreate(null)..then((_) {}, onError: (SporranException e) {
@@ -340,7 +340,7 @@ main() {
       } catch (e) {
 
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.INVALID_LOGIN_CREDS);
+        expect(e.toString(), SporranException.headerEx + SporranException.invalidLoginCredsEx);
       }
 
     });
@@ -356,7 +356,7 @@ main() {
       } catch (e) {
 
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.INVALID_LOGIN_CREDS);
+        expect(e.toString(), SporranException.headerEx + SporranException.invalidLoginCredsEx);
       }
 
     });
@@ -372,7 +372,7 @@ main() {
       } catch (e) {
 
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(), SporranException.HEADER + SporranException.NO_INITIALISER);
+        expect(e.toString(), SporranException.headerEx + SporranException.noInitialiserEx);
       }
 
     });
@@ -420,7 +420,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.localResponse, isFalse);
         expect(res.id, docIdPutOnline);
         expect(res.rev, anything);
@@ -443,7 +443,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
         expect(res.payload.name, "Offline");
@@ -467,7 +467,7 @@ main() {
 
         expect(res.errorCode, 409);
         expect(res.errorText, 'conflict');
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOnline);
 
 
@@ -488,7 +488,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.localResponse, isFalse);
         expect(res.id, docIdPutOnline);
         expect(res.rev, anything);
@@ -510,7 +510,7 @@ main() {
 
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOnline);
         expect(res.payload.name, "Online - Updated");
@@ -531,7 +531,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
         expect(res.payload.name, "Offline");
@@ -553,7 +553,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "Billy");
         expect(res.rev, isNull);
@@ -576,7 +576,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.payload.name, "Online - Updated");
         expect(res.localResponse, isFalse);
         expect(res.id, docIdPutOnline);
@@ -600,7 +600,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.DELETE);
+        expect(res.operation, Sporran.deletec);
         expect(res.id, docIdPutOffline);
         expect(res.payload, isNull);
         expect(res.rev, isNull);
@@ -623,7 +623,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE);
+        expect(res.operation, Sporran.deletec);
         expect(res.id, docIdPutOnline);
         expect(res.payload, isNotNull);
         expect(res.rev, anything);
@@ -644,7 +644,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isFalse);
         expect(res.id, "Billy");
 
@@ -663,7 +663,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.DELETE);
+        expect(res.operation, Sporran.deletec);
         expect(res.id, "Billy");
         expect(res.payload, isNull);
         expect(res.rev, isNull);
@@ -726,7 +726,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.payload.name, "Online");
@@ -751,7 +751,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.payload.name, "Offline");
@@ -773,7 +773,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -803,7 +803,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -832,7 +832,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET_ATTACHMENT);
+        expect(res.operation, Sporran.getAttachmentc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -856,7 +856,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET_ATTACHMENT);
+        expect(res.operation, Sporran.getAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -880,7 +880,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, onlineDocRev);
@@ -904,7 +904,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT);
+        expect(res.operation, Sporran.deleteAttachmentc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         onlineDocRev = res.rev;
@@ -942,7 +942,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT);
+        expect(res.operation, Sporran.deleteAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -964,7 +964,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT);
+        expect(res.operation, Sporran.deleteAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -1023,7 +1023,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.BULK_CREATE);
+        expect(res.operation, Sporran.bulkCreatec);
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNotNull);
@@ -1075,7 +1075,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.BULK_CREATE);
+        expect(res.operation, Sporran.bulkCreatec);
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
@@ -1122,7 +1122,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.GET_ALL_DOCS);
+        expect(res.operation, Sporran.getAllDocsc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -1149,7 +1149,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.GET_ALL_DOCS);
+        expect(res.operation, Sporran.getAllDocsc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -1180,7 +1180,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.DB_INFO);
+        expect(res.operation, Sporran.dbInfoc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -1207,7 +1207,7 @@ main() {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DB_INFO);
+        expect(res.operation, Sporran.dbInfoc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -1366,7 +1366,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "MyBulkId1");
         expect(res.payload.title, "Document 1");
@@ -1389,7 +1389,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "MyBulkId2");
         expect(res.payload.title, "Document 2");
@@ -1410,7 +1410,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "MyBulkId3");
         expect(res.payload.title, "Document 3");
@@ -1535,7 +1535,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
 
       });
@@ -1554,7 +1554,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
 
       });
@@ -1571,7 +1571,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
 
       });
@@ -1707,7 +1707,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, "MyBulkId1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -1737,7 +1737,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, "MyBulkId1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -1819,7 +1819,7 @@ main() {
       var wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET_ATTACHMENT);
+        expect(res.operation, Sporran.getAttachmentc);
         expect(res.localResponse, isTrue);
 
       });

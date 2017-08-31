@@ -197,7 +197,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.localResponse, isFalse);
         expect(res.id, docIdPutOnline);
         expect(res.rev, anything);
@@ -220,7 +220,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
         expect(res.payload.name, "Offline");
@@ -244,7 +244,7 @@ main() {
         JsonObject res = sporran3.completionResponse;
         expect(res.errorCode, 409);
         expect(res.errorText, 'conflict');
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOnline);
 
 
@@ -264,7 +264,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.localResponse, isFalse);
         expect(res.id, docIdPutOnline);
         expect(res.rev, anything);
@@ -285,7 +285,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOnline);
         expect(res.payload.name, "Online - Updated");
@@ -305,7 +305,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
         expect(res.payload.name, "Offline");
@@ -327,7 +327,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "Billy");
         expect(res.rev, isNull);
@@ -350,7 +350,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.payload.name, "Online - Updated");
         expect(res.localResponse, isFalse);
         expect(res.id, docIdPutOnline);
@@ -375,7 +375,7 @@ main() {
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.DELETE);
+        expect(res.operation, Sporran.deletec);
         expect(res.id, docIdPutOffline);
         expect(res.payload, isNull);
         expect(res.rev, isNull);
@@ -398,7 +398,7 @@ main() {
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DELETE);
+        expect(res.operation, Sporran.deletec);
         expect(res.id, docIdPutOnline);
         expect(res.payload, isNotNull);
         expect(res.rev, anything);
@@ -419,7 +419,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isFalse);
         expect(res.id, "Billy");
 
@@ -438,7 +438,7 @@ main() {
 
         JsonObject res = sporran3.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.DELETE);
+        expect(res.operation, Sporran.deletec);
         expect(res.id, "Billy");
         expect(res.payload, isNull);
         expect(res.rev, isNull);
@@ -502,7 +502,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.payload.name, "Online");
@@ -527,7 +527,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT);
+        expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.payload.name, "Offline");
@@ -549,7 +549,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -579,7 +579,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -608,7 +608,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET_ATTACHMENT);
+        expect(res.operation, Sporran.getAttachmentc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -632,7 +632,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET_ATTACHMENT);
+        expect(res.operation, Sporran.getAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -656,7 +656,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, onlineDocRev);
@@ -680,7 +680,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT);
+        expect(res.operation, Sporran.deleteAttachmentc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         onlineDocRev = res.rev;
@@ -717,7 +717,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT);
+        expect(res.operation, Sporran.deleteAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -739,7 +739,7 @@ main() {
 
         JsonObject res = sporran4.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.DELETE_ATTACHMENT);
+        expect(res.operation, Sporran.deleteAttachmentc);
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
@@ -798,7 +798,7 @@ main() {
         JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.BULK_CREATE);
+        expect(res.operation, Sporran.bulkCreatec);
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNotNull);
@@ -850,7 +850,7 @@ main() {
         JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.BULK_CREATE);
+        expect(res.operation, Sporran.bulkCreatec);
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
@@ -897,7 +897,7 @@ main() {
         JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.GET_ALL_DOCS);
+        expect(res.operation, Sporran.getAllDocsc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -924,7 +924,7 @@ main() {
         JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.GET_ALL_DOCS);
+        expect(res.operation, Sporran.getAllDocsc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -955,7 +955,7 @@ main() {
         JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.DB_INFO);
+        expect(res.operation, Sporran.dbInfoc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -983,7 +983,7 @@ main() {
         JsonObject res = sporran5.completionResponse;
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.DB_INFO);
+        expect(res.operation, Sporran.dbInfoc);
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
@@ -1139,7 +1139,7 @@ main() {
 
         JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "MyBulkId1");
         expect(res.payload.title, "Document 1");
@@ -1162,7 +1162,7 @@ main() {
 
         JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "MyBulkId2");
         expect(res.payload.title, "Document 2");
@@ -1183,7 +1183,7 @@ main() {
 
         JsonObject res = sporran6.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, "MyBulkId3");
         expect(res.payload.title, "Document 3");
@@ -1308,7 +1308,7 @@ main() {
 
         JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
 
       });
@@ -1327,7 +1327,7 @@ main() {
 
         JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
 
       });
@@ -1344,7 +1344,7 @@ main() {
 
         JsonObject res = sporran6.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET);
+        expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
 
       });
@@ -1480,7 +1480,7 @@ main() {
 
         JsonObject res = sporran7.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, "MyBulkId1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -1510,7 +1510,7 @@ main() {
 
         JsonObject res = sporran7.completionResponse;
         expect(res.ok, isTrue);
-        expect(res.operation, Sporran.PUT_ATTACHMENT);
+        expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, "MyBulkId1");
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
@@ -1592,7 +1592,7 @@ main() {
 
         JsonObject res = sporran7.completionResponse;
         expect(res.ok, isFalse);
-        expect(res.operation, Sporran.GET_ATTACHMENT);
+        expect(res.operation, Sporran.getAttachmentc);
         expect(res.localResponse, isTrue);
 
       });
