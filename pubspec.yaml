@@ -1,5 +1,5 @@
 name: sporran
-version: 2.1.1
+version: 3.0.0
 author: S. Hamblett <steve.hamblett@linux.com>
 description: A PouchDB alike for Dart
 homepage: https://github.com/shamblett/sporran

@@ -1,3 +1,6 @@
+## 3.0.0
+
+Updates ready for Dart 2, remove the completion interface.
 
 ## 2.1.0
 
