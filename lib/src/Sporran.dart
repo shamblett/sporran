@@ -337,7 +337,7 @@ class Sporran {
 
     /* Remove from Lawndart */
     _database.lawndart.getByKey(id)
-      ..then((document) {
+      ..then((String document) {
         if (document != null) {
           _database.lawndart.removeByKey(id)
             ..then((_) {

@@ -260,8 +260,8 @@ class _SporranDatabase {
   }
 
   /// Add a key to the pending delete queue
-  void addPendingDelete(String key, Map document) {
-    final JsonObject deletedDocument = new JsonObject.fromMap(document);
+  void addPendingDelete(String key, String document) {
+    final JsonObject deletedDocument = new JsonObject.fromJsonString(document);
     _pendingDeletes[key] = deletedDocument;
   }
 
@@ -365,7 +365,7 @@ class _SporranDatabase {
     /**
      * Update LawnDart
      */
-    _lawndart.save(localUpdate, key)
+    _lawndart.save(localUpdate.toString(), key)
       ..then((String key) {
         completer.complete();
       });
@@ -378,11 +378,11 @@ class _SporranDatabase {
     final JsonObject localObject = new JsonObject();
     final completer = new Completer();
 
-    lawndart.getByKey(key).then((document) {
+    lawndart.getByKey(key).then((String document) {
       final JsonObject res = new JsonObject();
 
       if (document != null) {
-        localObject.payload = document['payload'];
+        localObject.payload = document;
       }
 
       completer.complete(localObject);
@@ -397,8 +397,8 @@ class _SporranDatabase {
     final Map results = new Map<String, JsonObject>();
     int keyPos = 0;
 
-    lawndart.getByKeys(keys).listen((value) {
-      final JsonObject document = new JsonObject.fromMap(value);
+    lawndart.getByKeys(keys).listen((String value) {
+      final JsonObject document = new JsonObject.fromJsonString(value);
       results[keys[keyPos]] = document;
       keyPos++;
     }, onDone: () {
@@ -585,12 +585,12 @@ class _SporranDatabase {
   /// Update the revision of any attachments for a document
   /// if the document is updated from Couch
   void updateAttachmentRevisions(String id, String revision) {
-    lawndart.all().listen((Map document) {
-      String key = document['key'];
-      List keyList = key.split('-');
+    lawndart.all().listen((String document) {
+      final String key = document;
+      final List keyList = key.split('-');
       if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
         if (id == keyList[0]) {
-          JsonObject attachment = new JsonObject.fromMap(document);
+          final JsonObject attachment = new JsonObject.fromJsonString(document);
           updateLocalStorageObject(id, attachment, revision, updatedc);
         }
       }
@@ -630,12 +630,13 @@ class _SporranDatabase {
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
-    lawndart.all().listen((Map document) {
-      String key = document['key'];
-      if (document['status'] == notUpdatedc) {
-        JsonObject update = new JsonObject.fromMap(document);
+    lawndart.all().listen((String document) {
+      final JsonObject doc = new JsonObject.fromJsonString(document);
+      final String key = doc['key'];
+      if (doc['status'] == notUpdatedc) {
+        final JsonObject update = doc;
         /* If an attachment just stack it */
-        List keyList = key.split('-');
+        final List keyList = key.split('-');
         if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
           attachmentsToUpdate[key] = update;
         } else {
