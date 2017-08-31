@@ -33,39 +33,22 @@ class _SporranDatabase {
       this._user = null,
       this._password = null,
       this._preserveLocalDatabase = false]) {
-    /**
-     * Instantiate a Store object
-     */
-    _lawndart = new Store(this._dbName, "Sporran");
+    _initialise();
+  }
 
-    /**
-     * Open it, don't worry about waiting
-     */
-
-    _lawndart.open()
-      ..then((_) {
-        /**
-       * Delete the local database unless told to preserve it.
-       */
-        if (!_preserveLocalDatabase) _lawndart.nuke();
-
-        /**
-       * Instantiate a Wilt object
-       */
-        _wilt = new WiltBrowserClient(_host, _port, _scheme);
-
-        /**
-       * Login
-       */
-        if (_user != null) {
-          _wilt.login(_user, _password);
-        }
-
-        /*
-      * Open CouchDb
-      */
-        connectToCouch();
-      });
+  Future _initialise() async {
+    _lawndart = await Store.open(this._dbName, "Sporran");
+    _lawnIsOpen = true;
+    // Delete the local database unless told to preserve it.
+    if (!_preserveLocalDatabase) _lawndart.nuke();
+    // Instantiate a Wilt object
+    _wilt = new WiltBrowserClient(_host, _port, _scheme);
+    // Login
+    if (_user != null) {
+      _wilt.login(_user, _password);
+    }
+    // Open CouchDb
+    connectToCouch();
   }
 
   /// Host name
@@ -101,6 +84,11 @@ class _SporranDatabase {
   Store _lawndart;
   Store get lawndart => _lawndart;
 
+  /// Lawn is open indicator
+  bool _lawnIsOpen = false;
+
+  bool get lawnIsOpen => _lawnIsOpen;
+
   /// Database name
   String _dbName;
   String get dbName => _dbName;
@@ -112,9 +100,6 @@ class _SporranDatabase {
   /// Pending delete queue
   Map _pendingDeletes = new Map<String, JsonObject>();
   Map get pendingDeletes => _pendingDeletes;
-
-  /// Lawndart open indication
-  bool get lawnIsOpen => _lawndart.isOpen;
 
   /// Event stream for Ready events
   final _onReady = new StreamController.broadcast();
@@ -136,11 +121,11 @@ class _SporranDatabase {
   /// Change notification processor
   void _processChange(WiltChangeNotificationEvent e) {
     /* Ignore error events */
-    if (!(e.type == WiltChangeNotificationEvent.UPDATE ||
-        e.type == WiltChangeNotificationEvent.deletec)) return;
+    if (!(e.type == WiltChangeNotificationEvent.updatee ||
+        e.type == WiltChangeNotificationEvent.deletee)) return;
 
     /* Process the update or delete event */
-    if (e.type == WiltChangeNotificationEvent.UPDATE) {
+    if (e.type == WiltChangeNotificationEvent.updatee) {
       updateLocalStorageObject(e.docId, e.document, e.docRevision, updatedc);
 
       /* Now update the attachments */
@@ -364,9 +349,10 @@ class _SporranDatabase {
     final completer = new Completer();
 
     /* Check for not initialized */
-    if ((lawndart == null) || (!lawndart.isOpen))
+    if ((lawndart == null) || (!_lawnIsOpen)) {
       return new Future.error(
           new SporranException(SporranException.lawnNotInitEx));
+    }
 
     /* Do the update */
     JsonObject localUpdate = new JsonObject();
