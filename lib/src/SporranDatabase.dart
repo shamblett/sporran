@@ -102,7 +102,7 @@ class _SporranDatabase {
   Map get pendingDeletes => _pendingDeletes;
 
   /// Event stream for Ready events
-  final _onReady = new StreamController.broadcast();
+  final _onReady = new StreamController<Event>.broadcast();
   Stream get onReady => _onReady.stream;
 
   /// Start change notifications
@@ -216,8 +216,6 @@ class _SporranDatabase {
        */
       _signalReady();
     }
-
-    ;
 
     void allCompleter(JsonObject res) {
       if (!res.error) {
@@ -379,8 +377,6 @@ class _SporranDatabase {
     final completer = new Completer();
 
     lawndart.getByKey(key).then((String document) {
-      final JsonObject res = new JsonObject();
-
       if (document != null) {
         localObject.payload = document;
       }
