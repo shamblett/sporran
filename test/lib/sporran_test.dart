@@ -14,16 +14,18 @@ import 'package:sporran/sporran.dart';
 import 'package:json_object/json_object.dart';
 import 'package:wilt/wilt.dart';
 import 'package:wilt/wilt_browser_client.dart';
-import 'package:unittest/unittest.dart';
-import 'package:unittest/html_config.dart';
+import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
-main() {
+void logMessage(String message) {
+  print(message);
+}
 
-  useHtmlConfiguration();
+void main() {
+
 
   /* Common initialiser */
-  SporranInitialiser initialiser = new SporranInitialiser();
+  final SporranInitialiser initialiser = new SporranInitialiser();
   initialiser.dbName = databaseName;
   initialiser.hostname = hostName;
   initialiser.manualNotificationControl = true;
@@ -78,7 +80,7 @@ main() {
       print("2.0");
       sporran = new Sporran(initialiser);
 
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran, isNotNull);
         expect(sporran.dbName, databaseName);
@@ -97,12 +99,11 @@ main() {
       print("2.1");
       Sporran sporran21;
 
-      var wrapper = expectAsync0(() {
-
-        Event offline = new Event.eventType('Event', 'offline');
+      final wrapper = expectAsync0(() {
+        final Event offline = new Event.eventType('Event', 'offline');
         window.dispatchEvent(offline);
         expect(sporran21.online, isFalse);
-        Event online = new Event.eventType('Event', 'online');
+        final Event online = new Event.eventType('Event', 'online');
         window.dispatchEvent(online);
         expect(sporran21.online, isTrue);
         sporran21 = null;
@@ -110,14 +111,14 @@ main() {
       });
 
 
-      var wrapper1 = expectAsync0(() {
+      final wrapper1 = expectAsync0(() {
 
         sporran21 = new Sporran(initialiser);
         sporran21.autoSync = false;
         sporran21.onReady.first.then((e) => wrapper());
       });
 
-      Timer pause = new Timer(new Duration(seconds: 2), () {
+      final Timer pause = new Timer(new Duration(seconds: 2), () {
         wrapper1();
       });
 
@@ -129,7 +130,7 @@ main() {
       print("2.2");
       Sporran sporran22 = new Sporran(initialiser);
 
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran22, isNotNull);
         expect(sporran22.dbName, databaseName);
@@ -149,7 +150,7 @@ main() {
       Sporran sporran23 = new Sporran(initialiser);
       initialiser.password = userPassword;
 
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran23, isNotNull);
         expect(sporran23.dbName, databaseName);
@@ -168,7 +169,7 @@ main() {
 
       print("2.4");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.putNoDocIdEx);
       });
@@ -183,7 +184,7 @@ main() {
 
       print("2.5");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.getNoDocIdEx);
       });
@@ -198,7 +199,7 @@ main() {
 
       print("2.6");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.deleteNoDocIdEx);
       });
@@ -213,7 +214,7 @@ main() {
 
       print("2.7");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.putAttNoDocIdEx);
       });
@@ -228,7 +229,7 @@ main() {
 
       print("2.8");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.putAttNoAttEx);
       });
@@ -243,7 +244,7 @@ main() {
 
       print("2.9");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.deleteAttNoDocIdEx);
       });
@@ -258,7 +259,7 @@ main() {
 
       print("2.10");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.deleteAttNoAttNameEx);
       });
@@ -273,7 +274,7 @@ main() {
 
       print("2.11");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.deleteAttNoRevEx);
       });
@@ -288,7 +289,7 @@ main() {
 
       print("2.12");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.getAttNoDocIdEx);
       });
@@ -303,7 +304,7 @@ main() {
 
       print("2.13");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.getAttNoAttNameEx);
       });
@@ -318,7 +319,7 @@ main() {
 
       print("2.14");
 
-      var completer = expectAsync1((e) {
+      final completer = expectAsync1((e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(), SporranException.headerEx + SporranException.bulkCreateNoDocListEx);
       });
@@ -366,8 +367,7 @@ main() {
       print("2.17");
 
       try {
-
-        Sporran bad = new Sporran(null);
+        final Sporran bad = new Sporran(null);
 
       } catch (e) {
 
@@ -384,26 +384,26 @@ main() {
 
     Sporran sporran3;
 
-    String docIdPutOnline = "putOnlineg3";
-    String docIdPutOffline = "putOfflineg3";
-    JsonObject onlineDoc = new JsonObject();
-    JsonObject offlineDoc = new JsonObject();
+    final String docIdPutOnline = "putOnlineg3";
+    final String docIdPutOffline = "putOfflineg3";
+    final JsonObject onlineDoc = new JsonObject();
+    final JsonObject offlineDoc = new JsonObject();
     String onlineDocRev;
 
     test("1. Create and Open Sporran", () {
 
       print("3.1");
 
-      var wrapper1 = expectAsync0(() {
+      final wrapper1 = expectAsync0(() {
 
         expect(sporran3.lawnIsOpen, isTrue);
 
       });
 
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran3.dbName, databaseName);
-        Timer timer = new Timer(new Duration(seconds: 3), wrapper1);
+        final Timer timer = new Timer(new Duration(seconds: 3), wrapper1);
 
       });
 
@@ -417,7 +417,7 @@ main() {
     test("2. Put Document Online docIdPutOnline", () {
 
       print("3.2");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -440,7 +440,7 @@ main() {
     test("3. Put Document Offline docIdPutOffline", () {
 
       print("3.3");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -463,7 +463,7 @@ main() {
     test("4. Put Document Online Conflict", () {
 
       print("3.4");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.errorCode, 409);
         expect(res.errorText, 'conflict');
@@ -485,7 +485,7 @@ main() {
 
       print("3.5");
 
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -506,7 +506,7 @@ main() {
     test("6. Get Document Offline docIdPutOnline", () {
 
       print("3.6");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
 
         expect(res.ok, isTrue);
@@ -528,7 +528,7 @@ main() {
     test("7. Get Document Offline docIdPutOffline", () {
 
       print("3.7");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -550,7 +550,7 @@ main() {
     test("8. Get Document Offline Not Exist", () {
 
       print("3.8");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -573,7 +573,7 @@ main() {
     test("9. Get Document Online docIdPutOnline", () {
 
       print("3.9");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -596,7 +596,7 @@ main() {
     test("10. Delete Document Offline", () {
 
       print("3.10");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -619,7 +619,7 @@ main() {
     test("11. Delete Document Online", () {
 
       print("3.11");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -641,7 +641,7 @@ main() {
     test("12. Get Document Online Not Exist", () {
 
       print("3.12");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -660,7 +660,7 @@ main() {
     test("13. Delete Document Not Exist", () {
 
       print("3.13");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.deletec);
@@ -681,9 +681,9 @@ main() {
     test("14. Group Pause", () {
 
       print("3.14");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -694,19 +694,22 @@ main() {
 
     Sporran sporran4;
 
-    String docIdPutOnline = "putOnlineg4";
-    String docIdPutOffline = "putOfflineg4";
-    JsonObject onlineDoc = new JsonObject();
-    JsonObject offlineDoc = new JsonObject();
+    final String docIdPutOnline = "putOnlineg4";
+    final String docIdPutOffline = "putOfflineg4";
+    final JsonObject onlineDoc = new JsonObject();
+    final JsonObject offlineDoc = new JsonObject();
     String onlineDocRev;
 
-    String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' + 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' + 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' + '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+    final String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' +
+        'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' +
+        'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' +
+        '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
 
     test("1. Create and Open Sporran", () {
 
       print("4.1");
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran4.dbName, databaseName);
         expect(sporran4.lawnIsOpen, isTrue);
@@ -723,7 +726,7 @@ main() {
     test("2. Put Document Online docIdPutOnline", () {
 
       print("4.2");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -748,7 +751,7 @@ main() {
     test("3. Put Document Offline docIdPutOffline", () {
 
       print("4.3");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -770,7 +773,7 @@ main() {
     test("4. Create Attachment Online docIdPutOnline", () {
 
       print("4.4");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -785,7 +788,7 @@ main() {
       });
 
       sporran4.online = true;
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "onlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
@@ -800,7 +803,7 @@ main() {
     test("5. Create Attachment Offline docIdPutOffline", () {
 
       print("4.5");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -814,7 +817,7 @@ main() {
       });
 
       sporran4.online = false;
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "offlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
@@ -829,7 +832,7 @@ main() {
     test("6. Get Attachment Online docIdPutOnline", () {
 
       print("4.6");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getAttachmentc);
@@ -853,7 +856,7 @@ main() {
     test("7. Get Attachment Offline docIdPutOffline", () {
 
       print("4.7");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getAttachmentc);
@@ -877,14 +880,14 @@ main() {
     test("8. Get Document Online docIdPutOnline", () {
 
       print("4.8");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, onlineDocRev);
-        List attachments = WiltUserUtils.getAttachments(res.payload);
+        final List attachments = WiltUserUtils.getAttachments(res.payload);
         expect(attachments.length, 1);
 
       });
@@ -901,7 +904,7 @@ main() {
     test("9. Delete Attachment Online docIdPutOnline", () {
 
       print("4.9");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -923,7 +926,7 @@ main() {
     test("10. Delete Document Online docIdPutOnline", () {
 
       print("4.10");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
       });
 
@@ -939,7 +942,7 @@ main() {
     test("11. Delete Attachment Offline docIdPutOffline", () {
 
       print("4.11");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -961,7 +964,7 @@ main() {
     test("12. Delete Attachment Not Exist", () {
 
       print("4.12");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -1002,7 +1005,7 @@ main() {
     test("1. Create and Open Sporran", () {
 
       print("5.1");
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran5.dbName, databaseName);
         expect(sporran5.lawnIsOpen, isTrue);
@@ -1019,7 +1022,7 @@ main() {
     test("2. Bulk Insert Documents Online", () {
 
       print("5.2");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -1033,7 +1036,7 @@ main() {
         docid2rev = res.rev[1].rev;
         expect(res.rev[2].rev, anything);
         docid3rev = res.rev[2].rev;
-        JsonObject doc3 = res.payload['docid3'];
+        final JsonObject doc3 = res.payload['docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
@@ -1041,22 +1044,22 @@ main() {
 
       });
 
-      JsonObject document1 = new JsonObject();
+      final JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      JsonObject document2 = new JsonObject();
+      final JsonObject document2 = new JsonObject();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      JsonObject document3 = new JsonObject();
+      final JsonObject document3 = new JsonObject();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
 
-      Map docs = new Map<String, JsonObject>();
+      final Map docs = new Map<String, JsonObject>();
       docs['docid1'] = document1;
       docs['docid2'] = document2;
       docs['docid3'] = document3;
@@ -1071,7 +1074,7 @@ main() {
     test("3. Bulk Insert Documents Offline", () {
 
       print("5.3");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -1079,7 +1082,7 @@ main() {
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
-        JsonObject doc3 = res.payload['docid3offline'];
+        final JsonObject doc3 = res.payload['docid3offline'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
@@ -1087,22 +1090,22 @@ main() {
 
       });
 
-      JsonObject document1 = new JsonObject();
+      final JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      JsonObject document2 = new JsonObject();
+      final JsonObject document2 = new JsonObject();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      JsonObject document3 = new JsonObject();
+      final JsonObject document3 = new JsonObject();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
 
-      Map docs = new Map<String, JsonObject>();
+      final Map docs = new Map<String, JsonObject>();
       docs['docid1offline'] = document1;
       docs['docid2offline'] = document2;
       docs['docid3offline'] = document3;
@@ -1118,7 +1121,7 @@ main() {
     test("4. Get All Docs Online", () {
 
       print("5.4");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -1126,7 +1129,7 @@ main() {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        JsonObject successResponse = res.payload;
+        final JsonObject successResponse = res.payload;
         expect(successResponse.total_rows, equals(3));
         expect(successResponse.rows[0].id, equals('docid1'));
         expect(successResponse.rows[1].id, equals('docid2'));
@@ -1145,7 +1148,7 @@ main() {
     test("5. Get All Docs Offline", () {
 
       print("5.5");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -1164,7 +1167,14 @@ main() {
       });
 
       sporran5.online = false;
-      List keys = ['docid1offline', 'docid2offline', 'docid3offline', 'docid1', 'docid2', 'docid3'];
+      final List keys = [
+        'docid1offline',
+        'docid2offline',
+        'docid3offline',
+        'docid1',
+        'docid2',
+        'docid3'
+      ];
 
       sporran5.getAllDocs(keys: keys)..then((res) {
             wrapper(res);
@@ -1176,7 +1186,7 @@ main() {
     test("6. Get Database Info Offline", () {
 
       print("5.6");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -1203,7 +1213,7 @@ main() {
     test("7. Get Database Info Online", () {
 
       print("5.7");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -1227,7 +1237,7 @@ main() {
     test("8. Tidy Up All Docs Online", () {
 
       print("5.8");
-      var wrapper = expectAsync1((res) {}, count: 3);
+      final wrapper = expectAsync1((res) {}, count: 3);
 
       sporran5.delete('docid1', docid1rev)..then((res) {
             wrapper(res);
@@ -1262,7 +1272,7 @@ main() {
      */
 
     /* Create our Wilt */
-    Wilt wilting = new WiltBrowserClient(hostName, port, scheme);
+    final Wilt wilting = new WiltBrowserClient(hostName, port, scheme);
 
     /* Login if we are using authentication */
     if (userName != null) {
@@ -1278,7 +1288,7 @@ main() {
     test("1. Create and Open Sporran", () {
 
       print("6.1");
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran6.dbName, databaseName);
         expect(sporran6.lawnIsOpen, isTrue);
@@ -1296,24 +1306,24 @@ main() {
     test("2. Wilt - Bulk Insert Supplied Keys", () {
 
       print("6.2");
-      var completer = expectAsync1((res) {
+      final completer = expectAsync1((res) {
 
         try {
           expect(res.error, isFalse);
         } catch (e) {
 
           logMessage("WILT::Bulk Insert Supplied Keys");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
+          final JsonObject errorResponse = res.jsonCouchResponse;
+          final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
+          final String reasonText = errorResponse.reason;
           logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
+          final int statusCode = res.errorCode;
           logMessage("WILT::Status code is $statusCode");
           return;
         }
 
-        JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObject successResponse = res.jsonCouchResponse;
         expect(successResponse[0].id, equals("MyBulkId1"));
         expect(successResponse[1].id, equals("MyBulkId2"));
         expect(successResponse[2].id, equals("MyBulkId3"));
@@ -1323,26 +1333,26 @@ main() {
 
       });
 
-      JsonObject document1 = new JsonObject();
+      final JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
-      String doc1 = WiltUserUtils.addDocumentId(document1, "MyBulkId1");
-      JsonObject document2 = new JsonObject();
+      final String doc1 = WiltUserUtils.addDocumentId(document1, "MyBulkId1");
+      final JsonObject document2 = new JsonObject();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
-      String doc2 = WiltUserUtils.addDocumentId(document2, "MyBulkId2");
-      JsonObject document3 = new JsonObject();
+      final String doc2 = WiltUserUtils.addDocumentId(document2, "MyBulkId2");
+      final JsonObject document3 = new JsonObject();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
-      String doc3 = WiltUserUtils.addDocumentId(document3, "MyBulkId3");
-      List docList = new List<String>();
+      final String doc3 = WiltUserUtils.addDocumentId(document3, "MyBulkId3");
+      final List docList = new List<String>();
       docList.add(doc1);
       docList.add(doc2);
       docList.add(doc3);
-      String docs = WiltUserUtils.createBulkInsertString(docList);
+      final String docs = WiltUserUtils.createBulkInsertString(docList);
       wilting.bulkString(docs)..then((res) {
             completer(res);
           });
@@ -1353,9 +1363,9 @@ main() {
     test("3. Notification Pause", () {
 
       print("6.4");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -1363,7 +1373,7 @@ main() {
     test("4. Get Document Offline MyBulkId1", () {
 
       print("6.4");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -1386,7 +1396,7 @@ main() {
     test("5. Get Document Offline MyBulkId2", () {
 
       print("6.5");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -1407,7 +1417,7 @@ main() {
     test("6. Get Document Offline MyBulkId3", () {
 
       print("6.6");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -1428,24 +1438,24 @@ main() {
     test("7. Wilt - Delete Document MyBulkId1", () {
 
       print("6.7");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         try {
           expect(res.error, isFalse);
         } catch (e) {
 
           logMessage("WILT::Delete Document MyBulkId1");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
+          final JsonObject errorResponse = res.jsonCouchResponse;
+          final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
+          final String reasonText = errorResponse.reason;
           logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
+          final int statusCode = res.errorCode;
           logMessage("WILT::Status code is $statusCode");
           return;
         }
 
-        JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObject successResponse = res.jsonCouchResponse;
         expect(successResponse.id, "MyBulkId1");
 
       });
@@ -1459,24 +1469,24 @@ main() {
     test("8. Wilt - Delete Document MyBulkId2", () {
 
       print("6.8");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         try {
           expect(res.error, isFalse);
         } catch (e) {
 
           logMessage("WILT::Delete Document MyBulkId2");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
+          final JsonObject errorResponse = res.jsonCouchResponse;
+          final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
+          final String reasonText = errorResponse.reason;
           logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
+          final int statusCode = res.errorCode;
           logMessage("WILT::Status code is $statusCode");
           return;
         }
 
-        JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObject successResponse = res.jsonCouchResponse;
         expect(successResponse.id, "MyBulkId2");
 
       });
@@ -1490,24 +1500,24 @@ main() {
     test("9. Wilt - Delete Document MyBulkId3", () {
 
       print("6.9");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         try {
           expect(res.error, isFalse);
         } catch (e) {
 
           logMessage("WILT::Delete Document MyBulkId3");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
+          final JsonObject errorResponse = res.jsonCouchResponse;
+          final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
+          final String reasonText = errorResponse.reason;
           logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
+          final int statusCode = res.errorCode;
           logMessage("WILT::Status code is $statusCode");
           return;
         }
 
-        JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObject successResponse = res.jsonCouchResponse;
         expect(successResponse.id, "MyBulkId3");
 
       });
@@ -1522,9 +1532,9 @@ main() {
     test("10. Notification Pause", () {
 
       print("6.10");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -1532,7 +1542,7 @@ main() {
     test("11. Get Document Offline Deleted MyBulkId1", () {
 
       print("6.11");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -1551,7 +1561,7 @@ main() {
     test("12. Get Document Offline Deleted MyBulkId2", () {
 
       print("6.12");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -1568,7 +1578,7 @@ main() {
     test("13. Get Document Offline Deleted MyBulkId3", () {
 
       print("6.13");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -1585,9 +1595,9 @@ main() {
     test("14. Group Pause", () {
 
       print("6.14");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -1603,7 +1613,7 @@ main() {
      */
 
     /* Create our Wilt */
-    Wilt wilting = new WiltBrowserClient(hostName, port, scheme);
+    final Wilt wilting = new WiltBrowserClient(hostName, port, scheme);
 
     /* Login if we are using authentication */
     if (userName != null) {
@@ -1615,12 +1625,15 @@ main() {
     String docId1Rev;
     String docId2Rev;
     String docId3Rev;
-    String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' + 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' + 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' + '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+    final String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' +
+        'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' +
+        'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' +
+        '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test("1. Create and Open Sporran", () {
 
       print("7.1");
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran7.dbName, databaseName);
         expect(sporran7.lawnIsOpen, isTrue);
@@ -1638,24 +1651,24 @@ main() {
     test("2. Wilt - Bulk Insert Supplied Keys", () {
 
       print("7.2");
-      var completer = expectAsync1((res) {
+      final completer = expectAsync1((res) {
 
         try {
           expect(res.error, isFalse);
         } catch (e) {
 
           logMessage("WILT::Bulk Insert Supplied Keys");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
+          final JsonObject errorResponse = res.jsonCouchResponse;
+          final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
+          final String reasonText = errorResponse.reason;
           logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
+          final int statusCode = res.errorCode;
           logMessage("WILT::Status code is $statusCode");
           return;
         }
 
-        JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObject successResponse = res.jsonCouchResponse;
         expect(successResponse[0].id, equals("MyBulkId1"));
         expect(successResponse[1].id, equals("MyBulkId2"));
         expect(successResponse[2].id, equals("MyBulkId3"));
@@ -1665,26 +1678,26 @@ main() {
 
       });
 
-      JsonObject document1 = new JsonObject();
+      final JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
-      String doc1 = WiltUserUtils.addDocumentId(document1, "MyBulkId1");
-      JsonObject document2 = new JsonObject();
+      final String doc1 = WiltUserUtils.addDocumentId(document1, "MyBulkId1");
+      final JsonObject document2 = new JsonObject();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
-      String doc2 = WiltUserUtils.addDocumentId(document2, "MyBulkId2");
-      JsonObject document3 = new JsonObject();
+      final String doc2 = WiltUserUtils.addDocumentId(document2, "MyBulkId2");
+      final JsonObject document3 = new JsonObject();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
-      String doc3 = WiltUserUtils.addDocumentId(document3, "MyBulkId3");
-      List docList = new List<String>();
+      final String doc3 = WiltUserUtils.addDocumentId(document3, "MyBulkId3");
+      final List docList = new List<String>();
       docList.add(doc1);
       docList.add(doc2);
       docList.add(doc3);
-      String docs = WiltUserUtils.createBulkInsertString(docList);
+      final String docs = WiltUserUtils.createBulkInsertString(docList);
       wilting.bulkString(docs)..then((res) {
             completer(res);
           });
@@ -1695,16 +1708,16 @@ main() {
     test("3. Notification Pause", () {
 
       print("7.3");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
     test("4. Create Attachment Online MyBulkId1 Attachment 1", () {
 
       print("7.4");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -1719,7 +1732,7 @@ main() {
       });
 
       sporran7.online = true;
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
@@ -1734,7 +1747,7 @@ main() {
     test("5. Create Attachment Online MyBulkId1 Attachment 2", () {
 
       print("7.5");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -1749,7 +1762,7 @@ main() {
       });
 
       sporran7.online = true;
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
@@ -1765,33 +1778,33 @@ main() {
     test("6. Notification Pause", () {
 
       print("7.6");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
     test("7. Delete Attachment Online MyBulkId1 Attachment 1", () {
 
       print("7.7");
-      var completer = expectAsync1((res) {
+      final completer = expectAsync1((res) {
 
         try {
           expect(res.error, isFalse);
         } catch (e) {
 
           logMessage("WILT::Delete Attachment Failed");
-          JsonObject errorResponse = res.jsonCouchResponse;
-          String errorText = errorResponse.error;
+          final JsonObject errorResponse = res.jsonCouchResponse;
+          final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
-          String reasonText = errorResponse.reason;
+          final String reasonText = errorResponse.reason;
           logMessage("WILT::Reason is $reasonText");
-          int statusCode = res.errorCode;
+          final int statusCode = res.errorCode;
           logMessage("WILT::Status code is $statusCode");
           return;
         }
 
-        JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObject successResponse = res.jsonCouchResponse;
         expect(successResponse.ok, isTrue);
         docId1Rev = successResponse.rev;
 
@@ -1807,16 +1820,16 @@ main() {
     test("8. Notification Pause", () {
 
       print("7.8");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
     test("9. Get Attachment Offline MyBulkId1 AttachmentName1", () {
 
       print("7.9");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getAttachmentc);
