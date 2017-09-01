@@ -4,7 +4,7 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  */
-
+@TestOn("dartium")
 library sporran_test;
 
 import 'dart:async';
