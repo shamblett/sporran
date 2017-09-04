@@ -254,6 +254,10 @@ class _SporranDatabase {
     _wilt.getAllDbs()
       ..then((res) {
         allCompleter(res);
+      })
+      ..catchError((error) {
+        _noCouchDb = true;
+        _signalReady();
       });
   }
 

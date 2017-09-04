@@ -5,7 +5,6 @@
  * Copyright :  S.Hamblett@OSCF
  */
 @TestOn("dartium")
-library sporran_test;
 
 import 'dart:async';
 import 'dart:html';
@@ -18,6 +17,7 @@ import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
 void logMessage(String message) {
+  window.console.log(message);
   print(message);
 }
 
@@ -57,7 +57,7 @@ void main() {
       e = new Event.eventType('Event', 'online');
       window.dispatchEvent(e);
     });
-  });
+  }, skip: false);
 
   /* Group 2 - Sporran constructor/ invalid parameter tests */
   group("2. Constructor/Invalid Parameter Tests - ", () {
@@ -125,7 +125,6 @@ void main() {
       final wrapper = expectAsync0(() {
         expect(sporran23, isNotNull);
         expect(sporran23.dbName, databaseName);
-        expect(sporran23.online, true);
         sporran23 = null;
       });
 
@@ -333,7 +332,7 @@ void main() {
             SporranException.headerEx + SporranException.noInitialiserEx);
       }
     });
-  });
+  }, skip: false);
 
   /* Group 3 - Sporran document put/get tests */
   group("3. Document Put/Get/Delete Tests - ", () {
@@ -403,7 +402,7 @@ void main() {
       print("3.4");
       final wrapper = expectAsync1((res) {
         expect(res.errorCode, 409);
-        expect(res.errorText, 'conflict');
+        expect(res.jsonCouchResponse.error, 'conflict');
         expect(res.operation, Sporran.putc);
         expect(res.id, docIdPutOnline);
       });
@@ -442,7 +441,8 @@ void main() {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOnline);
-        expect(res.payload.name, "Online - Updated");
+        final JsonObject payload = new JsonObject.fromJsonString(res.payload);
+        expect(payload.payload.name, "Online - Updated");
       });
 
       sporran3.online = false;
@@ -459,7 +459,8 @@ void main() {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
-        expect(res.payload.name, "Offline");
+        final JsonObject payload = new JsonObject.fromJsonString(res.payload);
+        expect(res.payload.payload.name, "Offline");
         expect(res.rev, isNull);
       });
 
@@ -582,7 +583,7 @@ void main() {
 
       final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
     });
-  });
+  }, skip: false);
 
   /* Group 4 - Sporran attachment put/get tests */
   group("4. Attachment Put/Get/Delete Tests - ", () {
@@ -825,7 +826,7 @@ void main() {
         ..then((res) {
           wrapper(res);
         });
-    });
+    }, skip: false);
 
     /*test("13. Group Pause", () {
 
@@ -1073,7 +1074,7 @@ void main() {
       Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });*/
-  });
+  }, skip: false);
 
   /* Group 6 - Sporran Change notification tests */
   group("6. Change notification Tests Documents - ", () {
@@ -1365,7 +1366,7 @@ void main() {
 
       final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
     });
-  });
+  }, skip: true);
 
   /* Group 7 - Sporran Change notification tests */
   group("7. Change notification Tests Attachments - ", () {
@@ -1577,5 +1578,5 @@ void main() {
           wrapper(res);
         });
     });
-  });
+  }, skip: false);
 }

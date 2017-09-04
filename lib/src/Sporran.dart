@@ -265,7 +265,7 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(id)
-        ..then((document) {
+        ..then((JsonObject document) {
           final JsonObject res = new JsonObject();
           res.localResponse = true;
           res.operation = getc;
@@ -276,8 +276,8 @@ class Sporran {
             res.payload = null;
           } else {
             res.ok = true;
-            res.payload = new JsonObject.fromMap(document['payload']);
-            res.rev = WiltUserUtils.getDocumentRev(res.payload);
+            res.payload = document['payload'];
+            res.rev = WiltUserUtils.getDocumentRev(res);
           }
 
           opCompleter.complete(res);

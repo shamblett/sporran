@@ -2,7 +2,7 @@
 
 /* CouchDB server */
 final String hostName = "localhost";
-final String port = "8085";
+final String port = "5984";
 final String scheme = "http://"; 
 
 /* Database to use for testing */
@@ -12,5 +12,5 @@ final String databaseName = 'sporrantest';
 /// implies no authentication, i.e admin party, if set Basic authentication is
 /// used.
 
-final String userName = '';
-final String userPassword = '';
+final String userName = 'steve';
+final String userPassword = 'setacrepes';
