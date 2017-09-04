@@ -460,7 +460,7 @@ void main() {
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
         final JsonObject payload = new JsonObject.fromJsonString(res.payload);
-        expect(res.payload.payload.name, "Offline");
+        expect(payload.payload.name, "Offline");
         expect(res.rev, isNull);
       });
 
