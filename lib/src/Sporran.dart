@@ -608,7 +608,7 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(key)
-        ..then((document) {
+        ..then((JsonObject document) {
           final JsonObject res = new JsonObject();
           res.localResponse = true;
           res.id = id;
@@ -619,7 +619,7 @@ class Sporran {
             res.payload = null;
           } else {
             res.ok = true;
-            res.payload = new JsonObject.fromMap(document['payload']);
+            res.payload = document;
           }
 
           opCompleter.complete(res);

@@ -4,7 +4,7 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  */
-@TestOn("dartium")
+//@TestOn("dartium")
 
 import 'dart:async';
 import 'dart:html';
@@ -731,8 +731,8 @@ void main() {
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
-        expect(res.payload.attachmentName, "offlineAttachment");
-        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.payload.payload.attachmentName, "offlineAttachment");
+        expect(res.payload.payload.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
       });
 
