@@ -12,5 +12,5 @@ final String databaseName = 'sporrantest';
 /// implies no authentication, i.e admin party, if set Basic authentication is
 /// used.
 
-final String userName = '';
-final String userPassword = '';
+final String userName = 'steve';
+final String userPassword = 'setacrepes';

@@ -731,9 +731,11 @@ void main() {
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
-        expect(res.payload.payload.payload.attachmentName, "offlineAttachment");
-        expect(res.payload.payload.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        final JsonObject p2 = new JsonObject.fromJsonString(
+            res.payload.payload);
+        expect(p2.payload.attachmentName, "offlineAttachment");
+        expect(p2.payload.contentType, 'image/png');
+        expect(p2.payload.payload, attachmentPayload);
       });
 
       sporran4.online = false;
