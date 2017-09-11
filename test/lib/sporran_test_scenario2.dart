@@ -5,20 +5,18 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-library sporran_test;
+@TestOn("dartium")
+
 
 import 'dart:async';
 
 import 'package:sporran/sporran.dart';
 import 'package:json_object/json_object.dart';
-import 'package:unittest/unittest.dart';
-import 'package:unittest/html_config.dart';
+import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 import 'package:wilt/wilt.dart';
 
-main() {
-
-  useHtmlConfiguration();
+void main() {
 
   /* Group 8 - Sporran Scenario test 2 */
   /**
@@ -42,10 +40,13 @@ main() {
     String docid2rev;
     String docid3rev;
     String docid4rev;
-    String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' + 'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' + 'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' + '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
+    final String attachmentPayload = 'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' +
+        'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' +
+        'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' +
+        '8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     /* Common initialiser */
-     SporranInitialiser initialiser = new SporranInitialiser();
+    final SporranInitialiser initialiser = new SporranInitialiser();
      initialiser.dbName = databaseName;
      initialiser.hostname = hostName;
      initialiser.manualNotificationControl = false;
@@ -59,7 +60,7 @@ main() {
     test("1. Create and Open Sporran", () {
 
       print("9.1");
-      var wrapper = expectAsync0(() {
+      final wrapper = expectAsync0(() {
 
         expect(sporran9.dbName, databaseName);
         expect(sporran9.lawnIsOpen, isTrue);
@@ -75,7 +76,7 @@ main() {
     test("2. Bulk Insert Documents Online", () {
 
       print("9.2");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -92,29 +93,29 @@ main() {
         expect(res.rev[2], isNotNull);
         docid3rev = res.rev[2].rev;
         expect(docid1rev, anything);
-        JsonObject doc3 = res.payload['9docid3'];
+        final JsonObject doc3 = res.payload['9docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
 
       });
 
-      JsonObject document1 = new JsonObject();
+      final JsonObject document1 = new JsonObject();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      JsonObject document2 = new JsonObject();
+      final JsonObject document2 = new JsonObject();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      JsonObject document3 = new JsonObject();
+      final JsonObject document3 = new JsonObject();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
 
-      Map docs = new Map<String, JsonObject>();
+      final Map docs = new Map<String, JsonObject>();
       docs['9docid1'] = document1;
       docs['9docid2'] = document2;
       docs['9docid3'] = document3;
@@ -129,7 +130,7 @@ main() {
     test("3. Create Attachment Online docid1 Attachment 1", () {
 
       print("9.3");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -143,7 +144,7 @@ main() {
 
       });
 
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -158,7 +159,7 @@ main() {
     test("4. Create Attachment Online docid1 Attachment 2", () {
 
       print("9.4");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -172,7 +173,7 @@ main() {
 
       });
 
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -188,7 +189,7 @@ main() {
     test("5. Create Attachment Online docid2 Attachment 1", () {
 
       print("9.5");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -202,7 +203,7 @@ main() {
 
       });
 
-      JsonObject attachment = new JsonObject();
+      final JsonObject attachment = new JsonObject();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
@@ -217,16 +218,16 @@ main() {
     test("6. Sync Pause", () {
 
       print("9.6");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
     test("7. Delete Document Offline docid3", () {
 
       print("9.7");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -248,7 +249,7 @@ main() {
     test("8. Delete Attachment Offline docid1 Attachment1", () {
 
       print("9.8");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -267,7 +268,7 @@ main() {
     test("9. Put Document Offline Updated docid2", () {
 
       print("9.9");
-      var wrapper2 = expectAsync1((res) {
+      final wrapper2 = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -278,14 +279,13 @@ main() {
 
       });
 
-      var wrapper1 = expectAsync1((res) {
+      final wrapper1 = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, '9docid2');
-        expect(res.rev, docid2rev);
-        JsonObject document2 = res.payload;
+        final JsonObject document2 = new JsonObject();
         document2.title = "Document 2 Updated";
         document2.version = 2;
         document2.attribute = "Doc 2 attribute Updated";
@@ -303,7 +303,7 @@ main() {
     test("10. Put Document Offline New docid4", () {
 
       print("9.10");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -314,7 +314,7 @@ main() {
 
       });
 
-      JsonObject document4 = new JsonObject();
+      final JsonObject document4 = new JsonObject();
       document4.title = "Document 4";
       document4.version = 4;
       document4.attribute = "Doc 4 attribute";
@@ -328,9 +328,9 @@ main() {
     test("11. Sync Pause", () {
 
       print("9.11");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -344,9 +344,9 @@ main() {
     test("13. Sync Pause", () {
 
       print("9.13");
-      var wrapper = expectAsync0(() {});
+      final wrapper = expectAsync0(() {});
 
-      Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
 
     });
 
@@ -354,7 +354,7 @@ main() {
     test("14. Check - Get All Docs Online", () {
 
       print("9.14");
-      var wrapper = expectAsync1((res) {
+      final wrapper = expectAsync1((res) {
 
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -362,14 +362,15 @@ main() {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        JsonObject successResponse = res.payload;
+        final JsonObject successResponse = res.payload;
         expect(successResponse.total_rows, equals(3));
         expect(successResponse.rows[0].id, equals('9docid1'));
         docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
         expect(successResponse.rows[0].doc.title, "Document 1");
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute, "Doc 1 attribute");
-        List doc1Attachments = WiltUserUtils.getAttachments(successResponse.rows[0].doc);
+        final List doc1Attachments = WiltUserUtils.getAttachments(
+            successResponse.rows[0].doc);
         expect(doc1Attachments.length, 1);
         expect(doc1Attachments[0].name, "AttachmentName2");
         expect(successResponse.rows[1].id, equals('9docid2'));
@@ -377,13 +378,15 @@ main() {
         expect(successResponse.rows[1].doc.title, "Document 2 Updated");
         expect(successResponse.rows[1].doc.version, 2);
         expect(successResponse.rows[1].doc.attribute, "Doc 2 attribute Updated");
-        List doc2Attachments = WiltUserUtils.getAttachments(successResponse.rows[1].doc);
-        expect(doc2Attachments.length, 1);
+        final List doc2Attachments = WiltUserUtils.getAttachments(
+            successResponse.rows[1].doc);
+        expect(doc2Attachments.length, 0);
         expect(successResponse.rows[2].id, equals('9docid4'));
         expect(successResponse.rows[2].doc.title, "Document 4");
         expect(successResponse.rows[2].doc.version, 4);
         expect(successResponse.rows[2].doc.attribute, "Doc 4 attribute");
-        List doc4Attachments = WiltUserUtils.getAttachments(successResponse.rows[2].doc);
+        final List doc4Attachments = WiltUserUtils.getAttachments(
+            successResponse.rows[2].doc);
         expect(doc4Attachments, isEmpty);
         docid4rev = WiltUserUtils.getDocumentRev(successResponse.rows[2].doc);
 

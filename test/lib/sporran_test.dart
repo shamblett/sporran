@@ -4,7 +4,7 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  */
-//@TestOn("dartium")
+@TestOn("dartium")
 
 import 'dart:async';
 import 'dart:html';
