@@ -3,7 +3,7 @@
 /* CouchDB server */
 final String hostName = "localhost";
 final String port = "5984";
-final String scheme = "http://"; 
+final String scheme = "http://";
 
 /* Database to use for testing */
 final String databaseName = 'sporrantest';

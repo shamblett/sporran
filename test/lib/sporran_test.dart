@@ -731,8 +731,8 @@ void main() {
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
-        final JsonObject p2 = new JsonObject.fromJsonString(
-            res.payload.payload);
+        final JsonObject p2 =
+        new JsonObject.fromJsonString(res.payload.payload);
         expect(p2.payload.attachmentName, "offlineAttachment");
         expect(p2.payload.contentType, 'image/png');
         expect(p2.payload.payload, attachmentPayload);

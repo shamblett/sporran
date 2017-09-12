@@ -6,8 +6,6 @@
  */
 @TestOn("dartium")
 
-import 'dart:async';
-
 import 'package:sporran/sporran.dart';
 import 'package:json_object/json_object.dart';
 import 'package:test/test.dart';
