@@ -13,7 +13,7 @@ import 'dart:html';
 import 'package:wilt/wilt.dart';
 import 'package:wilt/wilt_browser_client.dart';
 import 'package:lawndart/lawndart.dart';
-import 'package:json_object/json_object.dart';
+import 'package:json_object_lite/json_object_lite.dart';
 
 part 'src/Sporran.dart';
 part 'src/SporranException.dart';

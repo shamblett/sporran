@@ -4,10 +4,10 @@
  * Date   : 05/02/2014
  * Copyright :  S.Hamblett@OSCF
  */
-@TestOn("dartium")
+@TestOn("browser")
 
 import 'package:sporran/sporran.dart';
-import 'package:json_object/json_object.dart';
+import 'package:json_object_lite/json_object_lite.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
@@ -67,28 +67,28 @@ void main() {
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
-        final JsonObject doc3 = res.payload['8docid3'];
+        final JsonObjectLite doc3 = res.payload['8docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
       });
 
-      final JsonObject document1 = new JsonObject();
+      final JsonObjectLite document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      final JsonObject document2 = new JsonObject();
+      final JsonObjectLite document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      final JsonObject document3 = new JsonObject();
+      final JsonObjectLite document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
 
-      final Map docs = new Map<String, JsonObject>();
+      final Map docs = new Map<String, JsonObjectLite>();
       docs['8docid1'] = document1;
       docs['8docid2'] = document2;
       docs['8docid3'] = document3;
@@ -113,7 +113,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObject attachment = new JsonObject();
+      final JsonObjectLite attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -138,7 +138,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObject attachment = new JsonObject();
+      final JsonObjectLite attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -163,7 +163,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObject attachment = new JsonObject();
+      final JsonObjectLite attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';

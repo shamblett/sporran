@@ -89,11 +89,13 @@ class Sporran {
 
   /// Completion function
   var _clientCompleter;
-  set clientCompleter(JsonObject completer) => _clientCompleter = completer;
+
+  set clientCompleter(JsonObjectLite completer) => _clientCompleter = completer;
 
   /// Response getter for completion callbacks
-  JsonObject _completionResponse;
-  JsonObject get completionResponse => _completionResponse;
+  JsonObjectLite _completionResponse;
+
+  JsonObjectLite get completionResponse => _completionResponse;
 
   /// Pending delete queue size
   int get pendingDeleteSize => _database.pendingLength();
@@ -156,8 +158,8 @@ class Sporran {
   }
 
   /// Common completion response creator for all databases
-  JsonObject _createCompletionResponse(JsonObject result) {
-    final JsonObject completion = new JsonObject();
+  JsonObjectLite _createCompletionResponse(JsonObjectLite result) {
+    final JsonObjectLite completion = new JsonObjectLite();
 
     completion.operation = result.operation;
     completion.payload = result.payload;
@@ -189,7 +191,7 @@ class Sporran {
   /// If the document does not exist a create is performed.
   ///
   /// For an update operation a specific revision must be specified.
-  Future put(String id, JsonObject document, [String rev = null]) {
+  Future put(String id, JsonObjectLite document, [String rev = null]) {
     final Completer opCompleter = new Completer();
 
     if (id == null) {
@@ -202,7 +204,7 @@ class Sporran {
       ..then((_) {
         /* If we are offline just return */
         if (!online) {
-          final JsonObject res = new JsonObject();
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = putc;
           res.ok = true;
@@ -219,7 +221,7 @@ class Sporran {
         }
 
         /* Complete locally, then boomerang to the client */
-        void completer(JsonObject res) {
+        void completer(JsonObjectLite res) {
           /* If success, mark the update as UPDATED in local storage */
           res.ok = false;
           res.localResponse = false;
@@ -265,8 +267,8 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(id)
-        ..then((JsonObject document) {
-          final JsonObject res = new JsonObject();
+        ..then((JsonObjectLite document) {
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = getc;
           res.id = id;
@@ -287,7 +289,7 @@ class Sporran {
           }
         });
     } else {
-      void completer(JsonObject res) {
+      void completer(JsonObjectLite res) {
         /* If Ok update local storage with the document */
         res.operation = getc;
         res.id = id;
@@ -344,7 +346,7 @@ class Sporran {
               /* Check for offline, if so add to the pending delete queue and return */
               if (!online) {
                 _database.addPendingDelete(id, document);
-                final JsonObject res = new JsonObject();
+                final JsonObjectLite res = new JsonObjectLite();
                 res.localResponse = true;
                 res.operation = deletec;
                 res.ok = true;
@@ -359,7 +361,7 @@ class Sporran {
                 return opCompleter.future;
               } else {
                 /* Online, delete from CouchDb */
-                void completer(JsonObject res) {
+                void completer(JsonObjectLite res) {
                   res.operation = deletec;
                   res.localResponse = false;
                   res.payload = res.jsonCouchResponse;
@@ -389,7 +391,7 @@ class Sporran {
             });
         } else {
           /* Doesnt exist, return error */
-          final JsonObject res = new JsonObject();
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = deletec;
           res.id = id;
@@ -412,13 +414,13 @@ class Sporran {
   /// If the revision is supplied the attachment to the document will be updated,
   /// otherwise the attachment will be created, along with the document if needed.
   ///
-  /// The JsonObject attachment parameter must contain the following :-
+  /// The JsonObjectLite attachment parameter must contain the following :-
   ///
   /// String attachmentName
   /// String rev - maybe '', see above
   /// String contentType - mime type in the form 'image/png'
   /// String payload - stringified binary blob
-  Future putAttachment(String id, JsonObject attachment) {
+  Future putAttachment(String id, JsonObjectLite attachment) {
     final Completer opCompleter = new Completer();
 
     if (id == null) {
@@ -437,7 +439,7 @@ class Sporran {
       ..then((_) {
         /* If we are offline just return */
         if (!online) {
-          final JsonObject res = new JsonObject();
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = putAttachmentc;
           res.ok = true;
@@ -453,7 +455,7 @@ class Sporran {
         }
 
         /* Complete locally, then boomerang to the client */
-        void completer(JsonObject res) {
+        void completer(JsonObjectLite res) {
           /* If success, mark the update as UPDATED in local storage */
           res.ok = false;
           res.localResponse = false;
@@ -463,7 +465,8 @@ class Sporran {
           res.payload = null;
 
           if (!res.error) {
-            final JsonObject newAttachment = new JsonObject.fromMap(attachment);
+            final JsonObjectLite newAttachment = new JsonObjectLite.fromMap(
+                attachment);
             newAttachment.contentType = attachment.contentType;
             newAttachment.payload = attachment.payload;
             newAttachment.attachmentName = attachment.attachmentName;
@@ -529,7 +532,7 @@ class Sporran {
               /* Check for offline, if so add to the pending delete queue and return */
               if (!online) {
                 _database.addPendingDelete(key, document);
-                final JsonObject res = new JsonObject();
+                final JsonObjectLite res = new JsonObjectLite();
                 res.localResponse = true;
                 res.operation = deleteAttachmentc;
                 res.ok = true;
@@ -544,7 +547,7 @@ class Sporran {
                 return opCompleter.future;
               } else {
                 /* Online, delete from CouchDb */
-                void completer(JsonObject res) {
+                void completer(JsonObjectLite res) {
                   res.operation = deleteAttachmentc;
                   res.localResponse = false;
                   res.payload = res.jsonCouchResponse;
@@ -573,7 +576,7 @@ class Sporran {
             });
         } else {
           /* Doesnt exist, return error */
-          final JsonObject res = new JsonObject();
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = deleteAttachmentc;
           res.id = id;
@@ -608,8 +611,8 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(key)
-        ..then((JsonObject document) {
-          final JsonObject res = new JsonObject();
+        ..then((JsonObjectLite document) {
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.id = id;
           res.rev = null;
@@ -630,7 +633,7 @@ class Sporran {
           return opCompleter.future;
         });
     } else {
-      void completer(JsonObject res) {
+      void completer(JsonObjectLite res) {
         /* If Ok update local storage with the attachment */
         res.operation = getAttachmentc;
         res.id = id;
@@ -638,10 +641,10 @@ class Sporran {
         res.rev = null;
 
         if (!res.error) {
-          final JsonObject successResponse = res.jsonCouchResponse;
+          final JsonObjectLite successResponse = res.jsonCouchResponse;
 
           res.ok = true;
-          final JsonObject attachment = new JsonObject();
+          final JsonObjectLite attachment = new JsonObjectLite();
           attachment.attachmentName = attachmentName;
           attachment.contentType = successResponse.contentType;
           attachment.payload = res.responseText;
@@ -675,7 +678,7 @@ class Sporran {
   /// Bulk document create.
   ///
   /// docList is a map of documents with their keys
-  Future bulkCreate(Map<String, JsonObject> docList) {
+  Future bulkCreate(Map<String, JsonObjectLite> docList) {
     final Completer opCompleter = new Completer();
 
     if (docList == null) {
@@ -696,7 +699,7 @@ class Sporran {
       ..then((_) {
         /* If we are offline just return */
         if (!online) {
-          final JsonObject res = new JsonObject();
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = bulkCreatec;
           res.ok = true;
@@ -712,7 +715,7 @@ class Sporran {
         }
 
         /* Complete locally, then boomerang to the client */
-        void completer(JsonObject res) {
+        void completer(JsonObjectLite res) {
           /* If success, mark the update as UPDATED in local storage */
           res.ok = false;
           res.localResponse = false;
@@ -722,11 +725,11 @@ class Sporran {
           res.rev = null;
           if (!res.error) {
             /* Get the revisions for the updates */
-            final JsonObject couchResp = res.jsonCouchResponse;
-            final List revisions = new List<JsonObject>();
+            final JsonObjectLite couchResp = res.jsonCouchResponse;
+            final List revisions = new List<JsonObjectLite>();
             final Map revisionsMap = new Map<String, String>();
 
-            couchResp.forEach((JsonObject resp) {
+            couchResp.toList().forEach((resp) {
               try {
                 revisions.add(resp);
                 revisionsMap[resp.id] = resp.rev;
@@ -777,7 +780,7 @@ class Sporran {
   ///
   /// In offline mode only the keys parameter is respected.
   /// The includeDocs parameter is also forced to true.
-  Future<JsonObject> getAllDocs(
+  Future<JsonObjectLite> getAllDocs(
       {bool includeDocs: false,
       int limit: null,
       String startKey: null,
@@ -807,7 +810,7 @@ class Sporran {
 
             _database.getLocalStorageObjects(docList)
               ..then((documents) {
-                final JsonObject res = new JsonObject();
+                final JsonObjectLite res = new JsonObjectLite();
                 res.localResponse = true;
                 res.operation = getAllDocsc;
                 res.id = null;
@@ -832,7 +835,7 @@ class Sporran {
       } else {
         _database.getLocalStorageObjects(keys)
           ..then((documents) {
-            final JsonObject res = new JsonObject();
+            final JsonObjectLite res = new JsonObjectLite();
             res.localResponse = true;
             res.operation = getAllDocsc;
             res.id = null;
@@ -855,7 +858,7 @@ class Sporran {
           });
       }
     } else {
-      void completer(JsonObject res) {
+      void completer(JsonObjectLite res) {
         /* If Ok update local storage with the document */
         res.operation = getAllDocsc;
         res.id = null;
@@ -897,13 +900,13 @@ class Sporran {
   ///
   /// When offline the a list of the keys in the Lawndart database are returned,
   /// otherwise a response for CouchDb is returned.
-  Future<JsonObject> getDatabaseInfo() {
+  Future<JsonObjectLite> getDatabaseInfo() {
     final Completer opCompleter = new Completer();
 
     if (!online) {
       _database.lawndart.keys().toList()
         ..then((List keys) {
-          final JsonObject res = new JsonObject();
+          final JsonObjectLite res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = dbInfoc;
           res.id = null;
@@ -917,7 +920,7 @@ class Sporran {
           }
         });
     } else {
-      void completer(JsonObject res) {
+      void completer(JsonObjectLite res) {
         /* If Ok update local storage with the database info */
         res.operation = dbInfoc;
         res.id = null;

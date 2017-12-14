@@ -1,3 +1,6 @@
+## 3.1.0
+Update to new Wilt + JsonObjectLite, remove analysis erros
+
 ## 3.0.0
 
 Updates ready for Dart 2, remove the completion interface.

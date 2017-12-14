@@ -5,12 +5,12 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-@TestOn("dartium")
+@TestOn("browser")
 
 import 'dart:async';
 
 import 'package:sporran/sporran.dart';
-import 'package:json_object/json_object.dart';
+import 'package:json_object_lite/json_object_lite.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 import 'package:wilt/wilt.dart';
@@ -83,28 +83,28 @@ void main() {
         expect(res.rev[2], isNotNull);
         docid3rev = res.rev[2].rev;
         expect(docid1rev, anything);
-        final JsonObject doc3 = res.payload['9docid3'];
+        final JsonObjectLite doc3 = res.payload['9docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
       });
 
-      final JsonObject document1 = new JsonObject();
+      final JsonObjectLite document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      final JsonObject document2 = new JsonObject();
+      final JsonObjectLite document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      final JsonObject document3 = new JsonObject();
+      final JsonObjectLite document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
 
-      final Map docs = new Map<String, JsonObject>();
+      final Map docs = new Map<String, JsonObjectLite>();
       docs['9docid1'] = document1;
       docs['9docid2'] = document2;
       docs['9docid3'] = document3;
@@ -129,7 +129,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObject attachment = new JsonObject();
+      final JsonObjectLite attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -154,7 +154,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObject attachment = new JsonObject();
+      final JsonObjectLite attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -179,7 +179,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObject attachment = new JsonObject();
+      final JsonObjectLite attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
@@ -248,7 +248,7 @@ void main() {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, '9docid2');
-        final JsonObject document2 = new JsonObject();
+        final JsonObjectLite document2 = new JsonObjectLite();
         document2.title = "Document 2 Updated";
         document2.version = 2;
         document2.attribute = "Doc 2 attribute Updated";
@@ -275,7 +275,7 @@ void main() {
         expect(res.payload.title, "Document 4");
       });
 
-      final JsonObject document4 = new JsonObject();
+      final JsonObjectLite document4 = new JsonObjectLite();
       document4.title = "Document 4";
       document4.version = 4;
       document4.attribute = "Doc 4 attribute";
@@ -313,7 +313,7 @@ void main() {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        final JsonObject successResponse = res.payload;
+        final JsonObjectLite successResponse = res.payload;
         expect(successResponse.total_rows, equals(3));
         expect(successResponse.rows[0].id, equals('9docid1'));
         docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);

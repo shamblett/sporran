@@ -98,7 +98,7 @@ class _SporranDatabase {
   bool get noCouchDb => _noCouchDb;
 
   /// Pending delete queue
-  Map _pendingDeletes = new Map<String, JsonObject>();
+  Map _pendingDeletes = new Map<String, JsonObjectLite>();
   Map get pendingDeletes => _pendingDeletes;
 
   /// Event stream for Ready events
@@ -193,7 +193,7 @@ class _SporranDatabase {
   /// Create and/or connect to CouchDb
   void connectToCouch([bool transitionToOnline = false]) {
     /// If the CouchDb database does not exist create it.
-    void createCompleter(JsonObject res) {
+    void createCompleter(JsonObjectLite res) {
       if (!res.error) {
         _wilt.db = _dbName;
         _noCouchDb = false;
@@ -217,9 +217,9 @@ class _SporranDatabase {
       _signalReady();
     }
 
-    void allCompleter(JsonObject res) {
+    void allCompleter(JsonObjectLite res) {
       if (!res.error) {
-        final JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObjectLite successResponse = res.jsonCouchResponse;
         final bool created = successResponse.contains(_dbName);
         if (created == false) {
           _wilt.createDatabase(_dbName)
@@ -263,7 +263,8 @@ class _SporranDatabase {
 
   /// Add a key to the pending delete queue
   void addPendingDelete(String key, String document) {
-    final JsonObject deletedDocument = new JsonObject.fromJsonString(document);
+    final JsonObjectLite deletedDocument = new JsonObjectLite.fromJsonString(
+        document);
     _pendingDeletes[key] = deletedDocument;
   }
 
@@ -280,7 +281,7 @@ class _SporranDatabase {
   }
 
   /// Update document attachments
-  void updateDocumentAttachments(String id, JsonObject document) {
+  void updateDocumentAttachments(String id, JsonObjectLite document) {
     /* Get a list of attachments from the document */
     final List attachments = WiltUserUtils.getAttachments(document);
 
@@ -297,10 +298,10 @@ class _SporranDatabase {
 
     /* Get and update all the attachments */
     attachments.forEach((attachment) {
-      void completer(JsonObject res) {
+      void completer(JsonObjectLite res) {
         if (!res.error) {
-          final JsonObject successResponse = res.jsonCouchResponse;
-          final JsonObject newAttachment = new JsonObject();
+          final JsonObjectLite successResponse = res.jsonCouchResponse;
+          final JsonObjectLite newAttachment = new JsonObjectLite();
           newAttachment.attachmentName = attachment.name;
           newAttachment.rev = WiltUserUtils.getDocumentRev(document);
           newAttachment.contentType = successResponse.contentType;
@@ -322,9 +323,10 @@ class _SporranDatabase {
   }
 
   /// Create local storage updated entry
-  JsonObject _createUpdated(String key, String revision, JsonObject payload) {
+  JsonObjectLite _createUpdated(String key, String revision,
+      JsonObjectLite payload) {
     /* Add our type marker and set to 'not updated' */
-    final JsonObject update = new JsonObject();
+    final JsonObjectLite update = new JsonObjectLite();
     update.status = updatedc;
     update.key = key;
     update.payload = payload;
@@ -333,10 +335,10 @@ class _SporranDatabase {
   }
 
   /// Create local storage not updated entry
-  JsonObject _createNotUpdated(
-      String key, String revision, JsonObject payload) {
+  JsonObjectLite _createNotUpdated(String key, String revision,
+      JsonObjectLite payload) {
     /* Add our type marker and set to 'not updated' */
-    final JsonObject update = new JsonObject();
+    final JsonObjectLite update = new JsonObjectLite();
     update.status = notUpdatedc;
     update.key = key;
     update.payload = payload;
@@ -346,8 +348,8 @@ class _SporranDatabase {
 
   /// Update local storage.
   ///
-  Future updateLocalStorageObject(
-      String key, JsonObject update, String revision, String updateStatus) {
+  Future updateLocalStorageObject(String key, JsonObjectLite update,
+      String revision, String updateStatus) {
     final completer = new Completer();
 
     /* Check for not initialized */
@@ -357,7 +359,7 @@ class _SporranDatabase {
     }
 
     /* Do the update */
-    JsonObject localUpdate = new JsonObject();
+    JsonObjectLite localUpdate = new JsonObjectLite();
     if (updateStatus == notUpdatedc) {
       localUpdate = _createNotUpdated(key, revision, update);
     } else {
@@ -376,8 +378,8 @@ class _SporranDatabase {
   }
 
   /// Get an object from local storage
-  Future<JsonObject> getLocalStorageObject(String key) {
-    final JsonObject localObject = new JsonObject();
+  Future<JsonObjectLite> getLocalStorageObject(String key) {
+    final JsonObjectLite localObject = new JsonObjectLite();
     final completer = new Completer();
 
     lawndart.getByKey(key).then((String document) {
@@ -392,13 +394,14 @@ class _SporranDatabase {
   }
 
   /// Get multiple objects from local storage
-  Future<Map<String, JsonObject>> getLocalStorageObjects(List<String> keys) {
+  Future<Map<String, JsonObjectLite>> getLocalStorageObjects(
+      List<String> keys) {
     final completer = new Completer();
-    final Map results = new Map<String, JsonObject>();
+    final Map results = new Map<String, JsonObjectLite>();
     int keyPos = 0;
 
     lawndart.getByKeys(keys).listen((String value) {
-      final JsonObject document = new JsonObject.fromJsonString(value);
+      final JsonObjectLite document = new JsonObjectLite.fromJsonString(value);
       results[keys[keyPos]] = document;
       keyPos++;
     }, onDone: () {
@@ -453,7 +456,7 @@ class _SporranDatabase {
       wilting.login(_user, _password);
     }
 
-    void getCompleter(JsonObject res) {
+    void getCompleter(JsonObjectLite res) {
       /**
        * If the document doesn't already have an attachment
        * with this name get the revision and add this one.
@@ -461,10 +464,10 @@ class _SporranDatabase {
        * nothing we can do.
        */
       if (!res.error) {
-        final JsonObject successResponse = res.jsonCouchResponse;
+        final JsonObjectLite successResponse = res.jsonCouchResponse;
         final List attachments = WiltUserUtils.getAttachments(successResponse);
         bool found = false;
-        attachments.forEach((JsonObject attachment) {
+        attachments.forEach((JsonObjectLite attachment) {
           if (attachment.name == name) found = true;
         });
 
@@ -477,7 +480,7 @@ class _SporranDatabase {
       }
     }
 
-    void putCompleter(JsonObject res) {
+    void putCompleter(JsonObjectLite res) {
       /**
        * If we have a conflict, get the document to get its
        * latest revision
@@ -500,7 +503,7 @@ class _SporranDatabase {
   }
 
   /// Update/create a CouchDb document
-  Future<String> update(String key, JsonObject document, String revision) {
+  Future<String> update(String key, JsonObjectLite document, String revision) {
     final completer = new Completer();
 
     /* Create our own Wilt instance */
@@ -511,7 +514,7 @@ class _SporranDatabase {
       wilting.login(_user, _password);
     }
 
-    void localCompleter(JsonObject res) {
+    void localCompleter(JsonObjectLite res) {
       if (!res.error) {
         completer.complete(res.jsonCouchResponse.rev);
       }
@@ -528,13 +531,13 @@ class _SporranDatabase {
 
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
-      Map<String, JsonObject> documentsToUpdate) {
+      Map<String, JsonObjectLite> documentsToUpdate) {
     final Completer completer = new Completer();
     final Map revisions = new Map<String, String>();
 
     final int length = documentsToUpdate.length;
     int count = 0;
-    documentsToUpdate.forEach((String key, JsonObject document) {
+    documentsToUpdate.forEach((String key, JsonObjectLite document) {
       update(key, document.payload, document.rev)
         ..then((String rev) {
           revisions[document.key] = rev;
@@ -547,7 +550,7 @@ class _SporranDatabase {
   }
 
   /// Bulk insert documents using bulk insert
-  Future<JsonObject> bulkInsert(Map<String, JsonObject> docList) {
+  Future<JsonObjectLite> bulkInsert(Map<String, JsonObjectLite> docList) {
     final completer = new Completer();
 
     /* Create our own Wilt instance */
@@ -563,7 +566,8 @@ class _SporranDatabase {
     docList.forEach((key, document) {
       String docString = WiltUserUtils.addDocumentId(document.payload, key);
       if (document.rev != null) {
-        final JsonObject temp = new JsonObject.fromJsonString(docString);
+        final JsonObjectLite temp = new JsonObjectLite.fromJsonString(
+            docString);
         docString = WiltUserUtils.addDocumentRev(temp, document.rev);
       }
 
@@ -590,7 +594,8 @@ class _SporranDatabase {
       final List keyList = key.split('-');
       if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
         if (id == keyList[0]) {
-          final JsonObject attachment = new JsonObject.fromJsonString(document);
+          final JsonObjectLite attachment = new JsonObjectLite.fromJsonString(
+              document);
           updateLocalStorageObject(id, attachment, revision, updatedc);
         }
       }
@@ -602,7 +607,7 @@ class _SporranDatabase {
     /*
      * Pending deletes first
      */
-    pendingDeletes.forEach((String key, JsonObject document) {
+    pendingDeletes.forEach((String key, JsonObjectLite document) {
       /**
        * If there is no revision the document hasn't been updated
        * from Couch, we have to ignore this here.
@@ -624,17 +629,17 @@ class _SporranDatabase {
 
     pendingDeletes.clear();
 
-    final Map documentsToUpdate = new Map<String, JsonObject>();
-    final Map attachmentsToUpdate = new Map<String, JsonObject>();
+    final Map documentsToUpdate = new Map<String, JsonObjectLite>();
+    final Map attachmentsToUpdate = new Map<String, JsonObjectLite>();
 
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
     lawndart.all().listen((String document) {
-      final JsonObject doc = new JsonObject.fromJsonString(document);
+      final JsonObjectLite doc = new JsonObjectLite.fromJsonString(document);
       final String key = doc['key'];
       if (doc['status'] == notUpdatedc) {
-        final JsonObject update = doc;
+        final JsonObjectLite update = doc;
         /* If an attachment just stack it */
         final List keyList = key.split('-');
         if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
@@ -647,7 +652,7 @@ class _SporranDatabase {
       _manualBulkInsert(documentsToUpdate)
         ..then((revisions) {
           /* Finally do the attachments */
-          attachmentsToUpdate.forEach((String key, JsonObject attachment) {
+          attachmentsToUpdate.forEach((String key, JsonObjectLite attachment) {
             final List keyList = key.split('-');
             if (attachment.rev == null) attachment.rev = revisions[keyList[0]];
             updateAttachment(
@@ -662,12 +667,12 @@ class _SporranDatabase {
   }
 
   /// Create document attachments
-  void createDocumentAttachments(String key, JsonObject document) {
+  void createDocumentAttachments(String key, JsonObjectLite document) {
     /* Get the attachments and create them locally */
     final List attachments = WiltUserUtils.getAttachments(document);
 
-    attachments.forEach((JsonObject attachment) {
-      final JsonObject attachmentToCreate = new JsonObject();
+    attachments.forEach((JsonObjectLite attachment) {
+      final JsonObjectLite attachmentToCreate = new JsonObjectLite();
       attachmentToCreate.attachmentName = attachment.name;
       final String attachmentKey =
           "$key-${attachment.name}-${attachmentMarkerc}";
