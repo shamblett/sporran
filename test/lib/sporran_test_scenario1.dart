@@ -26,6 +26,7 @@ void main() {
   initialiser.username = userName;
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
+  Timer pause;
 
   /* Group 8 - Sporran Scenario test 1 */
   /**
@@ -204,7 +205,7 @@ void main() {
       print("8.8");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 6), wrapper);
+      pause = new Timer(new Duration(seconds: 6), wrapper);
     });
 
     test("9. Check - Get All Docs Online", () {

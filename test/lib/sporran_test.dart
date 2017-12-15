@@ -32,6 +32,7 @@ void main() {
   initialiser.username = userName;
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
+  Timer pause;
 
   /* Group 1 - Environment tests */
   group("1. Environment Tests - ", () {
@@ -91,14 +92,16 @@ void main() {
         sporran21 = null;
       });
 
-      final wrapper1 = expectAsync0(() {
+      Timer pause;
+
+      final wrapper1 = expectAsync1((Timer pause) {
         sporran21 = new Sporran(initialiser);
         sporran21.autoSync = false;
         sporran21.onReady.first.then((e) => wrapper());
       });
 
-      final Timer pause = new Timer(new Duration(seconds: 2), () {
-        wrapper1();
+      pause = new Timer(new Duration(seconds: 2), () {
+        wrapper1(pause);
       });
     });
 
@@ -326,6 +329,7 @@ void main() {
 
       try {
         final Sporran bad = new Sporran(null);
+        bad.toString();
       } catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(),
@@ -581,9 +585,8 @@ void main() {
 
     test("14. Group Pause", () {
       print("3.14");
-      final wrapper = expectAsync0(() {});
-
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      final wrapper = expectAsync1((Timer pause) {});
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
   }, skip: false);
 
@@ -1172,7 +1175,7 @@ void main() {
       print("6.4");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     /* Go offline and get our created documents, from local storage */
@@ -1317,7 +1320,7 @@ void main() {
       print("6.10");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     /* Go offline and get our created documents, from local storage */
@@ -1368,7 +1371,7 @@ void main() {
       print("6.14");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
   }, skip: true);
 
@@ -1390,8 +1393,6 @@ void main() {
 
     wilting.db = databaseName;
     String docId1Rev;
-    String docId2Rev;
-    String docId3Rev;
     final String attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' +
             'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' +
@@ -1434,8 +1435,8 @@ void main() {
         expect(successResponse[1].id, equals("MyBulkId2"));
         expect(successResponse[2].id, equals("MyBulkId3"));
         docId1Rev = successResponse[0].rev;
-        docId2Rev = successResponse[1].rev;
-        docId3Rev = successResponse[2].rev;
+        final String docId2Rev = successResponse[1].rev;
+        final String docId3Rev = successResponse[2].rev;
       });
 
       final JsonObjectLite document1 = new JsonObjectLite();
@@ -1469,7 +1470,7 @@ void main() {
       print("7.3");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     test("4. Create Attachment Online MyBulkId1 Attachment 1", () {
@@ -1529,7 +1530,7 @@ void main() {
       print("7.6");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     test("7. Delete Attachment Online MyBulkId1 Attachment 1", () {
@@ -1565,7 +1566,7 @@ void main() {
       print("7.8");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     test("9. Get Attachment Offline MyBulkId1 AttachmentName1", () {

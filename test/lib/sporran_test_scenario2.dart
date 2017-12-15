@@ -36,7 +36,6 @@ void main() {
     String docid1rev;
     String docid2rev;
     String docid3rev;
-    String docid4rev;
     final String attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' +
             'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' +
@@ -53,6 +52,7 @@ void main() {
     initialiser.username = userName;
     initialiser.password = userPassword;
     initialiser.preserveLocal = false;
+    Timer pause;
 
     test("1. Create and Open Sporran", () {
       print("9.1");
@@ -194,7 +194,7 @@ void main() {
       print("9.6");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     test("7. Delete Document Offline docid3", () {
@@ -289,7 +289,7 @@ void main() {
       print("9.11");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     test("12. Transition to online", () {
@@ -301,7 +301,7 @@ void main() {
       print("9.13");
       final wrapper = expectAsync0(() {});
 
-      final Timer pause = new Timer(new Duration(seconds: 3), wrapper);
+      pause = new Timer(new Duration(seconds: 3), wrapper);
     });
 
     test("14. Check - Get All Docs Online", () {
@@ -340,7 +340,8 @@ void main() {
         final List doc4Attachments =
         WiltUserUtils.getAttachments(successResponse.rows[2].doc);
         expect(doc4Attachments, isEmpty);
-        docid4rev = WiltUserUtils.getDocumentRev(successResponse.rows[2].doc);
+        final String docid4rev = WiltUserUtils.getDocumentRev(
+            successResponse.rows[2].doc);
       });
 
       sporran9.getAllDocs(includeDocs: true)
