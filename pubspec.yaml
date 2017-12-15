@@ -19,3 +19,10 @@ dev_dependencies:
   dart_style: '>=0.2.0 <0.3.0'
   dartdoc: '>=0.8.0 <=0.10.0'
 
+web:
+  compiler:
+    debug: dartdevc
+
+transformers:
+- test/pub_serve:
+    $include: test/lib/sporran_test.dart

@@ -1,5 +1,5 @@
 ## 3.1.0
-Update to new Wilt + JsonObjectLite, remove analysis erros
+Update to new Wilt + JsonObjectLite, remove analysis errors
 
 ## 3.0.0
 
