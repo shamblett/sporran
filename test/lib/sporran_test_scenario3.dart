@@ -67,23 +67,23 @@ void main() {
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
-        final JsonObjectLite doc3 = res.payload['8docid3'];
+        final dynamic doc3 = res.payload['8docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
       });
 
-      final JsonObjectLite document1 = new JsonObjectLite();
+      final dynamic document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      final JsonObjectLite document2 = new JsonObjectLite();
+      final dynamic document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      final JsonObjectLite document3 = new JsonObjectLite();
+      final dynamic document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
@@ -113,7 +113,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -138,7 +138,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -163,7 +163,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';

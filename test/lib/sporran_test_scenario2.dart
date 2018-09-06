@@ -53,6 +53,7 @@ void main() {
     initialiser.password = userPassword;
     initialiser.preserveLocal = false;
     Timer pause;
+    print(pause);
 
     test("1. Create and Open Sporran", () {
       print("9.1");
@@ -83,23 +84,23 @@ void main() {
         expect(res.rev[2], isNotNull);
         docid3rev = res.rev[2].rev;
         expect(docid1rev, anything);
-        final JsonObjectLite doc3 = res.payload['9docid3'];
+        final dynamic doc3 = res.payload['9docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
       });
 
-      final JsonObjectLite document1 = new JsonObjectLite();
+      final dynamic document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      final JsonObjectLite document2 = new JsonObjectLite();
+      final dynamic document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      final JsonObjectLite document3 = new JsonObjectLite();
+      final dynamic document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
@@ -129,7 +130,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -154,7 +155,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
@@ -179,7 +180,7 @@ void main() {
         expect(res.payload.payload, attachmentPayload);
       });
 
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
@@ -248,7 +249,7 @@ void main() {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, '9docid2');
-        final JsonObjectLite document2 = new JsonObjectLite();
+        final dynamic document2 = new JsonObjectLite();
         document2.title = "Document 2 Updated";
         document2.version = 2;
         document2.attribute = "Doc 2 attribute Updated";
@@ -275,7 +276,7 @@ void main() {
         expect(res.payload.title, "Document 4");
       });
 
-      final JsonObjectLite document4 = new JsonObjectLite();
+      final dynamic document4 = new JsonObjectLite();
       document4.title = "Document 4";
       document4.version = 4;
       document4.attribute = "Doc 4 attribute";
@@ -313,7 +314,7 @@ void main() {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        final JsonObjectLite successResponse = res.payload;
+        final dynamic successResponse = res.payload;
         expect(successResponse.total_rows, equals(3));
         expect(successResponse.rows[0].id, equals('9docid1'));
         docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
@@ -340,8 +341,6 @@ void main() {
         final List doc4Attachments =
         WiltUserUtils.getAttachments(successResponse.rows[2].doc);
         expect(doc4Attachments, isEmpty);
-        final String docid4rev = WiltUserUtils.getDocumentRev(
-            successResponse.rows[2].doc);
       });
 
       sporran9.getAllDocs(includeDocs: true)

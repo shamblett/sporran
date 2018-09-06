@@ -9,6 +9,7 @@ library sporran;
 
 import 'dart:async';
 import 'dart:html';
+import 'dart:convert';
 
 import 'package:wilt/wilt.dart';
 import 'package:wilt/wilt_browser_client.dart';

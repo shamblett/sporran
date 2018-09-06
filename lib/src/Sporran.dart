@@ -158,8 +158,8 @@ class Sporran {
   }
 
   /// Common completion response creator for all databases
-  JsonObjectLite _createCompletionResponse(JsonObjectLite result) {
-    final JsonObjectLite completion = new JsonObjectLite();
+  dynamic _createCompletionResponse(dynamic result) {
+    final dynamic completion = new JsonObjectLite();
 
     completion.operation = result.operation;
     completion.payload = result.payload;
@@ -204,7 +204,7 @@ class Sporran {
       ..then((_) {
         /* If we are offline just return */
         if (!online) {
-          final JsonObjectLite res = new JsonObjectLite();
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = putc;
           res.ok = true;
@@ -221,7 +221,7 @@ class Sporran {
         }
 
         /* Complete locally, then boomerang to the client */
-        void completer(JsonObjectLite res) {
+        void completer(dynamic res) {
           /* If success, mark the update as UPDATED in local storage */
           res.ok = false;
           res.localResponse = false;
@@ -267,8 +267,8 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(id)
-        ..then((JsonObjectLite document) {
-          final JsonObjectLite res = new JsonObjectLite();
+        ..then((dynamic document) {
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = getc;
           res.id = id;
@@ -289,7 +289,7 @@ class Sporran {
           }
         });
     } else {
-      void completer(JsonObjectLite res) {
+      void completer(dynamic res) {
         /* If Ok update local storage with the document */
         res.operation = getc;
         res.id = id;
@@ -346,7 +346,7 @@ class Sporran {
               /* Check for offline, if so add to the pending delete queue and return */
               if (!online) {
                 _database.addPendingDelete(id, document);
-                final JsonObjectLite res = new JsonObjectLite();
+                final dynamic res = new JsonObjectLite();
                 res.localResponse = true;
                 res.operation = deletec;
                 res.ok = true;
@@ -361,7 +361,7 @@ class Sporran {
                 return opCompleter.future;
               } else {
                 /* Online, delete from CouchDb */
-                void completer(JsonObjectLite res) {
+                void completer(dynamic res) {
                   res.operation = deletec;
                   res.localResponse = false;
                   res.payload = res.jsonCouchResponse;
@@ -391,7 +391,7 @@ class Sporran {
             });
         } else {
           /* Doesnt exist, return error */
-          final JsonObjectLite res = new JsonObjectLite();
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = deletec;
           res.id = id;
@@ -420,7 +420,7 @@ class Sporran {
   /// String rev - maybe '', see above
   /// String contentType - mime type in the form 'image/png'
   /// String payload - stringified binary blob
-  Future putAttachment(String id, JsonObjectLite attachment) {
+  Future putAttachment(String id, dynamic attachment) {
     final Completer opCompleter = new Completer();
 
     if (id == null) {
@@ -439,7 +439,7 @@ class Sporran {
       ..then((_) {
         /* If we are offline just return */
         if (!online) {
-          final JsonObjectLite res = new JsonObjectLite();
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = putAttachmentc;
           res.ok = true;
@@ -455,7 +455,7 @@ class Sporran {
         }
 
         /* Complete locally, then boomerang to the client */
-        void completer(JsonObjectLite res) {
+        void completer(dynamic res) {
           /* If success, mark the update as UPDATED in local storage */
           res.ok = false;
           res.localResponse = false;
@@ -465,8 +465,8 @@ class Sporran {
           res.payload = null;
 
           if (!res.error) {
-            final JsonObjectLite newAttachment = new JsonObjectLite.fromMap(
-                attachment);
+            final dynamic newAttachment =
+            new JsonObjectLite.fromJsonString(_mapToJson(attachment));
             newAttachment.contentType = attachment.contentType;
             newAttachment.payload = attachment.payload;
             newAttachment.attachmentName = attachment.attachmentName;
@@ -532,7 +532,7 @@ class Sporran {
               /* Check for offline, if so add to the pending delete queue and return */
               if (!online) {
                 _database.addPendingDelete(key, document);
-                final JsonObjectLite res = new JsonObjectLite();
+                final dynamic res = new JsonObjectLite();
                 res.localResponse = true;
                 res.operation = deleteAttachmentc;
                 res.ok = true;
@@ -547,7 +547,7 @@ class Sporran {
                 return opCompleter.future;
               } else {
                 /* Online, delete from CouchDb */
-                void completer(JsonObjectLite res) {
+                void completer(dynamic res) {
                   res.operation = deleteAttachmentc;
                   res.localResponse = false;
                   res.payload = res.jsonCouchResponse;
@@ -576,7 +576,7 @@ class Sporran {
             });
         } else {
           /* Doesnt exist, return error */
-          final JsonObjectLite res = new JsonObjectLite();
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = deleteAttachmentc;
           res.id = id;
@@ -611,8 +611,8 @@ class Sporran {
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(key)
-        ..then((JsonObjectLite document) {
-          final JsonObjectLite res = new JsonObjectLite();
+        ..then((dynamic document) {
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.id = id;
           res.rev = null;
@@ -633,7 +633,7 @@ class Sporran {
           return opCompleter.future;
         });
     } else {
-      void completer(JsonObjectLite res) {
+      void completer(dynamic res) {
         /* If Ok update local storage with the attachment */
         res.operation = getAttachmentc;
         res.id = id;
@@ -641,10 +641,10 @@ class Sporran {
         res.rev = null;
 
         if (!res.error) {
-          final JsonObjectLite successResponse = res.jsonCouchResponse;
+          final dynamic successResponse = res.jsonCouchResponse;
 
           res.ok = true;
-          final JsonObjectLite attachment = new JsonObjectLite();
+          final dynamic attachment = new JsonObjectLite();
           attachment.attachmentName = attachmentName;
           attachment.contentType = successResponse.contentType;
           attachment.payload = res.responseText;
@@ -699,7 +699,7 @@ class Sporran {
       ..then((_) {
         /* If we are offline just return */
         if (!online) {
-          final JsonObjectLite res = new JsonObjectLite();
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = bulkCreatec;
           res.ok = true;
@@ -715,7 +715,7 @@ class Sporran {
         }
 
         /* Complete locally, then boomerang to the client */
-        void completer(JsonObjectLite res) {
+        void completer(dynamic res) {
           /* If success, mark the update as UPDATED in local storage */
           res.ok = false;
           res.localResponse = false;
@@ -810,7 +810,7 @@ class Sporran {
 
             _database.getLocalStorageObjects(docList)
               ..then((documents) {
-                final JsonObjectLite res = new JsonObjectLite();
+                final dynamic res = new JsonObjectLite();
                 res.localResponse = true;
                 res.operation = getAllDocsc;
                 res.id = null;
@@ -835,7 +835,7 @@ class Sporran {
       } else {
         _database.getLocalStorageObjects(keys)
           ..then((documents) {
-            final JsonObjectLite res = new JsonObjectLite();
+            final dynamic res = new JsonObjectLite();
             res.localResponse = true;
             res.operation = getAllDocsc;
             res.id = null;
@@ -858,7 +858,7 @@ class Sporran {
           });
       }
     } else {
-      void completer(JsonObjectLite res) {
+      void completer(dynamic res) {
         /* If Ok update local storage with the document */
         res.operation = getAllDocsc;
         res.id = null;
@@ -906,7 +906,7 @@ class Sporran {
     if (!online) {
       _database.lawndart.keys().toList()
         ..then((List keys) {
-          final JsonObjectLite res = new JsonObjectLite();
+          final dynamic res = new JsonObjectLite();
           res.localResponse = true;
           res.operation = dbInfoc;
           res.id = null;
@@ -920,7 +920,7 @@ class Sporran {
           }
         });
     } else {
-      void completer(JsonObjectLite res) {
+      void completer(dynamic res) {
         /* If Ok update local storage with the database info */
         res.operation = dbInfoc;
         res.id = null;
@@ -976,5 +976,22 @@ class Sporran {
     }
 
     _database.login(user, password);
+  }
+
+  /// Serialize a map to a JSON string
+  static String _mapToJson(dynamic map) {
+    if (map is String) {
+      try {
+        final res = json.decode(map);
+        if (res != null) {
+          return map;
+        } else {
+          return null;
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+    return json.encode(map);
   }
 }

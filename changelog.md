@@ -1,3 +1,6 @@
+## 4.0.0
+Update to dart 2.0, issue 15
+
 ## 3.1.0
 Update to new Wilt + JsonObjectLite, remove analysis errors
 

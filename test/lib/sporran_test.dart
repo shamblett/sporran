@@ -33,6 +33,7 @@ void main() {
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
   Timer pause;
+  print(pause);
 
   /* Group 1 - Environment tests */
   group("1. Environment Tests - ", () {
@@ -344,8 +345,8 @@ void main() {
 
     final String docIdPutOnline = "putOnlineg3";
     final String docIdPutOffline = "putOfflineg3";
-    final JsonObjectLite onlineDoc = new JsonObjectLite();
-    final JsonObjectLite offlineDoc = new JsonObjectLite();
+    final dynamic onlineDoc = new JsonObjectLite();
+    final dynamic offlineDoc = new JsonObjectLite();
     String onlineDocRev;
 
     test("1. Create and Open Sporran", () {
@@ -358,6 +359,7 @@ void main() {
       final wrapper = expectAsync0(() {
         expect(sporran3.dbName, databaseName);
         final Timer timer = new Timer(new Duration(seconds: 3), wrapper1);
+        print(timer);
       });
 
       sporran3 = new Sporran(initialiser);
@@ -445,8 +447,7 @@ void main() {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOnline);
-        final JsonObjectLite payload = new JsonObjectLite.fromJsonString(
-            res.payload);
+        final dynamic payload = new JsonObjectLite.fromJsonString(res.payload);
         expect(payload.payload.name, "Online - Updated");
       });
 
@@ -464,8 +465,7 @@ void main() {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
-        final JsonObjectLite payload = new JsonObjectLite.fromJsonString(
-            res.payload);
+        final dynamic payload = new JsonObjectLite.fromJsonString(res.payload);
         expect(payload.payload.name, "Offline");
         expect(res.rev, isNull);
       });
@@ -596,8 +596,8 @@ void main() {
 
     final String docIdPutOnline = "putOnlineg4";
     final String docIdPutOffline = "putOfflineg4";
-    final JsonObjectLite onlineDoc = new JsonObjectLite();
-    final JsonObjectLite offlineDoc = new JsonObjectLite();
+    final dynamic onlineDoc = new JsonObjectLite();
+    final dynamic offlineDoc = new JsonObjectLite();
     String onlineDocRev;
 
     final String attachmentPayload =
@@ -672,7 +672,7 @@ void main() {
       });
 
       sporran4.online = true;
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "onlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
@@ -697,7 +697,7 @@ void main() {
       });
 
       sporran4.online = false;
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "offlineAttachment";
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
@@ -736,7 +736,7 @@ void main() {
         expect(res.id, docIdPutOffline);
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
-        final JsonObjectLite p2 =
+        final dynamic p2 =
         new JsonObjectLite.fromJsonString(res.payload.payload);
         expect(p2.payload.attachmentName, "offlineAttachment");
         expect(p2.payload.contentType, 'image/png');
@@ -880,23 +880,23 @@ void main() {
         docid2rev = res.rev[1].rev;
         expect(res.rev[2].rev, anything);
         docid3rev = res.rev[2].rev;
-        final JsonObjectLite doc3 = res.payload['docid3'];
+        final dynamic doc3 = res.payload['docid3'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
       });
 
-      final JsonObjectLite document1 = new JsonObjectLite();
+      final dynamic document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      final JsonObjectLite document2 = new JsonObjectLite();
+      final dynamic document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      final JsonObjectLite document3 = new JsonObjectLite();
+      final dynamic document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
@@ -921,23 +921,23 @@ void main() {
         expect(res.id, isNull);
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
-        final JsonObjectLite doc3 = res.payload['docid3offline'];
+        final dynamic doc3 = res.payload['docid3offline'];
         expect(doc3.title, "Document 3");
         expect(doc3.version, 3);
         expect(doc3.attribute, "Doc 3 attribute");
       });
 
-      final JsonObjectLite document1 = new JsonObjectLite();
+      final dynamic document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
 
-      final JsonObjectLite document2 = new JsonObjectLite();
+      final dynamic document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
 
-      final JsonObjectLite document3 = new JsonObjectLite();
+      final dynamic document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
@@ -963,7 +963,7 @@ void main() {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        final JsonObjectLite successResponse = res.payload;
+        final dynamic successResponse = res.payload;
         expect(successResponse.total_rows, equals(3));
         expect(successResponse.rows[0].id, equals('docid1'));
         expect(successResponse.rows[1].id, equals('docid2'));
@@ -1125,7 +1125,7 @@ void main() {
           expect(res.error, isFalse);
         } catch (e) {
           logMessage("WILT::Bulk Insert Supplied Keys");
-          final JsonObjectLite errorResponse = res.jsonCouchResponse;
+          final dynamic errorResponse = res.jsonCouchResponse;
           final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
           final String reasonText = errorResponse.reason;
@@ -1135,7 +1135,7 @@ void main() {
           return;
         }
 
-        final JsonObjectLite successResponse = res.jsonCouchResponse;
+        final dynamic successResponse = res.jsonCouchResponse;
         expect(successResponse[0].id, equals("MyBulkId1"));
         expect(successResponse[1].id, equals("MyBulkId2"));
         expect(successResponse[2].id, equals("MyBulkId3"));
@@ -1144,17 +1144,17 @@ void main() {
         docId3Rev = successResponse[2].rev;
       });
 
-      final JsonObjectLite document1 = new JsonObjectLite();
+      final dynamic document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
       final String doc1 = WiltUserUtils.addDocumentId(document1, "MyBulkId1");
-      final JsonObjectLite document2 = new JsonObjectLite();
+      final dynamic document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
       final String doc2 = WiltUserUtils.addDocumentId(document2, "MyBulkId2");
-      final JsonObjectLite document3 = new JsonObjectLite();
+      final dynamic document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
@@ -1241,7 +1241,7 @@ void main() {
           expect(res.error, isFalse);
         } catch (e) {
           logMessage("WILT::Delete Document MyBulkId1");
-          final JsonObjectLite errorResponse = res.jsonCouchResponse;
+          final dynamic errorResponse = res.jsonCouchResponse;
           final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
           final String reasonText = errorResponse.reason;
@@ -1251,7 +1251,7 @@ void main() {
           return;
         }
 
-        final JsonObjectLite successResponse = res.jsonCouchResponse;
+        final dynamic successResponse = res.jsonCouchResponse;
         expect(successResponse.id, "MyBulkId1");
       });
 
@@ -1268,7 +1268,7 @@ void main() {
           expect(res.error, isFalse);
         } catch (e) {
           logMessage("WILT::Delete Document MyBulkId2");
-          final JsonObjectLite errorResponse = res.jsonCouchResponse;
+          final dynamic errorResponse = res.jsonCouchResponse;
           final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
           final String reasonText = errorResponse.reason;
@@ -1278,7 +1278,7 @@ void main() {
           return;
         }
 
-        final JsonObjectLite successResponse = res.jsonCouchResponse;
+        final dynamic successResponse = res.jsonCouchResponse;
         expect(successResponse.id, "MyBulkId2");
       });
 
@@ -1295,7 +1295,7 @@ void main() {
           expect(res.error, isFalse);
         } catch (e) {
           logMessage("WILT::Delete Document MyBulkId3");
-          final JsonObjectLite errorResponse = res.jsonCouchResponse;
+          final dynamic errorResponse = res.jsonCouchResponse;
           final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
           final String reasonText = errorResponse.reason;
@@ -1305,7 +1305,7 @@ void main() {
           return;
         }
 
-        final JsonObjectLite successResponse = res.jsonCouchResponse;
+        final dynamic successResponse = res.jsonCouchResponse;
         expect(successResponse.id, "MyBulkId3");
       });
 
@@ -1420,7 +1420,7 @@ void main() {
           expect(res.error, isFalse);
         } catch (e) {
           logMessage("WILT::Bulk Insert Supplied Keys");
-          final JsonObjectLite errorResponse = res.jsonCouchResponse;
+          final dynamic errorResponse = res.jsonCouchResponse;
           final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
           final String reasonText = errorResponse.reason;
@@ -1430,26 +1430,24 @@ void main() {
           return;
         }
 
-        final JsonObjectLite successResponse = res.jsonCouchResponse;
+        final dynamic successResponse = res.jsonCouchResponse;
         expect(successResponse[0].id, equals("MyBulkId1"));
         expect(successResponse[1].id, equals("MyBulkId2"));
         expect(successResponse[2].id, equals("MyBulkId3"));
         docId1Rev = successResponse[0].rev;
-        final String docId2Rev = successResponse[1].rev;
-        final String docId3Rev = successResponse[2].rev;
       });
 
-      final JsonObjectLite document1 = new JsonObjectLite();
+      final dynamic document1 = new JsonObjectLite();
       document1.title = "Document 1";
       document1.version = 1;
       document1.attribute = "Doc 1 attribute";
       final String doc1 = WiltUserUtils.addDocumentId(document1, "MyBulkId1");
-      final JsonObjectLite document2 = new JsonObjectLite();
+      final dynamic document2 = new JsonObjectLite();
       document2.title = "Document 2";
       document2.version = 2;
       document2.attribute = "Doc 2 attribute";
       final String doc2 = WiltUserUtils.addDocumentId(document2, "MyBulkId2");
-      final JsonObjectLite document3 = new JsonObjectLite();
+      final dynamic document3 = new JsonObjectLite();
       document3.title = "Document 3";
       document3.version = 3;
       document3.attribute = "Doc 3 attribute";
@@ -1488,7 +1486,7 @@ void main() {
       });
 
       sporran7.online = true;
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName1";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
@@ -1514,7 +1512,7 @@ void main() {
       });
 
       sporran7.online = true;
-      final JsonObjectLite attachment = new JsonObjectLite();
+      final dynamic attachment = new JsonObjectLite();
       attachment.attachmentName = "AttachmentName2";
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
@@ -1540,7 +1538,7 @@ void main() {
           expect(res.error, isFalse);
         } catch (e) {
           logMessage("WILT::Delete Attachment Failed");
-          final JsonObjectLite errorResponse = res.jsonCouchResponse;
+          final dynamic errorResponse = res.jsonCouchResponse;
           final String errorText = errorResponse.error;
           logMessage("WILT::Error is $errorText");
           final String reasonText = errorResponse.reason;
@@ -1550,7 +1548,7 @@ void main() {
           return;
         }
 
-        final JsonObjectLite successResponse = res.jsonCouchResponse;
+        final dynamic successResponse = res.jsonCouchResponse;
         expect(successResponse.ok, isTrue);
         docId1Rev = successResponse.rev;
       });
