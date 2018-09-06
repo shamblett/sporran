@@ -787,7 +787,8 @@ class Sporran {
       String endKey: null,
       List<String> keys: null,
       bool descending: false}) {
-    final Completer opCompleter = new Completer();
+    final Completer<JsonObjectLite> opCompleter =
+    new Completer<JsonObjectLite>();
 
     /* Check for offline, if so try the get from local storage */
     if (!online) {
@@ -901,7 +902,8 @@ class Sporran {
   /// When offline the a list of the keys in the Lawndart database are returned,
   /// otherwise a response for CouchDb is returned.
   Future<JsonObjectLite> getDatabaseInfo() {
-    final Completer opCompleter = new Completer();
+    final Completer<JsonObjectLite> opCompleter =
+    new Completer<JsonObjectLite>();
 
     if (!online) {
       _database.lawndart.keys().toList()

@@ -380,7 +380,7 @@ class _SporranDatabase {
   /// Get an object from local storage
   Future<JsonObjectLite> getLocalStorageObject(String key) {
     final dynamic localObject = new JsonObjectLite();
-    final completer = new Completer();
+    final Completer<JsonObjectLite> completer = new Completer<JsonObjectLite>();
 
     lawndart.getByKey(key).then((String document) {
       if (document != null) {
@@ -394,9 +394,10 @@ class _SporranDatabase {
   }
 
   /// Get multiple objects from local storage
-  Future<Map<String, JsonObjectLite>> getLocalStorageObjects(
+  Future<Map> getLocalStorageObjects(
       List<String> keys) {
-    final completer = new Completer();
+    final Completer<Map> completer =
+    new Completer<Map>();
     final Map results = new Map<String, JsonObjectLite>();
     int keyPos = 0;
 
@@ -504,7 +505,7 @@ class _SporranDatabase {
 
   /// Update/create a CouchDb document
   Future<String> update(String key, JsonObjectLite document, String revision) {
-    final completer = new Completer();
+    final Completer<String> completer = new Completer<String>();
 
     /* Create our own Wilt instance */
     final Wilt wilting = new WiltBrowserClient(_host, _port, _scheme);
@@ -532,7 +533,7 @@ class _SporranDatabase {
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
       Map<String, JsonObjectLite> documentsToUpdate) {
-    final Completer completer = new Completer();
+    final Completer<Map> completer = new Completer<Map>();
     final Map revisions = new Map<String, String>();
 
     final int length = documentsToUpdate.length;
@@ -551,7 +552,7 @@ class _SporranDatabase {
 
   /// Bulk insert documents using bulk insert
   Future<JsonObjectLite> bulkInsert(Map<String, dynamic> docList) {
-    final completer = new Completer();
+    final Completer<JsonObjectLite> completer = new Completer<JsonObjectLite>();
 
     /* Create our own Wilt instance */
     final Wilt wilting = new WiltBrowserClient(_host, _port, _scheme);

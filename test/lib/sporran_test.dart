@@ -146,7 +146,7 @@ void main() {
       });
 
       sporran.put(null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -161,7 +161,7 @@ void main() {
       });
 
       sporran.get(null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -176,7 +176,7 @@ void main() {
       });
 
       sporran.delete(null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -191,7 +191,7 @@ void main() {
       });
 
       sporran.putAttachment(null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -206,7 +206,7 @@ void main() {
       });
 
       sporran.putAttachment('billy', null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -221,7 +221,7 @@ void main() {
       });
 
       sporran.deleteAttachment(null, null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -236,7 +236,7 @@ void main() {
       });
 
       sporran.deleteAttachment('billy', null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -251,7 +251,7 @@ void main() {
       });
       //sporran.online = false;
       sporran.deleteAttachment('billy', 'fred', null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -266,7 +266,7 @@ void main() {
       });
 
       sporran.getAttachment(null, null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -281,7 +281,7 @@ void main() {
       });
 
       sporran.getAttachment('billy', null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -296,7 +296,7 @@ void main() {
       });
 
       sporran.bulkCreate(null)
-        ..then((_) {}, onError: (SporranException e) {
+        ..then((_) {}, onError: (e) {
           completer(e);
         });
     });
@@ -996,7 +996,7 @@ void main() {
       });
 
       sporran5.online = false;
-      final List keys = [
+      final List<String> keys = [
         'docid1offline',
         'docid2offline',
         'docid3offline',
