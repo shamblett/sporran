@@ -533,8 +533,9 @@ class _SporranDatabase {
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
       Map<String, JsonObjectLite> documentsToUpdate) {
-    final Completer<Map> completer = new Completer<Map>();
-    final Map revisions = new Map<String, String>();
+    final Completer<Map<String, String>> completer = new Completer<
+        Map<String, String>>();
+    final Map<String, String> revisions = new Map<String, String>();
 
     final int length = documentsToUpdate.length;
     int count = 0;

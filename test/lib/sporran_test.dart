@@ -585,7 +585,7 @@ void main() {
 
     test("14. Group Pause", () {
       print("3.14");
-      final wrapper = expectAsync1((Timer pause) {});
+      final wrapper = expectAsync0(() {});
       pause = new Timer(new Duration(seconds: 3), wrapper);
     });
   }, skip: false);
