@@ -14,16 +14,14 @@
 
 part of lawndart;
 
-/**
- * Wraps the local storage API and exposes it as a [Store].
- * Local storage is a synchronous API, and generally not recommended
- * unless all other storage mechanisms are unavailable.
- */
+/// Wraps the local storage API and exposes it as a [Store].
+/// Local storage is a synchronous API, and generally not recommended
+/// unless all other storage mechanisms are unavailable.
 class LocalStorageStore extends _MapStore {
   LocalStorageStore._() : super._();
 
   static Future<LocalStorageStore> open() async {
-    var store = new LocalStorageStore._();
+    final store = new LocalStorageStore._();
     await store._open();
     return store;
   }

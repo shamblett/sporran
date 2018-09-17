@@ -394,10 +394,8 @@ class _SporranDatabase {
   }
 
   /// Get multiple objects from local storage
-  Future<Map> getLocalStorageObjects(
-      List<String> keys) {
-    final Completer<Map> completer =
-    new Completer<Map>();
+  Future<Map> getLocalStorageObjects(List<String> keys) {
+    final Completer<Map> completer = new Completer<Map>();
     final Map results = new Map<String, JsonObjectLite>();
     int keyPos = 0;
 
@@ -533,8 +531,8 @@ class _SporranDatabase {
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
       Map<String, JsonObjectLite> documentsToUpdate) {
-    final Completer<Map<String, String>> completer = new Completer<
-        Map<String, String>>();
+    final Completer<Map<String, String>> completer =
+    new Completer<Map<String, String>>();
     final Map<String, String> revisions = new Map<String, String>();
 
     final int length = documentsToUpdate.length;

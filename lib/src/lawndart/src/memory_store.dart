@@ -18,7 +18,7 @@ class MemoryStore extends _MapStore {
   MemoryStore._() : super._();
 
   static Future<MemoryStore> open() async {
-    var store = new MemoryStore._();
+    final store = new MemoryStore._();
     await store._open();
     return store;
   }

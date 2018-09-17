@@ -14,10 +14,8 @@
 
 part of lawndart;
 
-/**
- * Wraps the IndexedDB API and exposes it as a [Store].
- * IndexedDB is generally the preferred API if it is available.
- */
+/// Wraps the IndexedDB API and exposes it as a [Store].
+/// IndexedDB is generally the preferred API if it is available.
 class IndexedDbStore extends Store {
   static Map<String, idb.Database> _databases = new Map<String, idb.Database>();
 
@@ -27,7 +25,7 @@ class IndexedDbStore extends Store {
   IndexedDbStore._(this.dbName, this.storeName) : super._();
 
   static Future<IndexedDbStore> open(String dbName, String storeName) async {
-    var store = new IndexedDbStore._(dbName, storeName);
+    final store = new IndexedDbStore._(dbName, storeName);
     await store._open();
     return store;
   }
@@ -53,7 +51,7 @@ class IndexedDbStore extends Store {
       db = await window.indexedDB.open(dbName, version: db.version + 1,
           onUpgradeNeeded: (e) {
         //print('Upgrading db $dbName to ${db.version + 1}');
-        idb.Database d = e.target.result;
+            final idb.Database d = e.target.result;
         d.createObjectStore(storeName);
       });
     }
@@ -88,16 +86,16 @@ class IndexedDbStore extends Store {
 
   Future<T> _runInTxn<T>(Future<T> requestCommand(idb.ObjectStore store),
       [String txnMode = 'readwrite']) async {
-    var trans = _db.transaction(storeName, txnMode);
-    var store = trans.objectStore(storeName);
-    var result = await requestCommand(store);
+    final trans = _db.transaction(storeName, txnMode);
+    final store = trans.objectStore(storeName);
+    final result = await requestCommand(store);
     await trans.completed;
     return result;
   }
 
   Stream<String> _doGetAll(String onCursor(idb.CursorWithValue cursor)) async* {
-    var trans = _db.transaction(storeName, 'readonly');
-    var store = trans.objectStore(storeName);
+    final trans = _db.transaction(storeName, 'readonly');
+    final store = trans.objectStore(storeName);
     await for (var cursor in store.openCursor(autoAdvance: true)) {
       yield onCursor(cursor);
     }
@@ -120,7 +118,7 @@ class IndexedDbStore extends Store {
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
     for (var key in keys) {
-      var v = await getByKey(key);
+      final v = await getByKey(key);
       if (v != null) yield v;
     }
   }
@@ -136,7 +134,7 @@ class IndexedDbStore extends Store {
 
   @override
   Future<bool> exists(String key) async {
-    var value = await getByKey(key);
+    final value = await getByKey(key);
     return value != null;
   }
 
