@@ -1,5 +1,8 @@
+## 4.0.2
+Formatting for pana
+
 ## 4.0.1
-Update description fo pana
+Update description for pana
 
 ## 4.0.0
 Update to dart 2.0, issue 15
