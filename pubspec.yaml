@@ -1,7 +1,7 @@
 name: sporran
-version: 4.0.0
+version: 4.0.1
 author: S. Hamblett <steve.hamblett@linux.com>
-description: A PouchDB alike for Dart
+description: A PouchDB alike for Dart. Uses lawndart for local storage and Wilt for CouchDB access.
 homepage: https://github.com/shamblett/sporran
 
 environment:
