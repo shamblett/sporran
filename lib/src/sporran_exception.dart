@@ -7,7 +7,12 @@
 
 part of sporran;
 
+// ignore_for_file: public_member_api_docs
+
+/// Sporran exceptions
 class SporranException implements Exception {
+  SporranException([this._message = 'No Message Supplied']);
+
   /* Exception message strings */
   static const String headerEx = 'SporranException: ';
   static const String putNoDocIdEx = 'put() expects a document id';
@@ -33,8 +38,8 @@ class SporranException implements Exception {
   static const String noInitialiserEx =
       'You must supply an initialiser on construction';
 
-  String _message = 'No Message Supplied';
-  SporranException([this._message]);
+  final String _message;
 
-  String toString() => headerEx + "${_message}";
+  @override
+  String toString() => '$headerEx$_message';
 }

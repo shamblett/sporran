@@ -14,15 +14,17 @@
 
 part of lawndart;
 
+/// In memory store
 class MemoryStore extends _MapStore {
   MemoryStore._() : super._();
 
+  /// Open the store
   static Future<MemoryStore> open() async {
-    final store = new MemoryStore._();
+    final Store store = MemoryStore._();
     await store._open();
     return store;
   }
 
   @override
-  Map<String, String> _generateMap() => new Map<String, String>();
+  Map<String, String> _generateMap() => <String, String>{};
 }

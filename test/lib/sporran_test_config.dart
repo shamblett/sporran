@@ -1,17 +1,17 @@
 /* Global configuration, please edit */
 
 /* CouchDB server */
-final String hostName = "localhost";
-final String port = "5984";
-final String scheme = "http://";
+const String hostName = 'localhost';
+const String port = '5984';
+const String scheme = 'http://';
 
 /* Database to use for testing */
-final String databaseName = 'sporrantest';
+const String databaseName = 'sporrantest';
 
 /// Authentication, set as you wish, note leaving userName and password null
 /// implies no authentication, i.e admin party, if set Basic authentication is
 /// used.
 
 ///
-final String userName = 'steve';
-final String userPassword = 'setacrepes';
+const String userName = 'steve';
+const String userPassword = 'setacrepes';

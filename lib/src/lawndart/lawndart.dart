@@ -40,13 +40,13 @@
 
 library lawndart;
 
+import 'dart:async';
 import 'dart:html';
 import 'dart:indexed_db' as idb;
-import 'dart:async';
 
 part 'src/indexeddb_store.dart';
 
-part 'src/_map_store.dart';
+part 'src/map_store.dart';
 
 part 'src/memory_store.dart';
 
@@ -60,12 +60,12 @@ abstract class Store {
 
   /// Finds the best implementation. In order: IndexedDB, LocalStorage.
   static Future<Store> open(String dbName, String storeName,
-      [Map options]) async {
+      [Map<String, String> options]) async {
     Store store;
     if (IndexedDbStore.supported) {
-      store = new IndexedDbStore._(dbName, storeName);
+      store = IndexedDbStore._(dbName, storeName);
     } else {
-      store = new LocalStorageStore._();
+      store = LocalStorageStore._();
     }
 
     await store._open();
@@ -74,7 +74,7 @@ abstract class Store {
   }
 
   /// Opens and initializes the database.
-  Future _open();
+  Future<void> _open();
 
   /// Returns all the keys as a stream. No order is guaranteed.
   Stream<String> keys();
@@ -88,7 +88,7 @@ abstract class Store {
   /// transaction if the underlying store supports it.
   /// The returned Future completes when all objects have been added
   /// to the store.
-  Future batch(Map<String, String> objectsByKey);
+  Future<void> batch(Map<String, String> objectsByKey);
 
   /// Returns a Future that completes with the value for a key,
   /// or null if the key does not exist.
@@ -106,12 +106,12 @@ abstract class Store {
   Stream<String> all();
 
   /// Returns a Future that completes when the key's value is removed.
-  Future removeByKey(String key);
+  Future<void> removeByKey(String key);
 
   /// Returns a Future that completes when all the keys' values are removed.
-  Future removeByKeys(Iterable<String> keys);
+  Future<void> removeByKeys(Iterable<String> keys);
 
   /// Returns a Future that completes when all values and keys
   /// are removed.
-  Future nuke();
+  Future<void> nuke();
 }

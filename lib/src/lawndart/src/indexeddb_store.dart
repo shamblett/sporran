@@ -17,15 +17,20 @@ part of lawndart;
 /// Wraps the IndexedDB API and exposes it as a [Store].
 /// IndexedDB is generally the preferred API if it is available.
 class IndexedDbStore extends Store {
-  static Map<String, idb.Database> _databases = new Map<String, idb.Database>();
-
-  final String dbName;
-  final String storeName;
-
+  /// Construction
   IndexedDbStore._(this.dbName, this.storeName) : super._();
 
+  static final Map<String, idb.Database> _databases = <String, idb.Database>{};
+
+  /// Database name
+  final String dbName;
+
+  /// Store name
+  final String storeName;
+
+  /// Open
   static Future<IndexedDbStore> open(String dbName, String storeName) async {
-    final store = new IndexedDbStore._(dbName, storeName);
+    final IndexedDbStore store = IndexedDbStore._(dbName, storeName);
     await store._open();
     return store;
   }
@@ -33,23 +38,23 @@ class IndexedDbStore extends Store {
   /// Returns true if IndexedDB is supported on this platform.
   static bool get supported => idb.IdbFactory.supported;
 
-  Future _open() async {
+  @override
+  Future<void> _open() async {
     if (!supported) {
-      throw new UnsupportedError('IndexedDB is not supported on this platform');
+      throw UnsupportedError('IndexedDB is not supported on this platform');
     }
 
     if (_db != null) {
       _db.close();
     }
 
-    var db = await window.indexedDB.open(dbName);
+    idb.Database db = await window.indexedDB.open(dbName);
 
-    //print("Newly opened db $dbName has version ${db.version} and stores ${db.objectStoreNames}");
     if (!db.objectStoreNames.contains(storeName)) {
       db.close();
       //print('Attempting upgrading $storeName from ${db.version}');
       db = await window.indexedDB.open(dbName, version: db.version + 1,
-          onUpgradeNeeded: (e) {
+          onUpgradeNeeded: (dynamic e) {
         //print('Upgrading db $dbName to ${db.version + 1}');
             final idb.Database d = e.target.result;
         d.createObjectStore(storeName);
@@ -63,53 +68,49 @@ class IndexedDbStore extends Store {
   idb.Database get _db => _databases[dbName];
 
   @override
-  Future removeByKey(String key) {
-    return _runInTxn((store) => store.delete(key));
-  }
+  Future<void> removeByKey(String key) =>
+      _runInTxn((dynamic store) => store.delete(key));
 
   @override
-  Future<String> save(String obj, String key) {
-    return _runInTxn<String>(
-        (store) async => (await store.put(obj, key)) as String);
-  }
+  Future<String> save(String obj, String key) =>
+      _runInTxn<String>((dynamic store) async => await store.put(obj, key));
 
   @override
-  Future<String> getByKey(String key) {
-    return _runInTxn<String>(
-        (store) async => (await store.getObject(key) as String), 'readonly');
-  }
+  Future<String> getByKey(String key) =>
+      _runInTxn<String>(
+              (dynamic store) async => await store.getObject(key), 'readonly');
 
   @override
-  Future nuke() {
-    return _runInTxn((store) => store.clear());
-  }
+  Future<void> nuke() => _runInTxn((dynamic store) => store.clear());
 
-  Future<T> _runInTxn<T>(Future<T> requestCommand(idb.ObjectStore store),
+  Future<T> _runInTxn<T>(Future<T> Function(idb.ObjectStore) requestCommand,
       [String txnMode = 'readwrite']) async {
-    final trans = _db.transaction(storeName, txnMode);
-    final store = trans.objectStore(storeName);
-    final result = await requestCommand(store);
+    final idb.Transaction trans = _db.transaction(storeName, txnMode);
+    final idb.ObjectStore store = trans.objectStore(storeName);
+    final T result = await requestCommand(store);
     await trans.completed;
     return result;
   }
 
-  Stream<String> _doGetAll(String onCursor(idb.CursorWithValue cursor)) async* {
-    final trans = _db.transaction(storeName, 'readonly');
-    final store = trans.objectStore(storeName);
-    await for (var cursor in store.openCursor(autoAdvance: true)) {
+  Stream<String> _doGetAll(
+      String Function(idb.CursorWithValue) onCursor) async* {
+    final idb.Transaction trans = _db.transaction(storeName, 'readonly');
+    final idb.ObjectStore store = trans.objectStore(storeName);
+    await for (final dynamic cursor in store.openCursor(autoAdvance: true)) {
       yield onCursor(cursor);
     }
   }
 
   @override
-  Stream<String> all() {
-    return _doGetAll((idb.CursorWithValue cursor) => cursor.value);
-  }
+  Stream<String> all() =>
+      _doGetAll((idb.CursorWithValue cursor) => cursor.value);
 
   @override
-  Future batch(Map<String, String> objs) {
-    return _runInTxn((store) {
-      objs.forEach((k, v) {
+  // ignore: prefer_expression_function_bodies
+  Future<void> batch(Map<String, String> objectsByKey) {
+    // ignore: missing_return
+    return _runInTxn((dynamic store) {
+      objectsByKey.forEach((dynamic k, dynamic v) {
         store.put(v, k);
       });
     });
@@ -117,29 +118,30 @@ class IndexedDbStore extends Store {
 
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
-    for (var key in keys) {
-      final v = await getByKey(key);
-      if (v != null) yield v;
+    for (final String key in keys) {
+      final dynamic v = await getByKey(key);
+      if (v != null) {
+        yield v;
+      }
     }
   }
 
   @override
+  // ignore: prefer_expression_function_bodies
   Future<bool> removeByKeys(Iterable<String> keys) {
-    return _runInTxn((store) {
-      for (var key in keys) {
-        store.delete(key);
-      }
+    // ignore: missing_return
+    return _runInTxn((dynamic store) {
+      keys.forEach(store.delete);
     });
   }
 
   @override
   Future<bool> exists(String key) async {
-    final value = await getByKey(key);
+    final dynamic value = await getByKey(key);
     return value != null;
   }
 
   @override
-  Stream<String> keys() {
-    return _doGetAll((idb.CursorWithValue cursor) => cursor.key);
-  }
+  Stream<String> keys() =>
+      _doGetAll((idb.CursorWithValue cursor) => cursor.key);
 }

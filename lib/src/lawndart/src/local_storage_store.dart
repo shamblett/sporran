@@ -20,8 +20,9 @@ part of lawndart;
 class LocalStorageStore extends _MapStore {
   LocalStorageStore._() : super._();
 
+  /// Open the local storage
   static Future<LocalStorageStore> open() async {
-    final store = new LocalStorageStore._();
+    final Store store = LocalStorageStore._();
     await store._open();
     return store;
   }

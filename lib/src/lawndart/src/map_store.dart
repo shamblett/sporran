@@ -15,9 +15,8 @@
 part of lawndart;
 
 abstract class _MapStore extends Store {
-  Map<String, String> storage;
-
   _MapStore._() : super._();
+  Map<String, String> storage;
 
   @override
   Future<bool> _open() async {
@@ -29,7 +28,7 @@ abstract class _MapStore extends Store {
 
   @override
   Stream<String> keys() async* {
-    for (var k in storage.keys) {
+    for (final String k in storage.keys) {
       yield k;
     }
   }
@@ -41,51 +40,49 @@ abstract class _MapStore extends Store {
   }
 
   @override
-  Future batch(Map<String, String> objs) async {
-    for (var key in objs.keys) {
-      storage[key] = objs[key];
+  Future<void> batch(Map<String, String> objectsByKey) async {
+    for (final String key in objectsByKey.keys) {
+      storage[key] = objectsByKey[key];
     }
     return true;
   }
 
   @override
-  Future<String> getByKey(String key) async {
-    return storage[key];
-  }
+  Future<String> getByKey(String key) async => storage[key];
 
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
-    final values = keys.map((key) => storage[key]).where((v) => v != null);
-    for (var v in values) {
+    final dynamic values =
+    keys.map((String key) => storage[key]).where((dynamic v) => v != null);
+    for (final dynamic v in values) {
       yield v;
     }
   }
 
   @override
-  Future<bool> exists(String key) async {
-    return storage.containsKey(key);
-  }
+  Future<bool> exists(String key) async => storage.containsKey(key);
 
   @override
   Stream<String> all() async* {
-    for (var v in storage.values) {
+    for (final dynamic v in storage.values) {
       yield v;
     }
   }
 
   @override
-  Future removeByKey(String key) async {
+  Future<bool> removeByKey(String key) async {
     storage.remove(key);
     return true;
   }
 
   @override
-  Future removeByKeys(Iterable<String> keys) async {
-    keys.forEach((key) => storage.remove(key));
+  Future<bool> removeByKeys(Iterable<String> keys) async {
+    keys.forEach(storage.remove);
     return true;
   }
 
-  Future nuke() async {
+  @override
+  Future<bool> nuke() async {
     storage.clear();
     return true;
   }
