@@ -14,6 +14,13 @@
 
 part of lawndart;
 
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+// ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_types_on_closure_parameters
+
 abstract class _MapStore extends Store {
   _MapStore._() : super._();
   Map<String, String> storage;
@@ -53,7 +60,7 @@ abstract class _MapStore extends Store {
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
     final dynamic values =
-    keys.map((String key) => storage[key]).where((dynamic v) => v != null);
+        keys.map((String key) => storage[key]).where((dynamic v) => v != null);
     for (final dynamic v in values) {
       yield v;
     }

@@ -20,6 +20,7 @@ class MemoryStore extends _MapStore {
 
   /// Open the store
   static Future<MemoryStore> open() async {
+    // ignore: unnecessary_final
     final Store store = MemoryStore._();
     await store._open();
     return store;

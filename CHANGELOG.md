@@ -1,3 +1,6 @@
+## 4.0.4
+Linter updates
+
 ## 4.0.3
 Pub analysis fixes for Dart 2.6.1, general tidy up
 

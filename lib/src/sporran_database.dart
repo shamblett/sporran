@@ -11,6 +11,12 @@
 part of sporran;
 
 // ignore_for_file: avoid_positional_boolean_parameters
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+// ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_types_on_closure_parameters
 
 /// The main Sporran Database class.
 ///
@@ -24,10 +30,10 @@ class _SporranDatabase {
   /// For LawnDart only the database name, the store name is fixed by Sporran
   _SporranDatabase(this._dbName, this._host,
       [this._manualNotificationControl = false,
-        this._port = '5984',
-        this._scheme = 'http://',
-        this._user,
-        this._password,
+      this._port = '5984',
+      this._scheme = 'http://',
+      this._user,
+      this._password,
       this._preserveLocalDatabase = false]) {
     _initialise();
   }
@@ -77,7 +83,7 @@ class _SporranDatabase {
   bool get manualNotificationControl => _manualNotificationControl;
 
   /// Local database preservation
-  bool _preserveLocalDatabase = false;
+  final bool _preserveLocalDatabase;
 
   /// The Wilt database
   WiltBrowserClient _wilt;
@@ -102,7 +108,7 @@ class _SporranDatabase {
 
   /// Pending delete queue
   final Map<String, JsonObjectLite<dynamic>> _pendingDeletes =
-  <String, JsonObjectLite<dynamic>>{};
+      <String, JsonObjectLite<dynamic>>{};
 
   Map<String, JsonObjectLite<dynamic>> get pendingDeletes => _pendingDeletes;
 
@@ -114,7 +120,7 @@ class _SporranDatabase {
   /// Start change notifications
   void startChangeNotifications() {
     final WiltChangeNotificationParameters parameters =
-    WiltChangeNotificationParameters();
+        WiltChangeNotificationParameters();
     parameters.includeDocs = true;
     _wilt.startChangeNotification(parameters);
 
@@ -123,7 +129,7 @@ class _SporranDatabase {
   }
 
   /// Change notification processor
-  void _processChange(WiltChangeNotificationEvent e) async {
+  Future<void> _processChange(WiltChangeNotificationEvent e) async {
     /* Ignore error events */
     if (!(e.type == WiltChangeNotificationEvent.updatee ||
         e.type == WiltChangeNotificationEvent.deletee)) {
@@ -139,7 +145,7 @@ class _SporranDatabase {
 
       /* Get a list of attachments from the document */
       final List<JsonObjectLite<dynamic>> attachments =
-      WiltUserUtils.getAttachments(e.document);
+          WiltUserUtils.getAttachments(e.document);
       final List<String> attachmentsToDelete = <String>[];
 
       /* For all the keys... */
@@ -180,7 +186,7 @@ class _SporranDatabase {
       removePendingDelete(e.docId);
 
       /* Do the delete */
-      _lawndart.removeByKey(e.docId).then((_) {
+      await _lawndart.removeByKey(e.docId).then((_) {
         /* Remove all document attachments */
         _lawndart.keys().listen((String key) {
           final List<String> keyList = key.split('-');
@@ -275,7 +281,7 @@ class _SporranDatabase {
   /// Add a key to the pending delete queue
   void addPendingDelete(String key, String document) {
     final JsonObjectLite<dynamic> deletedDocument =
-    JsonObjectLite<dynamic>.fromJsonString(document);
+        JsonObjectLite<dynamic>.fromJsonString(document);
     _pendingDeletes[key] = deletedDocument;
   }
 
@@ -295,7 +301,7 @@ class _SporranDatabase {
   void updateDocumentAttachments(String id, JsonObjectLite<dynamic> document) {
     /* Get a list of attachments from the document */
     final List<JsonObjectLite<dynamic>> attachments =
-    WiltUserUtils.getAttachments(document);
+        WiltUserUtils.getAttachments(document);
 
     /* Exit if none */
     if (attachments.isEmpty) {
@@ -334,8 +340,8 @@ class _SporranDatabase {
   }
 
   /// Create local storage updated entry
-  JsonObjectLite<dynamic> _createUpdated(String key, String revision,
-      JsonObjectLite<dynamic> payload) {
+  JsonObjectLite<dynamic> _createUpdated(
+      String key, String revision, JsonObjectLite<dynamic> payload) {
     /* Add our type marker and set to 'not updated' */
     final dynamic update = JsonObjectLite<dynamic>();
     update.status = updatedc;
@@ -346,8 +352,8 @@ class _SporranDatabase {
   }
 
   /// Create local storage not updated entry
-  JsonObjectLite<dynamic> _createNotUpdated(String key, String revision,
-      JsonObjectLite<dynamic> payload) {
+  JsonObjectLite<dynamic> _createNotUpdated(
+      String key, String revision, JsonObjectLite<dynamic> payload) {
     /* Add our type marker and set to 'not updated' */
     final dynamic update = JsonObjectLite<dynamic>();
     update.status = notUpdatedc;
@@ -391,7 +397,7 @@ class _SporranDatabase {
   Future<JsonObjectLite<dynamic>> getLocalStorageObject(String key) {
     final dynamic localObject = JsonObjectLite<dynamic>();
     final Completer<JsonObjectLite<dynamic>> completer =
-    Completer<JsonObjectLite<dynamic>>();
+        Completer<JsonObjectLite<dynamic>>();
 
     lawndart.getByKey(key).then((String document) {
       if (document != null) {
@@ -408,14 +414,14 @@ class _SporranDatabase {
   Future<Map<String, JsonObjectLite<dynamic>>> getLocalStorageObjects(
       List<String> keys) {
     final Completer<Map<String, JsonObjectLite<dynamic>>> completer =
-    Completer<Map<String, JsonObjectLite<dynamic>>>();
+        Completer<Map<String, JsonObjectLite<dynamic>>>();
     final Map<String, JsonObjectLite<dynamic>> results =
-    <String, JsonObjectLite<dynamic>>{};
+        <String, JsonObjectLite<dynamic>>{};
     int keyPos = 0;
 
     lawndart.getByKeys(keys).listen((String value) {
       final JsonObjectLite<dynamic> document =
-      JsonObjectLite<dynamic>.fromJsonString(value);
+          JsonObjectLite<dynamic>.fromJsonString(value);
       results[keys[keyPos]] = document;
       keyPos++;
     }, onDone: () {
@@ -480,7 +486,7 @@ class _SporranDatabase {
       if (!res.error) {
         final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
         final List<JsonObjectLite<dynamic>> attachments =
-        WiltUserUtils.getAttachments(successResponse);
+            WiltUserUtils.getAttachments(successResponse);
         bool found = false;
         for (final dynamic attachment in attachments) {
           if (attachment.name == name) {
@@ -516,8 +522,8 @@ class _SporranDatabase {
   }
 
   /// Update/create a CouchDb document
-  Future<String> update(String key, JsonObjectLite<dynamic> document,
-      String revision) {
+  Future<String> update(
+      String key, JsonObjectLite<dynamic> document, String revision) {
     final Completer<String> completer = Completer<String>();
 
     /* Create our own Wilt instance */
@@ -544,7 +550,7 @@ class _SporranDatabase {
   Future<Map<String, String>> _manualBulkInsert(
       Map<String, JsonObjectLite<dynamic>> documentsToUpdate) {
     final Completer<Map<String, String>> completer =
-    Completer<Map<String, String>>();
+        Completer<Map<String, String>>();
     final Map<String, String> revisions = <String, String>{};
 
     final int length = documentsToUpdate.length;
@@ -565,7 +571,7 @@ class _SporranDatabase {
   /// Bulk insert documents using bulk insert
   Future<JsonObjectLite<dynamic>> bulkInsert(Map<String, dynamic> docList) {
     final Completer<JsonObjectLite<dynamic>> completer =
-    Completer<JsonObjectLite<dynamic>>();
+        Completer<JsonObjectLite<dynamic>>();
 
     /* Create our own Wilt instance */
     final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
@@ -581,7 +587,7 @@ class _SporranDatabase {
       String docString = WiltUserUtils.addDocumentId(document.payload, key);
       if (document.rev != null) {
         final JsonObjectLite<dynamic> temp =
-        JsonObjectLite<dynamic>.fromJsonString(docString);
+            JsonObjectLite<dynamic>.fromJsonString(docString);
         docString = WiltUserUtils.addDocumentRev(temp, document.rev);
       }
 
@@ -593,7 +599,7 @@ class _SporranDatabase {
     /* Do the bulk create*/
     wilting.db = _dbName;
     wilting.bulkString(docs)
-    // ignore: unnecessary_lambdas
+        // ignore: unnecessary_lambdas
         .then((dynamic res) {
       completer.complete(res);
     });
@@ -610,7 +616,7 @@ class _SporranDatabase {
       if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
         if (id == keyList[0]) {
           final JsonObjectLite<dynamic> attachment =
-          JsonObjectLite<dynamic>.fromJsonString(document);
+              JsonObjectLite<dynamic>.fromJsonString(document);
           updateLocalStorageObject(id, attachment, revision, updatedc);
         }
       }
@@ -645,16 +651,16 @@ class _SporranDatabase {
     pendingDeletes.clear();
 
     final Map<String, JsonObjectLite<dynamic>> documentsToUpdate =
-    <String, JsonObjectLite<dynamic>>{};
+        <String, JsonObjectLite<dynamic>>{};
     final Map<String, JsonObjectLite<dynamic>> attachmentsToUpdate =
-    <String, JsonObjectLite<dynamic>>{};
+        <String, JsonObjectLite<dynamic>>{};
 
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
     lawndart.all().listen((String document) {
       final JsonObjectLite<dynamic> doc =
-      JsonObjectLite<dynamic>.fromJsonString(document);
+          JsonObjectLite<dynamic>.fromJsonString(document);
       final String key = doc['key'];
       if (doc['status'] == notUpdatedc) {
         final JsonObjectLite<dynamic> update = doc;
@@ -688,7 +694,7 @@ class _SporranDatabase {
   void createDocumentAttachments(String key, JsonObjectLite<dynamic> document) {
     /* Get the attachments and create them locally */
     final List<JsonObjectLite<dynamic>> attachments =
-    WiltUserUtils.getAttachments(document);
+        WiltUserUtils.getAttachments(document);
 
     for (final dynamic attachment in attachments) {
       final dynamic attachmentToCreate = JsonObjectLite<dynamic>();

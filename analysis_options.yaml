@@ -15,6 +15,7 @@ linter:
     - always_require_non_null_named_parameters
     - always_specify_types
     - annotate_overrides
+    - avoid_annotating_with_dynamic
     - avoid_as
     - avoid_bool_literals_in_conditional_expressions
     - avoid_catches_without_on_clauses
@@ -30,6 +31,7 @@ linter:
     - avoid_js_rounded_ints
     - avoid_null_checks_in_equality_operators
     - avoid_positional_boolean_parameters
+    - avoid_print
     - avoid_private_typedef_functions
     - avoid_relative_lib_imports
     - avoid_renaming_method_parameters
@@ -38,10 +40,13 @@ linter:
     - avoid_returning_null_for_future
     - avoid_returning_null_for_void
     - avoid_returning_this
+    - avoid_setters_without_getters
     - avoid_shadowing_type_parameters
     - avoid_single_cascade_in_expression_statements
     - avoid_slow_async_io
     - avoid_types_as_parameter_names
+    - avoid_types_on_closure_parameters
+    - avoid_unnecessary_containers
     - avoid_unused_constructor_parameters
     - avoid_void_async
     - avoid_web_libraries_in_flutter
@@ -49,6 +54,7 @@ linter:
     - camel_case_extensions
     - camel_case_types
     - cancel_subscriptions
+    - cascade_invocations
     - close_sinks
     - comment_references
     - constant_identifier_names
@@ -75,6 +81,7 @@ linter:
     - no_duplicate_case_values
     - non_constant_identifier_names
     - null_closures
+    - omit_local_variable_types
     - one_member_abstracts
     - only_throw_errors
     - overridden_fields
@@ -93,6 +100,7 @@ linter:
     - prefer_const_literals_to_create_immutables
     - prefer_constructors_over_static_methods
     - prefer_contains
+    #- prefer_double_quotes
     - prefer_equal_for_default_values
     - prefer_expression_function_bodies
     - prefer_final_fields
@@ -110,6 +118,7 @@ linter:
     - prefer_interpolation_to_compose_strings
     - prefer_is_empty
     - prefer_is_not_empty
+    - prefer_is_not_operator
     - prefer_iterable_whereType
     - prefer_mixin
     - prefer_null_aware_operators
@@ -134,6 +143,7 @@ linter:
     - unnecessary_await_in_return
     - unnecessary_brace_in_string_interps
     - unnecessary_const
+    - unnecessary_final
     - unnecessary_getters_setters
     - unnecessary_lambdas
     - unnecessary_new

@@ -14,6 +14,13 @@
 
 part of lawndart;
 
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+// ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_types_on_closure_parameters
+
 /// Wraps the IndexedDB API and exposes it as a [Store].
 /// IndexedDB is generally the preferred API if it is available.
 class IndexedDbStore extends Store {
@@ -55,8 +62,7 @@ class IndexedDbStore extends Store {
       //print('Attempting upgrading $storeName from ${db.version}');
       db = await window.indexedDB.open(dbName, version: db.version + 1,
           onUpgradeNeeded: (dynamic e) {
-        //print('Upgrading db $dbName to ${db.version + 1}');
-            final idb.Database d = e.target.result;
+        final idb.Database d = e.target.result;
         d.createObjectStore(storeName);
       });
     }
@@ -76,9 +82,8 @@ class IndexedDbStore extends Store {
       _runInTxn<String>((dynamic store) async => await store.put(obj, key));
 
   @override
-  Future<String> getByKey(String key) =>
-      _runInTxn<String>(
-              (dynamic store) async => await store.getObject(key), 'readonly');
+  Future<String> getByKey(String key) => _runInTxn<String>(
+      (dynamic store) async => await store.getObject(key), 'readonly');
 
   @override
   Future<void> nuke() => _runInTxn((dynamic store) => store.clear());

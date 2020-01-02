@@ -16,6 +16,13 @@ import 'package:wilt/wilt_browser_client.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+// ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_types_on_closure_parameters
+
 void logMessage(String message) {
   window.console.log(message);
   print(message);
@@ -409,7 +416,7 @@ void main() {
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOnline);
         final dynamic payload =
-        JsonObjectLite<dynamic>.fromJsonString(res.payload);
+            JsonObjectLite<dynamic>.fromJsonString(res.payload);
         expect(payload.payload.name, 'Online - Updated');
       });
 
@@ -425,7 +432,7 @@ void main() {
         expect(res.localResponse, isTrue);
         expect(res.id, docIdPutOffline);
         final dynamic payload =
-        JsonObjectLite<dynamic>.fromJsonString(res.payload);
+            JsonObjectLite<dynamic>.fromJsonString(res.payload);
         expect(payload.payload.name, 'Offline');
         expect(res.rev, isNull);
       });
@@ -658,7 +665,7 @@ void main() {
         expect(res.localResponse, isTrue);
         expect(res.rev, isNull);
         final dynamic p2 =
-        JsonObjectLite<dynamic>.fromJsonString(res.payload.payload);
+            JsonObjectLite<dynamic>.fromJsonString(res.payload.payload);
         expect(p2.payload.attachmentName, 'offlineAttachment');
         expect(p2.payload.contentType, 'image/png');
         expect(p2.payload.payload, attachmentPayload);
@@ -679,7 +686,7 @@ void main() {
         expect(res.localResponse, isFalse);
         expect(res.rev, onlineDocRev);
         final List<JsonObjectLite<dynamic>> attachments =
-        WiltUserUtils.getAttachments(res.payload);
+            WiltUserUtils.getAttachments(res.payload);
         expect(attachments.length, 1);
       });
 
@@ -811,7 +818,7 @@ void main() {
       document3.attribute = 'Doc 3 attribute';
 
       final Map<String, JsonObjectLite<dynamic>> docs =
-      <String, JsonObjectLite<dynamic>>{};
+          <String, JsonObjectLite<dynamic>>{};
       docs['docid1'] = document1;
       docs['docid2'] = document2;
       docs['docid3'] = document3;
@@ -850,7 +857,7 @@ void main() {
       document3.attribute = 'Doc 3 attribute';
 
       final Map<String, JsonObjectLite<dynamic>> docs =
-      <String, JsonObjectLite<dynamic>>{};
+          <String, JsonObjectLite<dynamic>>{};
       docs['docid1offline'] = document1;
       docs['docid2offline'] = document2;
       docs['docid3offline'] = document3;

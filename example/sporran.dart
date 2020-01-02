@@ -11,6 +11,11 @@ import 'package:json_object_lite/json_object_lite.dart';
 // ignore: avoid_relative_lib_imports
 import '../test/lib/sporran_test_config.dart';
 
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+
 /// An example of sporran initialisation and usage, see the test
 /// scenarios for more detailed use cases.
 // ignore: avoid_void_async

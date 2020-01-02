@@ -22,6 +22,7 @@ class LocalStorageStore extends _MapStore {
 
   /// Open the local storage
   static Future<LocalStorageStore> open() async {
+    // ignore: unnecessary_final
     final Store store = LocalStorageStore._();
     await store._open();
     return store;

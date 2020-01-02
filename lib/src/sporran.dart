@@ -10,6 +10,12 @@
 
 part of sporran;
 
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+// ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_types_on_closure_parameters
 // ignore_for_file: public_member_api_docs
 
 ///  This is the main Sporran API class.
@@ -92,6 +98,7 @@ class Sporran {
   dynamic _clientCompleter;
 
   /// Completion function
+  // ignore: avoid_setters_without_getters
   set clientCompleter(JsonObjectLite<dynamic> completer) =>
       _clientCompleter = completer;
 

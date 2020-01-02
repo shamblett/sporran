@@ -38,6 +38,7 @@ class SporranException implements Exception {
   static const String noInitialiserEx =
       'You must supply an initialiser on construction';
 
+  // ignore: unnecessary_final
   final String _message;
 
   @override

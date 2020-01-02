@@ -11,6 +11,13 @@ import 'package:json_object_lite/json_object_lite.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: unnecessary_final
+// ignore_for_file: cascade_invocations
+// ignore_for_file: avoid_print
+// ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_types_on_closure_parameters
+
 void main() {
   /* Common initialiser */
   final SporranInitialiser initialiser = SporranInitialiser();
@@ -86,7 +93,7 @@ void main() {
       document3.attribute = 'Doc 3 attribute';
 
       final Map<String, JsonObjectLite<dynamic>> docs =
-      <String, JsonObjectLite<dynamic>>{};
+          <String, JsonObjectLite<dynamic>>{};
       docs['8docid1'] = document1;
       docs['8docid2'] = document2;
       docs['8docid3'] = document3;
