@@ -14,13 +14,6 @@
 
 part of lawndart;
 
-// ignore_for_file: omit_local_variable_types
-// ignore_for_file: unnecessary_final
-// ignore_for_file: cascade_invocations
-// ignore_for_file: avoid_print
-// ignore_for_file: avoid_annotating_with_dynamic
-// ignore_for_file: avoid_types_on_closure_parameters
-
 abstract class _MapStore extends Store {
   _MapStore._() : super._();
   Map<String, String> storage;
@@ -35,7 +28,7 @@ abstract class _MapStore extends Store {
 
   @override
   Stream<String> keys() async* {
-    for (final String k in storage.keys) {
+    for (final k in storage.keys) {
       yield k;
     }
   }
@@ -48,7 +41,7 @@ abstract class _MapStore extends Store {
 
   @override
   Future<void> batch(Map<String, String> objectsByKey) async {
-    for (final String key in objectsByKey.keys) {
+    for (final key in objectsByKey.keys) {
       storage[key] = objectsByKey[key];
     }
     return true;

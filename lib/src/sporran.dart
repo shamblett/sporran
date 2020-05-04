@@ -10,14 +10,6 @@
 
 part of sporran;
 
-// ignore_for_file: omit_local_variable_types
-// ignore_for_file: unnecessary_final
-// ignore_for_file: cascade_invocations
-// ignore_for_file: avoid_print
-// ignore_for_file: avoid_annotating_with_dynamic
-// ignore_for_file: avoid_types_on_closure_parameters
-// ignore_for_file: public_member_api_docs
-
 ///  This is the main Sporran API class.
 ///
 ///  Please read the usage and interface documentation supplied for
@@ -98,7 +90,6 @@ class Sporran {
   dynamic _clientCompleter;
 
   /// Completion function
-  // ignore: avoid_setters_without_getters
   set clientCompleter(JsonObjectLite<dynamic> completer) =>
       _clientCompleter = completer;
 
@@ -205,7 +196,7 @@ class Sporran {
   /// For an update operation a specific revision must be specified.
   Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
       [String rev]) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
+    final opCompleter = Completer<dynamic>();
 
     if (id == null) {
       return _raiseException(SporranException.putNoDocIdEx);
@@ -270,7 +261,7 @@ class Sporran {
 
   /// Get a document
   Future<dynamic> get(String id, [String rev]) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
+    final opCompleter = Completer<dynamic>();
 
     if (id == null) {
       return _raiseException(SporranException.getNoDocIdEx);
@@ -339,7 +330,7 @@ class Sporran {
   ///
   /// Revision must be supplied if we are online
   Future<dynamic> delete(String id, [String rev]) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
+    final opCompleter = Completer<dynamic>();
 
     if (id == null) {
       return _raiseException(SporranException.deleteNoDocIdEx);
@@ -428,7 +419,7 @@ class Sporran {
   /// String contentType - mime type in the form 'image/png'
   /// String payload - stringified binary blob
   Future<dynamic> putAttachment(String id, dynamic attachment) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
+    final opCompleter = Completer<dynamic>();
 
     if (id == null) {
       return _raiseException(SporranException.putAttNoDocIdEx);
@@ -439,7 +430,7 @@ class Sporran {
     }
 
     /* Update LawnDart */
-    final String key = '$id-${attachment.attachmentName}-'
+    final key = '$id-${attachment.attachmentName}-'
         '${_SporranDatabase.attachmentMarkerc}';
     _database
         .updateLocalStorageObject(
@@ -515,9 +506,8 @@ class Sporran {
   /// Revision can be null if offline
   Future<dynamic> deleteAttachment(
       String id, String attachmentName, String rev) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
-    final String key =
-        '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
+    final opCompleter = Completer<dynamic>();
+    final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
     if (id == null) {
       return _raiseException(SporranException.deleteAttNoDocIdEx);
@@ -604,9 +594,8 @@ class Sporran {
 
   /// Get an attachment
   Future<dynamic> getAttachment(String id, String attachmentName) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
-    final String key =
-        '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
+    final opCompleter = Completer<dynamic>();
+    final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
     if (id == null) {
       return _raiseException(SporranException.getAttNoDocIdEx);
@@ -683,14 +672,14 @@ class Sporran {
   ///
   /// docList is a map of documents with their keys
   Future<dynamic> bulkCreate(Map<String, JsonObjectLite<dynamic>> docList) {
-    final Completer<dynamic> opCompleter = Completer<dynamic>();
+    final opCompleter = Completer<dynamic>();
 
     if (docList == null) {
       return _raiseException(SporranException.bulkCreateNoDocListEx);
     }
 
     /* Futures list for LawnDart update */
-    final List<Future<dynamic>> updateList = <Future<dynamic>>[];
+    final updateList = <Future<dynamic>>[];
 
     /* Update LawnDart */
     docList.forEach((dynamic key, dynamic document) {
@@ -731,9 +720,8 @@ class Sporran {
         if (!res.error) {
           /* Get the revisions for the updates */
           final JsonObjectLite<dynamic> couchResp = res.jsonCouchResponse;
-          final List<JsonObjectLite<dynamic>> revisions =
-              <JsonObjectLite<dynamic>>[];
-          final Map<String, String> revisionsMap = <String, String>{};
+          final revisions = <JsonObjectLite<dynamic>>[];
+          final revisionsMap = <String, String>{};
 
           for (final dynamic resp in couchResp.toList()) {
             try {
@@ -762,13 +750,13 @@ class Sporran {
       }
 
       /* Prepare the documents */
-      final List<String> documentList = <String>[];
+      final documentList = <String>[];
       docList.forEach((dynamic key, dynamic document) {
-        final String docString = WiltUserUtils.addDocumentId(document, key);
+        final docString = WiltUserUtils.addDocumentId(document, key);
         documentList.add(docString);
       });
 
-      final String docs = WiltUserUtils.createBulkInsertString(documentList);
+      final docs = WiltUserUtils.createBulkInsertString(documentList);
 
       /* Do the bulk create*/
       _database.wilt.bulkString(docs).then(completer);
@@ -790,8 +778,7 @@ class Sporran {
       String endKey,
       List<String> keys,
       bool descending = false}) {
-    final Completer<JsonObjectLite<dynamic>> opCompleter =
-        Completer<JsonObjectLite<dynamic>>();
+    final opCompleter = Completer<JsonObjectLite<dynamic>>();
 
     /* Check for offline, if so try the get from local storage */
     if (!online) {
@@ -799,7 +786,7 @@ class Sporran {
         /* Get all the keys from Lawndart */
         _database.lawndart.keys().toList().then((dynamic keyList) {
           /* Only return documents */
-          final List<String> docList = <String>[];
+          final docList = <String>[];
           keyList.forEach((dynamic key) {
             final List<String> temp = key.split('-');
             if ((temp.length == 3) &&
@@ -901,8 +888,7 @@ class Sporran {
   /// When offline the a list of the keys in the Lawndart database are returned,
   /// otherwise a response for CouchDb is returned.
   Future<JsonObjectLite<dynamic>> getDatabaseInfo() {
-    final Completer<JsonObjectLite<dynamic>> opCompleter =
-        Completer<JsonObjectLite<dynamic>>();
+    final opCompleter = Completer<JsonObjectLite<dynamic>>();
 
     if (!online) {
       _database.lawndart.keys().toList().then((List<dynamic> keys) {

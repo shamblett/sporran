@@ -14,16 +14,9 @@ import 'package:json_object_lite/json_object_lite.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
-// ignore_for_file: omit_local_variable_types
-// ignore_for_file: unnecessary_final
-// ignore_for_file: cascade_invocations
-// ignore_for_file: avoid_print
-// ignore_for_file: avoid_annotating_with_dynamic
-// ignore_for_file: avoid_types_on_closure_parameters
-
 void main() {
   /* Common initialiser */
-  final SporranInitialiser initialiser = SporranInitialiser();
+  final initialiser = SporranInitialiser();
   initialiser.dbName = databaseName;
   initialiser.hostname = hostName;
   initialiser.manualNotificationControl = false;
@@ -51,7 +44,7 @@ void main() {
     String docid1rev;
     String docid2rev;
     String docid3rev;
-    const String attachmentPayload =
+    const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test('1. Create and Open Sporran', () {
@@ -96,8 +89,7 @@ void main() {
       document3.version = 3;
       document3.attribute = 'Doc 3 attribute';
 
-      final Map<String, JsonObjectLite<dynamic>> docs =
-          <String, JsonObjectLite<dynamic>>{};
+      final docs = <String, JsonObjectLite<dynamic>>{};
       docs['8docid1'] = document1;
       docs['8docid2'] = document2;
       docs['8docid3'] = document3;
@@ -216,13 +208,13 @@ void main() {
         expect(successResponse.rows[0].doc.title, 'Document 1');
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute, 'Doc 1 attribute');
-        final List<JsonObjectLite<dynamic>> doc1Attachments =
+        final doc1Attachments =
             WiltUserUtils.getAttachments(successResponse.rows[0].doc);
         expect(doc1Attachments.length, 2);
         expect(successResponse.rows[1].doc.title, 'Document 2');
         expect(successResponse.rows[1].doc.version, 2);
         expect(successResponse.rows[1].doc.attribute, 'Doc 2 attribute');
-        final List<JsonObjectLite<dynamic>> doc2Attachments =
+        final doc2Attachments =
             WiltUserUtils.getAttachments(successResponse.rows[1].doc);
         expect(doc2Attachments.length, 1);
       });

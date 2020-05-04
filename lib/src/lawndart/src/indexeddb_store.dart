@@ -14,13 +14,6 @@
 
 part of lawndart;
 
-// ignore_for_file: omit_local_variable_types
-// ignore_for_file: unnecessary_final
-// ignore_for_file: cascade_invocations
-// ignore_for_file: avoid_print
-// ignore_for_file: avoid_annotating_with_dynamic
-// ignore_for_file: avoid_types_on_closure_parameters
-
 /// Wraps the IndexedDB API and exposes it as a [Store].
 /// IndexedDB is generally the preferred API if it is available.
 class IndexedDbStore extends Store {
@@ -37,7 +30,7 @@ class IndexedDbStore extends Store {
 
   /// Open
   static Future<IndexedDbStore> open(String dbName, String storeName) async {
-    final IndexedDbStore store = IndexedDbStore._(dbName, storeName);
+    final store = IndexedDbStore._(dbName, storeName);
     await store._open();
     return store;
   }
@@ -55,7 +48,7 @@ class IndexedDbStore extends Store {
       _db.close();
     }
 
-    idb.Database db = await window.indexedDB.open(dbName);
+    var db = await window.indexedDB.open(dbName);
 
     if (!db.objectStoreNames.contains(storeName)) {
       db.close();
@@ -90,17 +83,17 @@ class IndexedDbStore extends Store {
 
   Future<T> _runInTxn<T>(Future<T> Function(idb.ObjectStore) requestCommand,
       [String txnMode = 'readwrite']) async {
-    final idb.Transaction trans = _db.transaction(storeName, txnMode);
-    final idb.ObjectStore store = trans.objectStore(storeName);
-    final T result = await requestCommand(store);
+    final trans = _db.transaction(storeName, txnMode);
+    final store = trans.objectStore(storeName);
+    final result = await requestCommand(store);
     await trans.completed;
     return result;
   }
 
   Stream<String> _doGetAll(
       String Function(idb.CursorWithValue) onCursor) async* {
-    final idb.Transaction trans = _db.transaction(storeName, 'readonly');
-    final idb.ObjectStore store = trans.objectStore(storeName);
+    final trans = _db.transaction(storeName, 'readonly');
+    final store = trans.objectStore(storeName);
     await for (final dynamic cursor in store.openCursor(autoAdvance: true)) {
       yield onCursor(cursor);
     }
@@ -111,7 +104,6 @@ class IndexedDbStore extends Store {
       _doGetAll((idb.CursorWithValue cursor) => cursor.value);
 
   @override
-  // ignore: prefer_expression_function_bodies
   Future<void> batch(Map<String, String> objectsByKey) {
     // ignore: missing_return
     return _runInTxn((dynamic store) {
@@ -123,7 +115,7 @@ class IndexedDbStore extends Store {
 
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
-    for (final String key in keys) {
+    for (final key in keys) {
       final dynamic v = await getByKey(key);
       if (v != null) {
         yield v;
@@ -132,7 +124,6 @@ class IndexedDbStore extends Store {
   }
 
   @override
-  // ignore: prefer_expression_function_bodies
   Future<bool> removeByKeys(Iterable<String> keys) {
     // ignore: missing_return
     return _runInTxn((dynamic store) {

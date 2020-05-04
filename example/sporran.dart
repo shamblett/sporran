@@ -11,17 +11,11 @@ import 'package:json_object_lite/json_object_lite.dart';
 // ignore: avoid_relative_lib_imports
 import '../test/lib/sporran_test_config.dart';
 
-// ignore_for_file: omit_local_variable_types
-// ignore_for_file: unnecessary_final
-// ignore_for_file: cascade_invocations
-// ignore_for_file: avoid_print
-
 /// An example of sporran initialisation and usage, see the test
 /// scenarios for more detailed use cases.
-// ignore: avoid_void_async
 void main() async {
   // Initialise Sporran
-  final SporranInitialiser initialiser = SporranInitialiser();
+  final initialiser = SporranInitialiser();
   initialiser.dbName = databaseName;
   initialiser.hostname = hostName;
   initialiser.manualNotificationControl = true;
@@ -32,13 +26,13 @@ void main() async {
   initialiser.preserveLocal = false;
 
   // Create the client
-  final Sporran sporran = Sporran(initialiser);
+  final sporran = Sporran(initialiser);
   sporran.autoSync = false;
   await sporran.onReady.first;
 
   // Put a document
   final dynamic onlineDoc = JsonObjectLite<dynamic>();
-  const String docIdPutOnline = 'putOnlineg3';
+  const docIdPutOnline = 'putOnlineg3';
   onlineDoc.name = 'Online';
   await sporran.put(docIdPutOnline, onlineDoc);
 

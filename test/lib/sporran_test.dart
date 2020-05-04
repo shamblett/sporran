@@ -16,13 +16,6 @@ import 'package:wilt/wilt_browser_client.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
-// ignore_for_file: omit_local_variable_types
-// ignore_for_file: unnecessary_final
-// ignore_for_file: cascade_invocations
-// ignore_for_file: avoid_print
-// ignore_for_file: avoid_annotating_with_dynamic
-// ignore_for_file: avoid_types_on_closure_parameters
-
 void logMessage(String message) {
   window.console.log(message);
   print(message);
@@ -30,7 +23,7 @@ void logMessage(String message) {
 
 void main() {
   /* Common initialiser */
-  final SporranInitialiser initialiser = SporranInitialiser();
+  final initialiser = SporranInitialiser();
   initialiser.dbName = databaseName;
   initialiser.hostname = hostName;
   initialiser.manualNotificationControl = true;
@@ -45,7 +38,7 @@ void main() {
   /* Group 1 - Environment tests */
   group('1. Environment Tests - ', () {
     print('1.1');
-    String status = 'online';
+    var status = 'online';
 
     test('Online/Offline', () {
       window.onOffline.first.then((dynamic e) {
@@ -91,10 +84,10 @@ void main() {
       Sporran sporran21;
 
       final dynamic wrapper = expectAsync0(() {
-        final Event offline = Event.eventType('Event', 'offline');
+        final offline = Event.eventType('Event', 'offline');
         window.dispatchEvent(offline);
         expect(sporran21.online, isFalse);
-        final Event online = Event.eventType('Event', 'online');
+        final online = Event.eventType('Event', 'online');
         window.dispatchEvent(online);
         expect(sporran21.online, isTrue);
         sporran21 = null;
@@ -115,7 +108,7 @@ void main() {
 
     test('2. Construction Existing Database ', () {
       print('2.2');
-      Sporran sporran22 = Sporran(initialiser);
+      var sporran22 = Sporran(initialiser);
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran22, isNotNull);
@@ -130,7 +123,7 @@ void main() {
     test('3. Construction Invalid Authentication ', () {
       print('2.3');
       initialiser.password = 'none';
-      Sporran sporran23 = Sporran(initialiser);
+      var sporran23 = Sporran(initialiser);
       initialiser.password = userPassword;
 
       final dynamic wrapper = expectAsync0(() {
@@ -309,7 +302,7 @@ void main() {
       print('2.17');
 
       try {
-        final Sporran bad = Sporran(null);
+        final bad = Sporran(null);
         bad.toString();
       } on SporranException catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
@@ -323,8 +316,8 @@ void main() {
   group('3. Document Put/Get/Delete Tests - ', () {
     Sporran sporran3;
 
-    const String docIdPutOnline = 'putOnlineg3';
-    const String docIdPutOffline = 'putOfflineg3';
+    const docIdPutOnline = 'putOnlineg3';
+    const docIdPutOffline = 'putOfflineg3';
     final dynamic onlineDoc = JsonObjectLite<dynamic>();
     final dynamic offlineDoc = JsonObjectLite<dynamic>();
     String onlineDocRev;
@@ -338,7 +331,7 @@ void main() {
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran3.dbName, databaseName);
-        final Timer timer = Timer(const Duration(seconds: 3), wrapper1);
+        final timer = Timer(const Duration(seconds: 3), wrapper1);
         print(timer);
       });
 
@@ -540,13 +533,13 @@ void main() {
   group('4. Attachment Put/Get/Delete Tests - ', () {
     Sporran sporran4;
 
-    const String docIdPutOnline = 'putOnlineg4';
-    const String docIdPutOffline = 'putOfflineg4';
+    const docIdPutOnline = 'putOnlineg4';
+    const docIdPutOffline = 'putOfflineg4';
     final dynamic onlineDoc = JsonObjectLite<dynamic>();
     final dynamic offlineDoc = JsonObjectLite<dynamic>();
     String onlineDocRev;
 
-    const String attachmentPayload =
+    const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test('1. Create and Open Sporran', () {
@@ -685,8 +678,7 @@ void main() {
         expect(res.id, docIdPutOnline);
         expect(res.localResponse, isFalse);
         expect(res.rev, onlineDocRev);
-        final List<JsonObjectLite<dynamic>> attachments =
-            WiltUserUtils.getAttachments(res.payload);
+        final attachments = WiltUserUtils.getAttachments(res.payload);
         expect(attachments.length, 1);
       });
 
@@ -817,8 +809,7 @@ void main() {
       document3.version = 3;
       document3.attribute = 'Doc 3 attribute';
 
-      final Map<String, JsonObjectLite<dynamic>> docs =
-          <String, JsonObjectLite<dynamic>>{};
+      final docs = <String, JsonObjectLite<dynamic>>{};
       docs['docid1'] = document1;
       docs['docid2'] = document2;
       docs['docid3'] = document3;
@@ -856,8 +847,7 @@ void main() {
       document3.version = 3;
       document3.attribute = 'Doc 3 attribute';
 
-      final Map<String, JsonObjectLite<dynamic>> docs =
-          <String, JsonObjectLite<dynamic>>{};
+      final docs = <String, JsonObjectLite<dynamic>>{};
       docs['docid1offline'] = document1;
       docs['docid2offline'] = document2;
       docs['docid3offline'] = document3;
@@ -902,7 +892,7 @@ void main() {
       });
 
       sporran5.online = false;
-      final List<String> keys = <String>[
+      final keys = <String>[
         'docid1offline',
         'docid2offline',
         'docid3offline',
@@ -1036,22 +1026,22 @@ void main() {
       document1.title = 'Document 1';
       document1.version = 1;
       document1.attribute = 'Doc 1 attribute';
-      final String doc1 = WiltUserUtils.addDocumentId(document1, 'MyBulkId1');
+      final doc1 = WiltUserUtils.addDocumentId(document1, 'MyBulkId1');
       final dynamic document2 = JsonObjectLite<dynamic>();
       document2.title = 'Document 2';
       document2.version = 2;
       document2.attribute = 'Doc 2 attribute';
-      final String doc2 = WiltUserUtils.addDocumentId(document2, 'MyBulkId2');
+      final doc2 = WiltUserUtils.addDocumentId(document2, 'MyBulkId2');
       final dynamic document3 = JsonObjectLite<dynamic>();
       document3.title = 'Document 3';
       document3.version = 3;
       document3.attribute = 'Doc 3 attribute';
-      final String doc3 = WiltUserUtils.addDocumentId(document3, 'MyBulkId3');
-      final List<String> docList = <String>[];
+      final doc3 = WiltUserUtils.addDocumentId(document3, 'MyBulkId3');
+      final docList = <String>[];
       docList.add(doc1);
       docList.add(doc2);
       docList.add(doc3);
-      final String docs = WiltUserUtils.createBulkInsertString(docList);
+      final docs = WiltUserUtils.createBulkInsertString(docList);
       wilting.bulkString(docs).then(completer);
     });
 
@@ -1251,7 +1241,7 @@ void main() {
 
     wilting.db = databaseName;
     String docId1Rev;
-    const String attachmentPayload =
+    const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test('1. Create and Open Sporran', () {
@@ -1296,22 +1286,22 @@ void main() {
       document1.title = 'Document 1';
       document1.version = 1;
       document1.attribute = 'Doc 1 attribute';
-      final String doc1 = WiltUserUtils.addDocumentId(document1, 'MyBulkId1');
+      final doc1 = WiltUserUtils.addDocumentId(document1, 'MyBulkId1');
       final dynamic document2 = JsonObjectLite<dynamic>();
       document2.title = 'Document 2';
       document2.version = 2;
       document2.attribute = 'Doc 2 attribute';
-      final String doc2 = WiltUserUtils.addDocumentId(document2, 'MyBulkId2');
+      final doc2 = WiltUserUtils.addDocumentId(document2, 'MyBulkId2');
       final dynamic document3 = JsonObjectLite<dynamic>();
       document3.title = 'Document 3';
       document3.version = 3;
       document3.attribute = 'Doc 3 attribute';
-      final String doc3 = WiltUserUtils.addDocumentId(document3, 'MyBulkId3');
-      final List<String> docList = <String>[];
+      final doc3 = WiltUserUtils.addDocumentId(document3, 'MyBulkId3');
+      final docList = <String>[];
       docList.add(doc1);
       docList.add(doc2);
       docList.add(doc3);
-      final String docs = WiltUserUtils.createBulkInsertString(docList);
+      final docs = WiltUserUtils.createBulkInsertString(docList);
       wilting.bulkString(docs).then(completer);
     });
 

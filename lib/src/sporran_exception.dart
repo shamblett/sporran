@@ -7,8 +7,6 @@
 
 part of sporran;
 
-// ignore_for_file: public_member_api_docs
-
 /// Sporran exceptions
 class SporranException implements Exception {
   SporranException([this._message = 'No Message Supplied']);
@@ -38,7 +36,6 @@ class SporranException implements Exception {
   static const String noInitialiserEx =
       'You must supply an initialiser on construction';
 
-  // ignore: unnecessary_final
   final String _message;
 
   @override
