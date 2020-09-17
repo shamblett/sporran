@@ -16,10 +16,9 @@ online the local database is synced up with CouchDB, all transparent to the user
 The CouchDB change notification interface is also used to keep Sporran in sync with any 3rd party
 changes to your CouchDB database.
 
-Please read the documents under the doc folder for usage information, the API is also under
-this folder and is available [here](http://oscf.org.uk/dart/api/sporran)
+Please read the documents under the doc folder for usage information.
 
 ## Contact
 
-Queries you can direct to me at <steve.hamblett@linux.com> or raise an issue here.
+Queries you can direct to me at <steve.hamblett@linux.com> or raise an issue.
 
