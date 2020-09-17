@@ -12,7 +12,6 @@ import 'dart:convert';
 import 'dart:html';
 
 import 'package:wilt/wilt.dart';
-import 'package:wilt/wilt_browser_client.dart';
 import 'package:json_object_lite/json_object_lite.dart';
 import 'src/lawndart/lawndart.dart';
 

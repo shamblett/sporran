@@ -1,3 +1,6 @@
+## 4.0.6
+Issue 21 
+
 ## 4.0.5
 Linter + pana updates
 

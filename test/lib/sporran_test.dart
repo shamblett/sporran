@@ -12,7 +12,6 @@ import 'dart:html';
 import 'package:sporran/sporran.dart';
 import 'package:json_object_lite/json_object_lite.dart';
 import 'package:wilt/wilt.dart';
-import 'package:wilt/wilt_browser_client.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
@@ -970,7 +969,7 @@ void main() {
      */
 
     /* Create our Wilt */
-    final Wilt wilting = WiltBrowserClient(hostName, port, scheme);
+    final wilting = Wilt(hostName, port: port);
 
     /* Login if we are using authentication */
     if (userName != null) {
@@ -1232,7 +1231,7 @@ void main() {
      */
 
     /* Create our Wilt */
-    final Wilt wilting = WiltBrowserClient(hostName, port, scheme);
+    final wilting = Wilt(hostName, port: port);
 
     /* Login if we are using authentication */
     if (userName != null) {

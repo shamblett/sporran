@@ -22,7 +22,7 @@ class _SporranDatabase {
   /// For LawnDart only the database name, the store name is fixed by Sporran
   _SporranDatabase(this._dbName, this._host,
       [this._manualNotificationControl = false,
-      this._port = '5984',
+      this._port = 5984,
       this._scheme = 'http://',
       this._user,
       this._password,
@@ -43,7 +43,7 @@ class _SporranDatabase {
       await _lawndart.nuke();
     }
     // Instantiate a Wilt object
-    _wilt = WiltBrowserClient(_host, _port, _scheme);
+    _wilt = Wilt(_host, port: _port);
     // Login
     if (_user != null) {
       _wilt.login(_user, _password);
@@ -57,8 +57,8 @@ class _SporranDatabase {
   String get host => _host;
 
   /// Port number
-  final String _port;
-  String get port => _port;
+  final int _port;
+  int get port => _port;
 
   /// HTTP scheme
   final String _scheme;
@@ -78,8 +78,8 @@ class _SporranDatabase {
   final bool _preserveLocalDatabase;
 
   /// The Wilt database
-  WiltBrowserClient _wilt;
-  WiltBrowserClient get wilt => _wilt;
+  Wilt _wilt;
+  Wilt get wilt => _wilt;
 
   /// The Lawndart database
   Store _lawndart;
@@ -297,7 +297,7 @@ class _SporranDatabase {
     }
 
     /* Create our own Wilt instance */
-    final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
     if (_user != null) {
@@ -421,7 +421,7 @@ class _SporranDatabase {
   /// Couch wins.
   void delete(String key, String revision) {
     /* Create our own Wilt instance */
-    final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
     if (_user != null) {
@@ -438,7 +438,7 @@ class _SporranDatabase {
   /// Couch wins.
   void deleteAttachment(String key, String name, String revision) {
     /* Create our own Wilt instance */
-    final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
     if (_user != null) {
@@ -453,7 +453,7 @@ class _SporranDatabase {
   FutureOr<void> updateAttachment(String key, String name, String revision,
       String contentType, String payload) async {
     /* Create our own Wilt instance */
-    final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
     if (_user != null) {
@@ -509,7 +509,7 @@ class _SporranDatabase {
     final completer = Completer<String>();
 
     /* Create our own Wilt instance */
-    final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
     if (_user != null) {
@@ -554,7 +554,7 @@ class _SporranDatabase {
     final completer = Completer<JsonObjectLite<dynamic>>();
 
     /* Create our own Wilt instance */
-    final Wilt wilting = WiltBrowserClient(_host, _port, _scheme);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
     if (_user != null) {

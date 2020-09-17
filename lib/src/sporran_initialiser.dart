@@ -16,7 +16,7 @@ class SporranInitialiser {
   String hostname;
 
   /// Port
-  String port;
+  int port;
 
   /// Scheme
   String scheme = 'http://';
