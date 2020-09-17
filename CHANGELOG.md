@@ -1,5 +1,5 @@
 ## 4.0.6
-Issue 21 
+Issue 21, the port parameter is now an int not a String.
 
 ## 4.0.5
 Linter + pana updates
