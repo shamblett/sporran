@@ -4,7 +4,7 @@ description: A PouchDB alike for Dart. Uses lawndart for local storage and Wilt 
 homepage: https://github.com/shamblett/sporran
 
 environment:
-  sdk: '>=2.0.0-dev <3.0.0'
+  sdk: '>=2.0.0 <3.0.0'
 
 dependencies:
   wilt: '^5.0.0'

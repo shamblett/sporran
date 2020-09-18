@@ -1,4 +1,4 @@
-## 4.0.6
+## 5.0.0
 Issue 21, the port parameter is now an int not a String.
 
 ## 4.0.5
