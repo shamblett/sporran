@@ -33,10 +33,10 @@ void main() {
    */
 
   group('9. Scenario Tests 2 - ', () {
-    Sporran sporran9;
-    String docid1rev;
-    String docid2rev;
-    String docid3rev;
+    late Sporran sporran9;
+    String? docid1rev;
+    String? docid2rev;
+    String? docid3rev;
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
@@ -50,7 +50,7 @@ void main() {
     initialiser.username = userName;
     initialiser.password = userPassword;
     initialiser.preserveLocal = false;
-    Timer pause;
+    Timer? pause;
     print(pause);
 
     test('1. Create and Open Sporran', () {
@@ -61,7 +61,7 @@ void main() {
       });
 
       sporran9 = Sporran(initialiser);
-      sporran9.onReady.first.then((dynamic e) => wrapper());
+      sporran9.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Bulk Insert Documents Online', () {

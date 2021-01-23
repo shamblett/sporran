@@ -31,7 +31,7 @@ void main() {
   initialiser.username = userName;
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
-  Timer pause;
+  Timer? pause;
   print(pause);
 
   /* Group 1 - Environment tests */
@@ -62,7 +62,7 @@ void main() {
 
   /* Group 2 - Sporran constructor/ invalid parameter tests */
   group('2. Constructor/Invalid Parameter Tests - ', () {
-    Sporran sporran;
+    Sporran? sporran;
 
     test('0. Sporran Initialisation', () {
       print('2.0');
@@ -70,34 +70,34 @@ void main() {
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran, isNotNull);
-        expect(sporran.dbName, databaseName);
-        expect(sporran.online, true);
+        expect(sporran!.dbName, databaseName);
+        expect(sporran!.online, true);
       });
 
-      sporran.autoSync = false;
-      sporran.onReady.first.then((dynamic e) => wrapper());
+      sporran!.autoSync = false;
+      sporran!.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('1. Construction Online/Offline listener ', () {
       print('2.1');
-      Sporran sporran21;
+      Sporran? sporran21;
 
       final dynamic wrapper = expectAsync0(() {
         final offline = Event.eventType('Event', 'offline');
         window.dispatchEvent(offline);
-        expect(sporran21.online, isFalse);
+        expect(sporran21!.online, isFalse);
         final online = Event.eventType('Event', 'online');
         window.dispatchEvent(online);
-        expect(sporran21.online, isTrue);
+        expect(sporran21!.online, isTrue);
         sporran21 = null;
       });
 
-      Timer pause;
+      Timer? pause;
 
       final dynamic wrapper1 = expectAsync1((Timer pause) {
         sporran21 = Sporran(initialiser);
-        sporran21.autoSync = false;
-        sporran21.onReady.first.then((dynamic e) => wrapper());
+        sporran21!.autoSync = false;
+        sporran21!.onReady!.first.then((dynamic e) => wrapper());
       });
 
       pause = Timer(const Duration(seconds: 2), () {
@@ -107,32 +107,32 @@ void main() {
 
     test('2. Construction Existing Database ', () {
       print('2.2');
-      var sporran22 = Sporran(initialiser);
+      Sporran? sporran22 = Sporran(initialiser);
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran22, isNotNull);
-        expect(sporran22.dbName, databaseName);
+        expect(sporran22!.dbName, databaseName);
         sporran22 = null;
       });
 
-      sporran22.autoSync = false;
-      sporran22.onReady.first.then((dynamic e) => wrapper());
+      sporran22!.autoSync = false;
+      sporran22!.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('3. Construction Invalid Authentication ', () {
       print('2.3');
       initialiser.password = 'none';
-      var sporran23 = Sporran(initialiser);
+      Sporran? sporran23 = Sporran(initialiser);
       initialiser.password = userPassword;
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran23, isNotNull);
-        expect(sporran23.dbName, databaseName);
+        expect(sporran23!.dbName, databaseName);
         sporran23 = null;
       });
 
-      sporran23.autoSync = false;
-      sporran23.onReady.first.then((dynamic e) => wrapper());
+      sporran23!.autoSync = false;
+      sporran23!.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('4. Put No Doc Id ', () {
@@ -144,7 +144,7 @@ void main() {
             SporranException.headerEx + SporranException.putNoDocIdEx);
       });
 
-      sporran.put(null, null).then((_) {}, onError: completer);
+      sporran!.put(null, null).then((_) {}, onError: completer);
     });
 
     test('5. Get No Doc Id ', () {
@@ -156,7 +156,7 @@ void main() {
             SporranException.headerEx + SporranException.getNoDocIdEx);
       });
 
-      sporran.get(null, null).then((_) {}, onError: completer);
+      sporran!.get(null, null).then((_) {}, onError: completer);
     });
 
     test('6. Delete No Doc Id ', () {
@@ -168,7 +168,7 @@ void main() {
             SporranException.headerEx + SporranException.deleteNoDocIdEx);
       });
 
-      sporran.delete(null, null).then((_) {}, onError: completer);
+      sporran!.delete(null, null).then((_) {}, onError: completer);
     });
 
     test('7. Put Attachment No Doc Id ', () {
@@ -180,7 +180,7 @@ void main() {
             SporranException.headerEx + SporranException.putAttNoDocIdEx);
       });
 
-      sporran.putAttachment(null, null).then((_) {}, onError: completer);
+      sporran!.putAttachment(null, null).then((_) {}, onError: completer);
     });
 
     test('8. Put Attachment No Attachment ', () {
@@ -192,7 +192,7 @@ void main() {
             SporranException.headerEx + SporranException.putAttNoAttEx);
       });
 
-      sporran.putAttachment('billy', null).then((_) {}, onError: completer);
+      sporran!.putAttachment('billy', null).then((_) {}, onError: completer);
     });
 
     test('9. Delete Attachment No Doc Id ', () {
@@ -204,7 +204,7 @@ void main() {
             SporranException.headerEx + SporranException.deleteAttNoDocIdEx);
       });
 
-      sporran
+      sporran!
           .deleteAttachment(null, null, null)
           .then((_) {}, onError: completer);
     });
@@ -218,7 +218,7 @@ void main() {
             SporranException.headerEx + SporranException.deleteAttNoAttNameEx);
       });
 
-      sporran
+      sporran!
           .deleteAttachment('billy', null, null)
           .then((_) {}, onError: completer);
     });
@@ -232,7 +232,7 @@ void main() {
             SporranException.headerEx + SporranException.deleteAttNoRevEx);
       });
       //sporran.online = false;
-      sporran
+      sporran!
           .deleteAttachment('billy', 'fred', null)
           .then((_) {}, onError: completer);
     });
@@ -246,7 +246,7 @@ void main() {
             SporranException.headerEx + SporranException.getAttNoDocIdEx);
       });
 
-      sporran.getAttachment(null, null).then((_) {}, onError: completer);
+      sporran!.getAttachment(null, null).then((_) {}, onError: completer);
     });
 
     test('13. Get Attachment No Attachment Name ', () {
@@ -258,7 +258,7 @@ void main() {
             SporranException.headerEx + SporranException.getAttNoAttNameEx);
       });
 
-      sporran.getAttachment('billy', null).then((_) {}, onError: completer);
+      sporran!.getAttachment('billy', null).then((_) {}, onError: completer);
     });
 
     test('14. Bulk Create No Document List ', () {
@@ -270,14 +270,14 @@ void main() {
             SporranException.headerEx + SporranException.bulkCreateNoDocListEx);
       });
 
-      sporran.bulkCreate(null).then((_) {}, onError: completer);
+      sporran!.bulkCreate(null).then((_) {}, onError: completer);
     });
 
     test('15. Login invalid user ', () {
       print('2.15');
 
       try {
-        sporran.login(null, 'password');
+        sporran!.login(null, 'password');
       } on SporranException catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(),
@@ -289,7 +289,7 @@ void main() {
       print('2.16');
 
       try {
-        sporran.login('billy', null);
+        sporran!.login('billy', null);
       } on SporranException catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(),
@@ -313,13 +313,13 @@ void main() {
 
   /* Group 3 - Sporran document put/get tests */
   group('3. Document Put/Get/Delete Tests - ', () {
-    Sporran sporran3;
+    late Sporran sporran3;
 
     const docIdPutOnline = 'putOnlineg3';
     const docIdPutOffline = 'putOfflineg3';
     final dynamic onlineDoc = JsonObjectLite<dynamic>();
     final dynamic offlineDoc = JsonObjectLite<dynamic>();
-    String onlineDocRev;
+    String? onlineDocRev;
 
     test('1. Create and Open Sporran', () {
       print('3.1');
@@ -336,7 +336,7 @@ void main() {
 
       sporran3 = Sporran(initialiser);
       sporran3.autoSync = false;
-      sporran3.onReady.first.then((dynamic e) => wrapper());
+      sporran3.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Put Document Online docIdPutOnline', () {
@@ -530,13 +530,13 @@ void main() {
 
   /* Group 4 - Sporran attachment put/get tests */
   group('4. Attachment Put/Get/Delete Tests - ', () {
-    Sporran sporran4;
+    late Sporran sporran4;
 
     const docIdPutOnline = 'putOnlineg4';
     const docIdPutOffline = 'putOfflineg4';
     final dynamic onlineDoc = JsonObjectLite<dynamic>();
     final dynamic offlineDoc = JsonObjectLite<dynamic>();
-    String onlineDocRev;
+    String? onlineDocRev;
 
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
@@ -551,7 +551,7 @@ void main() {
       sporran4 = Sporran(initialiser);
 
       sporran4.autoSync = false;
-      sporran4.onReady.first.then((dynamic e) => wrapper());
+      sporran4.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Put Document Online docIdPutOnline', () {
@@ -754,10 +754,10 @@ void main() {
 
   /* Group 5 - Sporran Bulk Documents tests */
   group('5. Bulk Document Tests - ', () {
-    Sporran sporran5;
-    String docid1rev;
-    String docid2rev;
-    String docid3rev;
+    late Sporran sporran5;
+    String? docid1rev;
+    String? docid2rev;
+    String? docid3rev;
 
     test('1. Create and Open Sporran', () {
       print('5.1');
@@ -769,7 +769,7 @@ void main() {
       sporran5 = Sporran(initialiser);
 
       sporran5.autoSync = false;
-      sporran5.onReady.first.then((dynamic e) => wrapper());
+      sporran5.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Bulk Insert Documents Online', () {
@@ -962,7 +962,7 @@ void main() {
 
   /* Group 6 - Sporran Change notification tests */
   group('6. Change notification Tests Documents - ', () {
-    Sporran sporran6;
+    late Sporran sporran6;
 
     /* We use Wilt here to change the CouchDb database independently
      * of Sporran, these change will be picked up in change notifications.
@@ -972,14 +972,12 @@ void main() {
     final wilting = Wilt(hostName, port: port);
 
     /* Login if we are using authentication */
-    if (userName != null) {
       wilting.login(userName, userPassword);
-    }
 
     wilting.db = databaseName;
-    String docId1Rev;
-    String docId2Rev;
-    String docId3Rev;
+    String? docId1Rev;
+    String? docId2Rev;
+    String? docId3Rev;
 
     test('1. Create and Open Sporran', () {
       print('6.1');
@@ -992,7 +990,7 @@ void main() {
       sporran6 = Sporran(initialiser);
 
       sporran6.autoSync = false;
-      sporran6.onReady.first.then((dynamic e) => wrapper());
+      sporran6.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Wilt - Bulk Insert Supplied Keys', () {
@@ -1003,11 +1001,11 @@ void main() {
         } on Exception {
           logMessage('WILT::Bulk Insert Supplied Keys');
           final dynamic errorResponse = res.jsonCouchResponse;
-          final String errorText = errorResponse.error;
+          final String? errorText = errorResponse.error;
           logMessage('WILT::Error is $errorText');
-          final String reasonText = errorResponse.reason;
+          final String? reasonText = errorResponse.reason;
           logMessage('WILT::Reason is $reasonText');
-          final int statusCode = res.errorCode;
+          final int? statusCode = res.errorCode;
           logMessage('WILT::Status code is $statusCode');
           return;
         }
@@ -1107,11 +1105,11 @@ void main() {
         } on Exception {
           logMessage('WILT::Delete Document MyBulkId1');
           final dynamic errorResponse = res.jsonCouchResponse;
-          final String errorText = errorResponse.error;
+          final String? errorText = errorResponse.error;
           logMessage('WILT::Error is $errorText');
-          final String reasonText = errorResponse.reason;
+          final String? reasonText = errorResponse.reason;
           logMessage('WILT::Reason is $reasonText');
-          final int statusCode = res.errorCode;
+          final int? statusCode = res.errorCode;
           logMessage('WILT::Status code is $statusCode');
           return;
         }
@@ -1120,7 +1118,7 @@ void main() {
         expect(successResponse.id, 'MyBulkId1');
       });
 
-      wilting.deleteDocument('MyBulkId1', docId1Rev).then(wrapper);
+      wilting.deleteDocument('MyBulkId1', docId1Rev!).then(wrapper);
     });
 
     test('8. Wilt - Delete Document MyBulkId2', () {
@@ -1131,11 +1129,11 @@ void main() {
         } on Exception {
           logMessage('WILT::Delete Document MyBulkId2');
           final dynamic errorResponse = res.jsonCouchResponse;
-          final String errorText = errorResponse.error;
+          final String? errorText = errorResponse.error;
           logMessage('WILT::Error is $errorText');
-          final String reasonText = errorResponse.reason;
+          final String? reasonText = errorResponse.reason;
           logMessage('WILT::Reason is $reasonText');
-          final int statusCode = res.errorCode;
+          final int? statusCode = res.errorCode;
           logMessage('WILT::Status code is $statusCode');
           return;
         }
@@ -1144,7 +1142,7 @@ void main() {
         expect(successResponse.id, 'MyBulkId2');
       });
 
-      wilting.deleteDocument('MyBulkId2', docId2Rev).then(wrapper);
+      wilting.deleteDocument('MyBulkId2', docId2Rev!).then(wrapper);
     });
 
     test('9. Wilt - Delete Document MyBulkId3', () {
@@ -1155,11 +1153,11 @@ void main() {
         } on Exception {
           logMessage('WILT::Delete Document MyBulkId3');
           final dynamic errorResponse = res.jsonCouchResponse;
-          final String errorText = errorResponse.error;
+          final String? errorText = errorResponse.error;
           logMessage('WILT::Error is $errorText');
-          final String reasonText = errorResponse.reason;
+          final String? reasonText = errorResponse.reason;
           logMessage('WILT::Reason is $reasonText');
-          final int statusCode = res.errorCode;
+          final int? statusCode = res.errorCode;
           logMessage('WILT::Status code is $statusCode');
           return;
         }
@@ -1168,7 +1166,7 @@ void main() {
         expect(successResponse.id, 'MyBulkId3');
       });
 
-      wilting.deleteDocument('MyBulkId3', docId3Rev).then(wrapper);
+      wilting.deleteDocument('MyBulkId3', docId3Rev!).then(wrapper);
     });
 
     /* Pause a little for the notifications to come through */
@@ -1224,7 +1222,7 @@ void main() {
 
   /* Group 7 - Sporran Change notification tests */
   group('7. Change notification Tests Attachments - ', () {
-    Sporran sporran7;
+    late Sporran sporran7;
 
     /* We use Wilt here to change the CouchDb database independently
      * of Sporran, these change will be picked up in change notifications.
@@ -1234,12 +1232,10 @@ void main() {
     final wilting = Wilt(hostName, port: port);
 
     /* Login if we are using authentication */
-    if (userName != null) {
       wilting.login(userName, userPassword);
-    }
 
     wilting.db = databaseName;
-    String docId1Rev;
+    String? docId1Rev;
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
@@ -1254,7 +1250,7 @@ void main() {
       sporran7 = Sporran(initialiser);
 
       sporran7.autoSync = false;
-      sporran7.onReady.first.then((dynamic e) => wrapper());
+      sporran7.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Wilt - Bulk Insert Supplied Keys', () {
@@ -1265,11 +1261,11 @@ void main() {
         } on Exception {
           logMessage('WILT::Bulk Insert Supplied Keys');
           final dynamic errorResponse = res.jsonCouchResponse;
-          final String errorText = errorResponse.error;
+          final String? errorText = errorResponse.error;
           logMessage('WILT::Error is $errorText');
-          final String reasonText = errorResponse.reason;
+          final String? reasonText = errorResponse.reason;
           logMessage('WILT::Reason is $reasonText');
-          final int statusCode = res.errorCode;
+          final int? statusCode = res.errorCode;
           logMessage('WILT::Status code is $statusCode');
           return;
         }
@@ -1374,11 +1370,11 @@ void main() {
         } on Exception {
           logMessage('WILT::Delete Attachment Failed');
           final dynamic errorResponse = res.jsonCouchResponse;
-          final String errorText = errorResponse.error;
+          final String? errorText = errorResponse.error;
           logMessage('WILT::Error is $errorText');
-          final String reasonText = errorResponse.reason;
+          final String? reasonText = errorResponse.reason;
           logMessage('WILT::Reason is $reasonText');
-          final int statusCode = res.errorCode;
+          final int? statusCode = res.errorCode;
           logMessage('WILT::Status code is $statusCode');
           return;
         }
@@ -1390,7 +1386,7 @@ void main() {
 
       wilting.db = databaseName;
       wilting
-          .deleteAttachment('MyBulkId1', 'AttachmentName1', docId1Rev)
+          .deleteAttachment('MyBulkId1', 'AttachmentName1', docId1Rev!)
           .then(completer);
     });
 

@@ -22,9 +22,9 @@ class MemoryStore extends _MapStore {
   static Future<MemoryStore> open() async {
     final Store store = MemoryStore._();
     await store._open();
-    return store;
+    return store as FutureOr<MemoryStore>;
   }
 
   @override
-  Map<String, String> _generateMap() => <String, String>{};
+  Map<String, String?> _generateMap() => <String, String?>{};
 }

@@ -24,9 +24,9 @@ class LocalStorageStore extends _MapStore {
   static Future<LocalStorageStore> open() async {
     final Store store = LocalStorageStore._();
     await store._open();
-    return store;
+    return store as FutureOr<LocalStorageStore>;
   }
 
   @override
-  Map<String, String> _generateMap() => window.localStorage;
+  Map<String, String?> _generateMap() => window.localStorage;
 }

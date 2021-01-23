@@ -25,7 +25,7 @@ void main() {
   initialiser.username = userName;
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
-  Timer pause;
+  Timer? pause;
   print(pause);
 
   /* Group 8 - Sporran Scenario test 1 */
@@ -40,10 +40,10 @@ void main() {
    */
 
   group('8. Scenario Tests 1 - ', () {
-    Sporran sporran8;
-    String docid1rev;
-    String docid2rev;
-    String docid3rev;
+    late Sporran sporran8;
+    String? docid1rev;
+    String? docid2rev;
+    String? docid3rev;
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
@@ -56,7 +56,7 @@ void main() {
       });
 
       sporran8 = Sporran(initialiser);
-      sporran8.onReady.first.then((dynamic e) => wrapper());
+      sporran8.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Bulk Insert Documents Offline', () {

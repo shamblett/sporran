@@ -20,16 +20,16 @@ class IndexedDbStore extends Store {
   /// Construction
   IndexedDbStore._(this.dbName, this.storeName) : super._();
 
-  static final Map<String, idb.Database> _databases = <String, idb.Database>{};
+  static final Map<String?, idb.Database> _databases = <String?, idb.Database>{};
 
   /// Database name
-  final String dbName;
+  final String? dbName;
 
   /// Store name
   final String storeName;
 
   /// Open
-  static Future<IndexedDbStore> open(String dbName, String storeName) async {
+  static Future<IndexedDbStore> open(String? dbName, String storeName) async {
     final store = IndexedDbStore._(dbName, storeName);
     await store._open();
     return store;
@@ -45,15 +45,15 @@ class IndexedDbStore extends Store {
     }
 
     if (_db != null) {
-      _db.close();
+      _db!.close();
     }
 
-    var db = await window.indexedDB.open(dbName);
+    var db = await window.indexedDB!.open(dbName!);
 
-    if (!db.objectStoreNames.contains(storeName)) {
+    if (!db.objectStoreNames!.contains(storeName)) {
       db.close();
       //print('Attempting upgrading $storeName from ${db.version}');
-      db = await window.indexedDB.open(dbName, version: db.version + 1,
+      db = await window.indexedDB!.open(dbName!, version: db.version! + 1,
           onUpgradeNeeded: (dynamic e) {
         final idb.Database d = e.target.result;
         d.createObjectStore(storeName);
@@ -61,47 +61,46 @@ class IndexedDbStore extends Store {
     }
 
     _databases[dbName] = db;
-    return true;
   }
 
-  idb.Database get _db => _databases[dbName];
+  idb.Database? get _db => _databases[dbName];
 
   @override
   Future<void> removeByKey(String key) =>
       _runInTxn((dynamic store) => store.delete(key));
 
   @override
-  Future<String> save(String obj, String key) =>
-      _runInTxn<String>((dynamic store) async => await store.put(obj, key));
+  Future<String?> save(String obj, String key) =>
+      _runInTxn<String?>((dynamic store) async => await store.put(obj, key));
 
   @override
-  Future<String> getByKey(String key) => _runInTxn<String>(
+  Future<String?> getByKey(String key) => _runInTxn<String?>(
       (dynamic store) async => await store.getObject(key), 'readonly');
 
   @override
   Future<void> nuke() => _runInTxn((dynamic store) => store.clear());
 
-  Future<T> _runInTxn<T>(Future<T> Function(idb.ObjectStore) requestCommand,
+  Future<T> _runInTxn<T>(Future<T>? Function(idb.ObjectStore) requestCommand,
       [String txnMode = 'readwrite']) async {
-    final trans = _db.transaction(storeName, txnMode);
+    final trans = _db!.transaction(storeName, txnMode);
     final store = trans.objectStore(storeName);
-    final result = await requestCommand(store);
+    final result = await requestCommand(store)!;
     await trans.completed;
     return result;
   }
 
   Stream<String> _doGetAll(
-      String Function(idb.CursorWithValue) onCursor) async* {
-    final trans = _db.transaction(storeName, 'readonly');
+      String? Function(idb.CursorWithValue?) onCursor) async* {
+    final trans = _db!.transaction(storeName, 'readonly');
     final store = trans.objectStore(storeName);
     await for (final dynamic cursor in store.openCursor(autoAdvance: true)) {
-      yield onCursor(cursor);
+      yield onCursor(cursor)!;
     }
   }
 
   @override
   Stream<String> all() =>
-      _doGetAll((idb.CursorWithValue cursor) => cursor.value);
+      _doGetAll((idb.CursorWithValue? cursor) => cursor!.value);
 
   @override
   Future<void> batch(Map<String, String> objectsByKey) {
@@ -116,7 +115,7 @@ class IndexedDbStore extends Store {
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
     for (final key in keys) {
-      final dynamic v = await getByKey(key);
+      final v = await getByKey(key);
       if (v != null) {
         yield v;
       }
@@ -139,5 +138,5 @@ class IndexedDbStore extends Store {
 
   @override
   Stream<String> keys() =>
-      _doGetAll((idb.CursorWithValue cursor) => cursor.key);
+      _doGetAll((idb.CursorWithValue? cursor) => cursor!.key as String?);
 }

@@ -16,7 +16,7 @@ part of sporran;
 /// further details.
 class Sporran {
   /// Construction.
-  Sporran(SporranInitialiser initialiser) {
+  Sporran(SporranInitialiser? initialiser) {
     if (initialiser == null) {
       throw SporranException(SporranException.noInitialiserEx);
     }
@@ -51,21 +51,21 @@ class Sporran {
   static const String dbInfoc = 'db_info';
 
   /// Database
-  _SporranDatabase _database;
+  late _SporranDatabase _database;
 
   /// Database name
-  String _dbName;
+  String? _dbName;
 
-  String get dbName => _dbName;
+  String? get dbName => _dbName;
 
   /// Lawndart database
-  Store get lawndart => _database.lawndart;
+  Store? get lawndart => _database.lawndart;
 
   /// Lawndart databse is open
   bool get lawnIsOpen => _database.lawnIsOpen;
 
   /// Wilt database
-  Wilt get wilt => _database.wilt;
+  Wilt? get wilt => _database.wilt;
 
   bool _online = true;
 
@@ -94,15 +94,15 @@ class Sporran {
       _clientCompleter = completer;
 
   /// Response getter for completion callbacks
-  JsonObjectLite<dynamic> _completionResponse;
+  JsonObjectLite<dynamic>? _completionResponse;
 
-  JsonObjectLite<dynamic> get completionResponse => _completionResponse;
+  JsonObjectLite<dynamic>? get completionResponse => _completionResponse;
 
   /// Pending delete queue size
   int get pendingDeleteSize => _database.pendingLength();
 
   /// Ready event
-  Stream<dynamic> get onReady => _database.onReady;
+  Stream<dynamic>? get onReady => _database.onReady;
 
   /// Manual notification control
   bool get manualNotificationControl => _database.manualNotificationControl;
@@ -110,8 +110,8 @@ class Sporran {
   /// Start change notification manually
   void startChangeNotifications() {
     if (manualNotificationControl) {
-      if (_database.wilt.changeNotificationsPaused) {
-        _database.wilt.restartChangeNotifications();
+      if (_database.wilt!.changeNotificationsPaused) {
+        _database.wilt!.restartChangeNotifications();
       } else {
         _database.startChangeNotifications();
       }
@@ -121,7 +121,7 @@ class Sporran {
   /// Stop change notification manually
   void stopChangeNotifications() {
     if (manualNotificationControl) {
-      _database.wilt.pauseChangeNotifications();
+      _database.wilt!.pauseChangeNotifications();
     }
   }
 
@@ -194,8 +194,8 @@ class Sporran {
   /// If the document does not exist a create is performed.
   ///
   /// For an update operation a specific revision must be specified.
-  Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
-      [String rev]) {
+  Future<dynamic> put(String? id, JsonObjectLite<dynamic>? document,
+      [String? rev]) {
     final opCompleter = Completer<dynamic>();
 
     if (id == null) {
@@ -253,14 +253,14 @@ class Sporran {
       }
 
       /* Do the put */
-      _database.wilt.putDocument(id, document, rev).then(completer);
+      _database.wilt!.putDocument(id, document!, rev!).then(completer);
     });
 
     return opCompleter.future;
   }
 
   /// Get a document
-  Future<dynamic> get(String id, [String rev]) {
+  Future<dynamic> get(String? id, [String? rev]) {
     final opCompleter = Completer<dynamic>();
 
     if (id == null) {
@@ -320,7 +320,7 @@ class Sporran {
       }
 
       /* Get the document from CouchDb with its attachments */
-      _database.wilt.getDocument(id, rev, true).then(completer);
+      _database.wilt!.getDocument(id, rev!, true).then(completer);
     }
 
     return opCompleter.future;
@@ -329,7 +329,7 @@ class Sporran {
   /// Delete a document.
   ///
   /// Revision must be supplied if we are online
-  Future<dynamic> delete(String id, [String rev]) {
+  Future<dynamic> delete(String? id, [String? rev]) {
     final opCompleter = Completer<dynamic>();
 
     if (id == null) {
@@ -337,9 +337,9 @@ class Sporran {
     }
 
     /* Remove from Lawndart */
-    _database.lawndart.getByKey(id).then((String document) {
+    _database.lawndart!.getByKey(id).then((String? document) {
       if (document != null) {
-        _database.lawndart.removeByKey(id)
+        _database.lawndart!.removeByKey(id)
             // ignore: missing_return
             .then((_) {
           /* Check for offline, if so add to the pending delete queue
@@ -383,7 +383,7 @@ class Sporran {
             }
 
             /* Delete the document from CouchDB */
-            _database.wilt.deleteDocument(id, rev).then(completer);
+            _database.wilt!.deleteDocument(id, rev!).then(completer);
           }
         });
       } else {
@@ -418,7 +418,7 @@ class Sporran {
   /// String rev - maybe '', see above
   /// String contentType - mime type in the form 'image/png'
   /// String payload - stringified binary blob
-  Future<dynamic> putAttachment(String id, dynamic attachment) {
+  Future<dynamic> putAttachment(String? id, dynamic attachment) {
     final opCompleter = Completer<dynamic>();
 
     if (id == null) {
@@ -466,7 +466,7 @@ class Sporran {
 
         if (!res.error) {
           final dynamic newAttachment =
-              JsonObjectLite<dynamic>.fromJsonString(_mapToJson(attachment));
+              JsonObjectLite<dynamic>.fromJsonString(_mapToJson(attachment)!);
           newAttachment.contentType = attachment.contentType;
           newAttachment.payload = attachment.payload;
           newAttachment.attachmentName = attachment.attachmentName;
@@ -487,12 +487,12 @@ class Sporran {
 
       /* Do the create */
       if (attachment.rev == '') {
-        _database.wilt
+        _database.wilt!
             .createAttachment(id, attachment.attachmentName, attachment.rev,
                 attachment.contentType, attachment.payload)
             .then(completer);
       } else {
-        _database.wilt
+        _database.wilt!
             .updateAttachment(id, attachment.attachmentName, attachment.rev,
                 attachment.contentType, attachment.payload)
             .then(completer);
@@ -505,7 +505,7 @@ class Sporran {
   /// Delete an attachment.
   /// Revision can be null if offline
   Future<dynamic> deleteAttachment(
-      String id, String attachmentName, String rev) {
+      String? id, String? attachmentName, String? rev) {
     final opCompleter = Completer<dynamic>();
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
@@ -522,9 +522,9 @@ class Sporran {
     }
 
     /* Remove from Lawndart */
-    _database.lawndart.getByKey(key).then((dynamic document) {
+    _database.lawndart!.getByKey(key).then((dynamic document) {
       if (document != null) {
-        _database.lawndart.removeByKey(key)
+        _database.lawndart!.removeByKey(key)
             // ignore: missing_return
             .then((_) {
           /* Check for offline, if so add to the pending delete
@@ -567,8 +567,8 @@ class Sporran {
             }
 
             /* Delete the attachment from CouchDB */
-            _database.wilt
-                .deleteAttachment(id, attachmentName, rev)
+            _database.wilt!
+                .deleteAttachment(id, attachmentName, rev!)
                 .then(completer);
           }
         });
@@ -593,7 +593,7 @@ class Sporran {
   }
 
   /// Get an attachment
-  Future<dynamic> getAttachment(String id, String attachmentName) {
+  Future<dynamic> getAttachment(String? id, String? attachmentName) {
     final opCompleter = Completer<dynamic>();
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
@@ -662,7 +662,7 @@ class Sporran {
       }
 
       /* Get the attachment from CouchDb */
-      _database.wilt.getAttachment(id, attachmentName).then(completer);
+      _database.wilt!.getAttachment(id, attachmentName).then(completer);
     }
 
     return opCompleter.future;
@@ -671,7 +671,7 @@ class Sporran {
   /// Bulk document create.
   ///
   /// docList is a map of documents with their keys
-  Future<dynamic> bulkCreate(Map<String, JsonObjectLite<dynamic>> docList) {
+  Future<dynamic> bulkCreate(Map<String, JsonObjectLite<dynamic>>? docList) {
     final opCompleter = Completer<dynamic>();
 
     if (docList == null) {
@@ -720,8 +720,8 @@ class Sporran {
         if (!res.error) {
           /* Get the revisions for the updates */
           final JsonObjectLite<dynamic> couchResp = res.jsonCouchResponse;
-          final revisions = <JsonObjectLite<dynamic>>[];
-          final revisionsMap = <String, String>{};
+          final revisions = <JsonObjectLite<dynamic>?>[];
+          final revisionsMap = <String?, String?>{};
 
           for (final dynamic resp in couchResp.toList()) {
             try {
@@ -759,7 +759,7 @@ class Sporran {
       final docs = WiltUserUtils.createBulkInsertString(documentList);
 
       /* Do the bulk create*/
-      _database.wilt.bulkString(docs).then(completer);
+      _database.wilt!.bulkString(docs).then(completer);
     });
 
     return opCompleter.future;
@@ -773,10 +773,10 @@ class Sporran {
   /// The includeDocs parameter is also forced to true.
   Future<JsonObjectLite<dynamic>> getAllDocs(
       {bool includeDocs = false,
-      int limit,
-      String startKey,
-      String endKey,
-      List<String> keys,
+      int? limit,
+      String? startKey,
+      String? endKey,
+      List<String>? keys,
       bool descending = false}) {
     final opCompleter = Completer<JsonObjectLite<dynamic>>();
 
@@ -784,7 +784,7 @@ class Sporran {
     if (!online) {
       if (keys == null) {
         /* Get all the keys from Lawndart */
-        _database.lawndart.keys().toList().then((dynamic keyList) {
+        _database.lawndart!.keys().toList().then((dynamic keyList) {
           /* Only return documents */
           final docList = <String>[];
           keyList.forEach((dynamic key) {
@@ -869,13 +869,13 @@ class Sporran {
       }
 
       /* Get the document from CouchDb */
-      _database.wilt
+      _database.wilt!
           .getAllDocs(
               includeDocs: includeDocs,
-              limit: limit,
-              startKey: startKey,
-              endKey: endKey,
-              keys: keys,
+              limit: limit!,
+              startKey: startKey!,
+              endKey: endKey!,
+              keys: keys!,
               descending: descending)
           .then(completer);
     }
@@ -891,7 +891,7 @@ class Sporran {
     final opCompleter = Completer<JsonObjectLite<dynamic>>();
 
     if (!online) {
-      _database.lawndart.keys().toList().then((List<dynamic> keys) {
+      _database.lawndart!.keys().toList().then((List<dynamic> keys) {
         final dynamic res = JsonObjectLite<dynamic>();
         res.localResponse = true;
         res.operation = dbInfoc;
@@ -929,7 +929,7 @@ class Sporran {
       }
 
       /* Get the database information from CouchDb */
-      _database.wilt.getDatabaseInfo().then(completer);
+      _database.wilt!.getDatabaseInfo().then(completer);
     }
 
     return opCompleter.future;
@@ -955,7 +955,7 @@ class Sporran {
   /// Login
   ///
   /// Allows log in credentials to be changed if needed.
-  void login(String user, String password) {
+  void login(String? user, String? password) {
     if (user == null || password == null) {
       throw SporranException(SporranException.invalidLoginCredsEx);
     }
@@ -964,7 +964,7 @@ class Sporran {
   }
 
   /// Serialize a map to a JSON string
-  static String _mapToJson(dynamic map) {
+  static String? _mapToJson(dynamic map) {
     if (map is String) {
       try {
         final dynamic res = json.decode(map);

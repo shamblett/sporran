@@ -16,7 +16,7 @@ part of lawndart;
 
 abstract class _MapStore extends Store {
   _MapStore._() : super._();
-  Map<String, String> storage;
+  late Map<String, String?> storage;
 
   @override
   Future<bool> _open() async {
@@ -24,7 +24,7 @@ abstract class _MapStore extends Store {
     return true;
   }
 
-  Map<String, String> _generateMap();
+  Map<String, String?> _generateMap();
 
   @override
   Stream<String> keys() async* {
@@ -44,18 +44,17 @@ abstract class _MapStore extends Store {
     for (final key in objectsByKey.keys) {
       storage[key] = objectsByKey[key];
     }
-    return true;
   }
 
   @override
-  Future<String> getByKey(String key) async => storage[key];
+  Future<String?> getByKey(String key) async => storage[key];
 
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
-    final dynamic values =
-        keys.map((String key) => storage[key]).where((dynamic v) => v != null);
-    for (final dynamic v in values) {
-      yield v;
+    final values =
+        keys.map((String key) => storage[key]).where((final v) => v != null);
+    for (final v in values) {
+      yield v!;
     }
   }
 
@@ -64,8 +63,8 @@ abstract class _MapStore extends Store {
 
   @override
   Stream<String> all() async* {
-    for (final dynamic v in storage.values) {
-      yield v;
+    for (final v in storage.values) {
+      yield v!;
     }
   }
 

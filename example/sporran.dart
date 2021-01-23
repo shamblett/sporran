@@ -28,7 +28,7 @@ void main() async {
   // Create the client
   final sporran = Sporran(initialiser);
   sporran.autoSync = false;
-  await sporran.onReady.first;
+  await sporran.onReady!.first;
 
   // Put a document
   final dynamic onlineDoc = JsonObjectLite<dynamic>();

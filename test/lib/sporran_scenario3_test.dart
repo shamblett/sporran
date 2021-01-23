@@ -35,24 +35,24 @@ void main() {
    */
 
   group('9. Scenario Tests 1 - ', () {
-    Sporran sporran9;
-    Sporran sporran10;
-    String docid1rev;
-    String docid2rev;
-    String docid3rev;
+    Sporran? sporran9;
+    late Sporran sporran10;
+    String? docid1rev;
+    String? docid2rev;
+    String? docid3rev;
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test('1. Create and Open Sporran', () {
       print('9.1');
       final dynamic wrapper = expectAsync0(() {
-        expect(sporran9.dbName, databaseName);
-        expect(sporran9.lawnIsOpen, isTrue);
-        sporran9.online = false;
+        expect(sporran9!.dbName, databaseName);
+        expect(sporran9!.lawnIsOpen, isTrue);
+        sporran9!.online = false;
       });
 
       sporran9 = Sporran(initialiser);
-      sporran9.onReady.first.then((dynamic e) => wrapper());
+      sporran9!.onReady!.first.then((dynamic e) => wrapper());
     });
 
     test('2. Bulk Insert Documents Offline', () {
@@ -90,7 +90,7 @@ void main() {
       docs['8docid2'] = document2;
       docs['8docid3'] = document3;
 
-      sporran9.bulkCreate(docs).then(wrapper);
+      sporran9!.bulkCreate(docs).then(wrapper);
     });
 
     test('3. Create Attachment Offline docid1 Attachment 1', () {
@@ -112,7 +112,7 @@ void main() {
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran9.putAttachment('8docid1', attachment).then(wrapper);
+      sporran9!.putAttachment('8docid1', attachment).then(wrapper);
     });
 
     test('4. Create Attachment Offline docid1 Attachment 2', () {
@@ -134,7 +134,7 @@ void main() {
       attachment.rev = docid1rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran9.putAttachment('8docid1', attachment).then(wrapper);
+      sporran9!.putAttachment('8docid1', attachment).then(wrapper);
     });
 
     test('5. Create Attachment Offline docid2 Attachment 1', () {
@@ -156,7 +156,7 @@ void main() {
       attachment.rev = docid2rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran9.putAttachment('8docid2', attachment).then(wrapper);
+      sporran9!.putAttachment('8docid2', attachment).then(wrapper);
     });
 
     test('6. Delete Document Offline docid3', () {
@@ -168,10 +168,10 @@ void main() {
         expect(res.id, '8docid3');
         expect(res.payload, isNull);
         expect(res.rev, isNull);
-        expect(sporran9.pendingDeleteSize, 1);
+        expect(sporran9!.pendingDeleteSize, 1);
       });
 
-      sporran9.delete('8docid3', docid3rev).then(wrapper);
+      sporran9!.delete('8docid3', docid3rev).then(wrapper);
     });
 
     test('7. Check - Get All Docs Offline - Existing Sporran', () {
@@ -198,8 +198,8 @@ void main() {
         /* Kill this sporran */
         sporran9 = null;
       });
-      const List<String> keys = null;
-      sporran9.getAllDocs(includeDocs: true, keys: keys).then(wrapper);
+      const List<String>? keys = null;
+      sporran9!.getAllDocs(includeDocs: true, keys: keys).then(wrapper);
     });
 
     test('8. Check - Get All Docs Offline -  Sporran', () {
@@ -230,13 +230,13 @@ void main() {
         expect(sporran10.lawnIsOpen, isTrue);
         sporran10.online = false;
 
-        const List<String> keys = null;
+        const List<String>? keys = null;
         sporran10.getAllDocs(includeDocs: true, keys: keys).then(wrapper1);
       });
 
       initialiser.preserveLocal = true;
       sporran10 = Sporran(initialiser);
-      sporran10.onReady.first.then((dynamic e) => wrapper());
+      sporran10.onReady!.first.then((dynamic e) => wrapper());
     });
   });
 }
