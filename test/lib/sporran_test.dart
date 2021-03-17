@@ -972,7 +972,7 @@ void main() {
     final wilting = Wilt(hostName, port: port);
 
     /* Login if we are using authentication */
-      wilting.login(userName, userPassword);
+    wilting.login(userName, userPassword);
 
     wilting.db = databaseName;
     String? docId1Rev;
@@ -1232,7 +1232,7 @@ void main() {
     final wilting = Wilt(hostName, port: port);
 
     /* Login if we are using authentication */
-      wilting.login(userName, userPassword);
+    wilting.login(userName, userPassword);
 
     wilting.db = databaseName;
     String? docId1Rev;

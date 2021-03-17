@@ -20,7 +20,8 @@ class IndexedDbStore extends Store {
   /// Construction
   IndexedDbStore._(this.dbName, this.storeName) : super._();
 
-  static final Map<String?, idb.Database> _databases = <String?, idb.Database>{};
+  static final Map<String?, idb.Database> _databases =
+      <String?, idb.Database>{};
 
   /// Database name
   final String? dbName;

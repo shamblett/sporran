@@ -130,7 +130,7 @@ class _SporranDatabase {
     /* Process the update or delete event */
     if (e.type == WiltChangeNotificationEvent.updatee) {
       await updateLocalStorageObject(
-          e.docId, e.document, e.docRevision, updatedc);
+          e.docId!, e.document, e.docRevision, updatedc);
 
       /* Now update the attachments */
 
@@ -170,13 +170,13 @@ class _SporranDatabase {
       });
 
       /* Now update already existing ones and add any ones */
-      updateDocumentAttachments(e.docId, e.document);
+      updateDocumentAttachments(e.docId!, e.document!);
     } else {
       /* Tidy up any pending deletes */
-      removePendingDelete(e.docId);
+      removePendingDelete(e.docId!);
 
       /* Do the delete */
-      await _lawndart!.removeByKey(e.docId).then((_) {
+      await _lawndart!.removeByKey(e.docId!).then((_) {
         /* Remove all document attachments */
         _lawndart!.keys().listen((String key) {
           final keyList = key.split('-');
@@ -531,7 +531,8 @@ class _SporranDatabase {
   /// Manual bulk insert uses update
   Future<Map<String?, String>> _manualBulkInsert(
       Map<String?, JsonObjectLite<dynamic>> documentsToUpdate) {
-    final Completer<Map<String?, String>> completer = Completer<Map<String, String>>();
+    final Completer<Map<String?, String>> completer =
+        Completer<Map<String, String>>();
     final revisions = <String?, String>{};
 
     final length = documentsToUpdate.length;
