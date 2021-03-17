@@ -10,22 +10,22 @@ part of sporran;
 /// Initialisation class, passed to Sporrans constructor
 class SporranInitialiser {
   /// Database name
-  String? dbName;
+  String dbName = '';
 
   /// Hostname
-  String? hostname;
+  String hostname = '';
 
   /// Port
-  int? port;
+  int port = 5984;
 
   /// Scheme
   String scheme = 'http://';
 
   /// Username
-  String? username;
+  String username = '';
 
   /// Password
-  String? password;
+  String password = '';
 
   /// Manual notification control.
   ///

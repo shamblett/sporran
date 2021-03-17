@@ -24,8 +24,8 @@ class _SporranDatabase {
       [this._manualNotificationControl = false,
       this._port = 5984,
       this._scheme = 'http://',
-      this._user,
-      this._password,
+      this._user = '',
+      this._password = '',
       this._preserveLocalDatabase = false]) {
     _initialise();
   }
@@ -39,36 +39,36 @@ class _SporranDatabase {
     _lawndart = await IndexedDbStore.open(_dbName, 'Sporran');
     _lawnIsOpen = true;
     // Delete the local database unless told to preserve it.
-    if (!_preserveLocalDatabase) {
-      await _lawndart!.nuke();
+    if (_preserveLocalDatabase) {
+      await _lawndart.nuke();
     }
     // Instantiate a Wilt object
-    _wilt = Wilt(_host, port: _port!);
+    _wilt = Wilt(_host, port: _port);
     // Login
-    if (_user != null) {
-      _wilt!.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      _wilt.login(_user, _password);
     }
     // Open CouchDb
     connectToCouch();
   }
 
   /// Host name
-  final String? _host;
-  String? get host => _host;
+  final _host;
+  String get host => _host;
 
   /// Port number
-  final int? _port;
-  int? get port => _port;
+  final int _port;
+  int get port => _port;
 
   /// HTTP scheme
   final String _scheme;
   String get scheme => _scheme;
 
   /// Authentication, user name
-  String? _user;
+  String _user;
 
   /// Authentication, user password
-  String? _password;
+  String _password;
 
   /// Manual notification control
   final bool _manualNotificationControl;
@@ -78,12 +78,12 @@ class _SporranDatabase {
   final bool _preserveLocalDatabase;
 
   /// The Wilt database
-  Wilt? _wilt;
-  Wilt? get wilt => _wilt;
+  late Wilt _wilt;
+  Wilt get wilt => _wilt;
 
   /// The Lawndart database
-  Store? _lawndart;
-  Store? get lawndart => _lawndart;
+  late Store _lawndart;
+  Store get lawndart => _lawndart;
 
   /// Lawn is open indicator
   bool _lawnIsOpen = false;
@@ -91,8 +91,8 @@ class _SporranDatabase {
   bool get lawnIsOpen => _lawnIsOpen;
 
   /// Database name
-  final String? _dbName;
-  String? get dbName => _dbName;
+  final _dbName;
+  String get dbName => _dbName;
 
   /// CouchDb database is intact
   bool _noCouchDb = true;
@@ -113,10 +113,10 @@ class _SporranDatabase {
   void startChangeNotifications() {
     final parameters = WiltChangeNotificationParameters();
     parameters.includeDocs = true;
-    _wilt!.startChangeNotification(parameters);
+    _wilt.startChangeNotification(parameters);
 
     /* Listen for and process changes */
-    _wilt!.changeNotification.listen(_processChange);
+    _wilt.changeNotification.listen(_processChange);
   }
 
   /// Change notification processor
@@ -130,7 +130,7 @@ class _SporranDatabase {
     /* Process the update or delete event */
     if (e.type == WiltChangeNotificationEvent.updatee) {
       await updateLocalStorageObject(
-          e.docId!, e.document, e.docRevision, updatedc);
+          e.docId!, e.document!, e.docRevision!, updatedc);
 
       /* Now update the attachments */
 
@@ -139,7 +139,7 @@ class _SporranDatabase {
       final attachmentsToDelete = <String>[];
 
       /* For all the keys... */
-      _lawndart!.keys().listen((String key) {
+      _lawndart.keys().listen((String key) {
         /* If an attachment... */
         final keyList = key.split('-');
         if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
@@ -164,7 +164,7 @@ class _SporranDatabase {
           * are not present in the document itself so remove them.
           */
         for (final dynamic key in attachmentsToDelete) {
-          await _lawndart!.removeByKey(key);
+          await _lawndart.removeByKey(key);
           removePendingDelete(key);
         }
       });
@@ -176,12 +176,12 @@ class _SporranDatabase {
       removePendingDelete(e.docId!);
 
       /* Do the delete */
-      await _lawndart!.removeByKey(e.docId!).then((_) {
+      await _lawndart.removeByKey(e.docId!).then((_) {
         /* Remove all document attachments */
-        _lawndart!.keys().listen((String key) {
+        _lawndart.keys().listen((String key) {
           final keyList = key.split('-');
           if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
-            _lawndart!.removeByKey(key);
+            _lawndart.removeByKey(key);
           }
         });
       });
@@ -199,7 +199,7 @@ class _SporranDatabase {
     /// If the CouchDb database does not exist create it.
     void createCompleter(dynamic res) {
       if (!res.error) {
-        _wilt!.db = _dbName!;
+        _wilt.db = _dbName!;
         _noCouchDb = false;
       } else {
         _noCouchDb = true;
@@ -230,9 +230,9 @@ class _SporranDatabase {
         final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
         final created = successResponse.contains(_dbName);
         if (created == false) {
-          _wilt!.createDatabase(_dbName!).then(createCompleter);
+          _wilt.createDatabase(_dbName!).then(createCompleter);
         } else {
-          _wilt!.db = _dbName!;
+          _wilt.db = _dbName;
           _noCouchDb = false;
 
           /**
@@ -260,7 +260,7 @@ class _SporranDatabase {
       }
     }
 
-    _wilt!.getAllDbs()
+    _wilt.getAllDbs()
       ..then(allCompleter)
       ..catchError((dynamic error) {
         _noCouchDb = true;
@@ -297,11 +297,11 @@ class _SporranDatabase {
     }
 
     /* Create our own Wilt instance */
-    final wilting = Wilt(_host, port: _port!);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
-    if (_user != null) {
-      wilting.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      wilting.login(_user, _password);
     }
 
     /* Get and update all the attachments */
@@ -354,11 +354,11 @@ class _SporranDatabase {
   /// Update local storage.
   ///
   Future<dynamic> updateLocalStorageObject(String key,
-      JsonObjectLite<dynamic>? update, String? revision, String updateStatus) {
+      JsonObjectLite<dynamic> update, String revision, String updateStatus) {
     final completer = Completer<dynamic>();
 
     /* Check for not initialized */
-    if ((lawndart == null) || (!_lawnIsOpen)) {
+    if (!_lawnIsOpen) {
       return Future<dynamic>.error(
           SporranException(SporranException.lawnNotInitEx));
     }
@@ -374,7 +374,7 @@ class _SporranDatabase {
     /**
      * Update LawnDart
      */
-    _lawndart!.save(localUpdate.toString(), key).then((String? key) {
+    _lawndart.save(localUpdate.toString(), key).then((String key) {
       completer.complete();
     });
 
@@ -386,11 +386,8 @@ class _SporranDatabase {
     final dynamic localObject = JsonObjectLite<dynamic>();
     final completer = Completer<JsonObjectLite<dynamic>>();
 
-    lawndart!.getByKey(key).then((String? document) {
-      if (document != null) {
-        localObject.payload = document;
-      }
-
+    lawndart.getByKey(key).then((String document) {
+      localObject.payload = document;
       completer.complete(localObject);
     });
 
@@ -404,7 +401,7 @@ class _SporranDatabase {
     final results = <String, JsonObjectLite<dynamic>>{};
     var keyPos = 0;
 
-    lawndart!.getByKeys(keys).listen((String value) {
+    lawndart.getByKeys(keys).listen((String value) {
       final document = JsonObjectLite<dynamic>.fromJsonString(value);
       results[keys[keyPos]] = document;
       keyPos++;
@@ -421,11 +418,11 @@ class _SporranDatabase {
   /// Couch wins.
   void delete(String key, String revision) {
     /* Create our own Wilt instance */
-    final wilting = Wilt(_host, port: _port!);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
-    if (_user != null) {
-      wilting.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      wilting.login(_user, _password);
     }
 
     wilting.db = _dbName!;
@@ -438,11 +435,11 @@ class _SporranDatabase {
   /// Couch wins.
   void deleteAttachment(String key, String name, String revision) {
     /* Create our own Wilt instance */
-    final wilting = Wilt(_host, port: _port!);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
-    if (_user != null) {
-      wilting.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      wilting.login(_user, _password);
     }
 
     wilting.db = _dbName!;
@@ -453,11 +450,11 @@ class _SporranDatabase {
   FutureOr<void> updateAttachment(String key, String name, String revision,
       String contentType, String payload) async {
     /* Create our own Wilt instance */
-    final wilting = Wilt(_host, port: _port!);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
-    if (_user != null) {
-      wilting.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      wilting.login(_user, _password);
     }
 
     FutureOr<void> getCompleter(dynamic res) async {
@@ -509,11 +506,11 @@ class _SporranDatabase {
     final completer = Completer<String>();
 
     /* Create our own Wilt instance */
-    final wilting = Wilt(_host, port: _port!);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
-    if (_user != null) {
-      wilting.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      wilting.login(_user, _password);
     }
 
     void localCompleter(dynamic res) {
@@ -529,11 +526,11 @@ class _SporranDatabase {
   }
 
   /// Manual bulk insert uses update
-  Future<Map<String?, String>> _manualBulkInsert(
+  Future<Map<String, String>> _manualBulkInsert(
       Map<String?, JsonObjectLite<dynamic>> documentsToUpdate) {
-    final Completer<Map<String?, String>> completer =
+    final completer =
         Completer<Map<String, String>>();
-    final revisions = <String?, String>{};
+    final revisions = <String, String>{};
 
     final length = documentsToUpdate.length;
     var count = 0;
@@ -555,11 +552,11 @@ class _SporranDatabase {
     final completer = Completer<JsonObjectLite<dynamic>>();
 
     /* Create our own Wilt instance */
-    final wilting = Wilt(_host, port: _port!);
+    final wilting = Wilt(_host, port: _port);
 
     /* Login if we are using authentication */
-    if (_user != null) {
-      wilting.login(_user!, _password!);
+    if (_user.isNotEmpty) {
+      wilting.login(_user, _password);
     }
 
     /* Prepare the documents */
@@ -587,8 +584,8 @@ class _SporranDatabase {
 
   /// Update the revision of any attachments for a document
   /// if the document is updated from Couch
-  void updateAttachmentRevisions(String id, String? revision) {
-    lawndart!.all().listen((String document) {
+  void updateAttachmentRevisions(String id, String revision) {
+    lawndart.all().listen((String document) {
       final key = document;
       final keyList = key.split('-');
       if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
@@ -618,7 +615,7 @@ class _SporranDatabase {
             (keyList[2] == _SporranDatabase.attachmentMarkerc)) {
           deleteAttachment(keyList[0], keyList[1], revision);
           /* Just in case */
-          lawndart!.removeByKey(key);
+          lawndart.removeByKey(key);
         } else {
           delete(key, revision);
         }
@@ -627,13 +624,13 @@ class _SporranDatabase {
 
     pendingDeletes.clear();
 
-    final documentsToUpdate = <String?, JsonObjectLite<dynamic>>{};
-    final attachmentsToUpdate = <String?, JsonObjectLite<dynamic>>{};
+    final documentsToUpdate = <String, JsonObjectLite<dynamic>>{};
+    final attachmentsToUpdate = <String, JsonObjectLite<dynamic>>{};
 
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
-    lawndart!.all().listen((String document) {
+    lawndart.all().listen((String document) {
       final doc = JsonObjectLite<dynamic>.fromJsonString(document);
       final String? key = doc['key'];
       if (doc['status'] == notUpdatedc) {
@@ -687,6 +684,6 @@ class _SporranDatabase {
     _user = user;
     _password = password;
 
-    _wilt!.login(_user!, _password!);
+    _wilt.login(_user, _password);
   }
 }

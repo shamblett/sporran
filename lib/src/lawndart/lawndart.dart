@@ -82,7 +82,7 @@ abstract class Store {
   /// Stores an [obj] accessible by [key].
   /// The returned Future completes with the key when the objects
   /// is saved in the store.
-  Future<String?> save(String obj, String key);
+  Future<String> save(String obj, String key);
 
   /// Stores all objects by their keys. This should happen in a single
   /// transaction if the underlying store supports it.
@@ -92,7 +92,7 @@ abstract class Store {
 
   /// Returns a Future that completes with the value for a key,
   /// or null if the key does not exist.
-  Future<String?> getByKey(String key);
+  Future<String> getByKey(String key);
 
   /// Returns a Stream of all values for the keys.
   /// If a particular key is not found,

@@ -13,5 +13,5 @@ const String databaseName = 'sporrantest';
 /// used.
 
 ///
-const String userName = 'steve';
-const String userPassword = 'setacrepes';
+const String userName = 'admin';
+const String userPassword = 'password';

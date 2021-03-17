@@ -16,10 +16,7 @@ part of sporran;
 /// further details.
 class Sporran {
   /// Construction.
-  Sporran(SporranInitialiser? initialiser) {
-    if (initialiser == null) {
-      throw SporranException(SporranException.noInitialiserEx);
-    }
+  Sporran(SporranInitialiser initialiser) {
 
     _dbName = initialiser.dbName;
 
@@ -54,18 +51,18 @@ class Sporran {
   late _SporranDatabase _database;
 
   /// Database name
-  String? _dbName;
+  String _dbName = '';
 
-  String? get dbName => _dbName;
+  String get dbName => _dbName;
 
   /// Lawndart database
-  Store? get lawndart => _database.lawndart;
+  Store get lawndart => _database.lawndart;
 
   /// Lawndart databse is open
   bool get lawnIsOpen => _database.lawnIsOpen;
 
   /// Wilt database
-  Wilt? get wilt => _database.wilt;
+  Wilt get wilt => _database.wilt;
 
   bool _online = true;
 
@@ -194,8 +191,8 @@ class Sporran {
   /// If the document does not exist a create is performed.
   ///
   /// For an update operation a specific revision must be specified.
-  Future<dynamic> put(String? id, JsonObjectLite<dynamic>? document,
-      [String? rev]) {
+  Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
+      [String rev = '']) {
     final opCompleter = Completer<dynamic>();
 
     if (id == null) {
@@ -260,12 +257,8 @@ class Sporran {
   }
 
   /// Get a document
-  Future<dynamic> get(String? id, [String? rev]) {
+  Future<dynamic> get(String id, [String rev = '']) {
     final opCompleter = Completer<dynamic>();
-
-    if (id == null) {
-      return _raiseException(SporranException.getNoDocIdEx);
-    }
 
     /* Check for offline, if so try the get from local storage */
     if (!online) {
@@ -329,12 +322,8 @@ class Sporran {
   /// Delete a document.
   ///
   /// Revision must be supplied if we are online
-  Future<dynamic> delete(String? id, [String? rev]) {
+  Future<dynamic> delete(String id, [String rev = '']) {
     final opCompleter = Completer<dynamic>();
-
-    if (id == null) {
-      return _raiseException(SporranException.deleteNoDocIdEx);
-    }
 
     /* Remove from Lawndart */
     _database.lawndart!.getByKey(id).then((String? document) {
@@ -418,16 +407,8 @@ class Sporran {
   /// String rev - maybe '', see above
   /// String contentType - mime type in the form 'image/png'
   /// String payload - stringified binary blob
-  Future<dynamic> putAttachment(String? id, dynamic attachment) {
+  Future<dynamic> putAttachment(String id, dynamic attachment) {
     final opCompleter = Completer<dynamic>();
-
-    if (id == null) {
-      return _raiseException(SporranException.putAttNoDocIdEx);
-    }
-
-    if (attachment == null) {
-      return _raiseException(SporranException.putAttNoAttEx);
-    }
 
     /* Update LawnDart */
     final key = '$id-${attachment.attachmentName}-'
@@ -505,21 +486,9 @@ class Sporran {
   /// Delete an attachment.
   /// Revision can be null if offline
   Future<dynamic> deleteAttachment(
-      String? id, String? attachmentName, String? rev) {
+      String id, String attachmentName, [String rev = '']) {
     final opCompleter = Completer<dynamic>();
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
-
-    if (id == null) {
-      return _raiseException(SporranException.deleteAttNoDocIdEx);
-    }
-
-    if (attachmentName == null) {
-      return _raiseException(SporranException.deleteAttNoAttNameEx);
-    }
-
-    if (online && (rev == null)) {
-      return _raiseException(SporranException.deleteAttNoRevEx);
-    }
 
     /* Remove from Lawndart */
     _database.lawndart!.getByKey(key).then((dynamic document) {
@@ -593,17 +562,9 @@ class Sporran {
   }
 
   /// Get an attachment
-  Future<dynamic> getAttachment(String? id, String? attachmentName) {
+  Future<dynamic> getAttachment(String id, String attachmentName) {
     final opCompleter = Completer<dynamic>();
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
-
-    if (id == null) {
-      return _raiseException(SporranException.getAttNoDocIdEx);
-    }
-
-    if (attachmentName == null) {
-      return _raiseException(SporranException.getAttNoAttNameEx);
-    }
 
     /* Check for offline, if so try the get from local storage */
     if (!online) {
@@ -671,12 +632,8 @@ class Sporran {
   /// Bulk document create.
   ///
   /// docList is a map of documents with their keys
-  Future<dynamic> bulkCreate(Map<String, JsonObjectLite<dynamic>>? docList) {
+  Future<dynamic> bulkCreate(Map<String, JsonObjectLite<dynamic>> docList) {
     final opCompleter = Completer<dynamic>();
-
-    if (docList == null) {
-      return _raiseException(SporranException.bulkCreateNoDocListEx);
-    }
 
     /* Futures list for LawnDart update */
     final updateList = <Future<dynamic>>[];
@@ -773,10 +730,10 @@ class Sporran {
   /// The includeDocs parameter is also forced to true.
   Future<JsonObjectLite<dynamic>> getAllDocs(
       {bool includeDocs = false,
-      int? limit,
-      String? startKey,
-      String? endKey,
-      List<String>? keys,
+      int limit = 10,
+      String startKey = '',
+      String endKey = '',
+      List<String> keys = const <String>[],
       bool descending = false}) {
     final opCompleter = Completer<JsonObjectLite<dynamic>>();
 
@@ -955,16 +912,12 @@ class Sporran {
   /// Login
   ///
   /// Allows log in credentials to be changed if needed.
-  void login(String? user, String? password) {
-    if (user == null || password == null) {
-      throw SporranException(SporranException.invalidLoginCredsEx);
-    }
-
+  void login(String user, String password) {
     _database.login(user, password);
   }
 
   /// Serialize a map to a JSON string
-  static String? _mapToJson(dynamic map) {
+  static String _mapToJson(dynamic map) {
     if (map is String) {
       try {
         final dynamic res = json.decode(map);
