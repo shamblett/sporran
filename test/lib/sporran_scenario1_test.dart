@@ -41,9 +41,9 @@ void main() {
 
   group('8. Scenario Tests 1 - ', () {
     late Sporran sporran8;
-    String? docid1rev;
-    String? docid2rev;
-    String? docid3rev;
+    var docid1rev = '';
+    var docid2rev = '';
+    var docid3rev = '';
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
@@ -202,9 +202,15 @@ void main() {
         final dynamic successResponse = res.payload;
         expect(successResponse.total_rows, equals(2));
         expect(successResponse.rows[0].id, equals('8docid1'));
-        docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
+        var tmp = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
+        if (tmp != null) {
+          docid1rev = tmp;
+        }
         expect(successResponse.rows[1].id, equals('8docid2'));
-        docid2rev = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
+        tmp = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
+        if (tmp != null) {
+          docid2rev = tmp;
+        }
         expect(successResponse.rows[0].doc.title, 'Document 1');
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute, 'Doc 1 attribute');

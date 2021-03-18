@@ -34,9 +34,9 @@ void main() {
 
   group('9. Scenario Tests 2 - ', () {
     late Sporran sporran9;
-    String? docid1rev;
-    String? docid2rev;
-    String? docid3rev;
+    var docid1rev = '';
+    var docid2rev = '';
+    var docid3rev = '';
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
@@ -256,7 +256,7 @@ void main() {
       document4.title = 'Document 4';
       document4.version = 4;
       document4.attribute = 'Doc 4 attribute';
-      sporran9.put('9docid4', document4, null).then(wrapper);
+      sporran9.put('9docid4', document4, '').then(wrapper);
     });
 
     test('11. Sync Pause', () {
@@ -290,7 +290,10 @@ void main() {
         final dynamic successResponse = res.payload;
         expect(successResponse.total_rows, equals(3));
         expect(successResponse.rows[0].id, equals('9docid1'));
-        docid1rev = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
+        var tmp = WiltUserUtils.getDocumentRev(successResponse.rows[0].doc);
+        if (tmp != null) {
+          docid1rev = tmp;
+        }
         expect(successResponse.rows[0].doc.title, 'Document 1');
         expect(successResponse.rows[0].doc.version, 1);
         expect(successResponse.rows[0].doc.attribute, 'Doc 1 attribute');
@@ -299,7 +302,10 @@ void main() {
         expect(doc1Attachments.length, 1);
         expect(doc1Attachments[0]['name'], 'AttachmentName2');
         expect(successResponse.rows[1].id, equals('9docid2'));
-        docid2rev = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
+        tmp = WiltUserUtils.getDocumentRev(successResponse.rows[1].doc);
+        if (tmp != null) {
+          docid2rev = tmp;
+        }
         expect(successResponse.rows[1].doc.title, 'Document 2 Updated');
         expect(successResponse.rows[1].doc.version, 2);
         expect(

@@ -37,9 +37,9 @@ void main() {
   group('9. Scenario Tests 1 - ', () {
     Sporran? sporran9;
     late Sporran sporran10;
-    String? docid1rev;
-    String? docid2rev;
-    String? docid3rev;
+    var docid1rev = '';
+    var docid2rev = '';
+    var docid3rev = '';
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
@@ -198,7 +198,7 @@ void main() {
         /* Kill this sporran */
         sporran9 = null;
       });
-      const List<String>? keys = null;
+      final keys = const <String>[];
       sporran9!.getAllDocs(includeDocs: true, keys: keys).then(wrapper);
     });
 
@@ -230,7 +230,7 @@ void main() {
         expect(sporran10.lawnIsOpen, isTrue);
         sporran10.online = false;
 
-        const List<String>? keys = null;
+        final keys = const <String>[];
         sporran10.getAllDocs(includeDocs: true, keys: keys).then(wrapper1);
       });
 

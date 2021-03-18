@@ -144,7 +144,9 @@ void main() {
             SporranException.headerEx + SporranException.putNoDocIdEx);
       });
 
-      sporran!.put(null, null).then((_) {}, onError: completer);
+      sporran!
+          .put('', JsonObjectLite<dynamic>())
+          .then((_) {}, onError: completer);
     });
 
     test('5. Get No Doc Id ', () {
@@ -156,7 +158,7 @@ void main() {
             SporranException.headerEx + SporranException.getNoDocIdEx);
       });
 
-      sporran!.get(null, null).then((_) {}, onError: completer);
+      sporran!.get('', '').then((_) {}, onError: completer);
     });
 
     test('6. Delete No Doc Id ', () {
@@ -168,7 +170,7 @@ void main() {
             SporranException.headerEx + SporranException.deleteNoDocIdEx);
       });
 
-      sporran!.delete(null, null).then((_) {}, onError: completer);
+      sporran!.delete('', '').then((_) {}, onError: completer);
     });
 
     test('7. Put Attachment No Doc Id ', () {
@@ -180,7 +182,7 @@ void main() {
             SporranException.headerEx + SporranException.putAttNoDocIdEx);
       });
 
-      sporran!.putAttachment(null, null).then((_) {}, onError: completer);
+      sporran!.putAttachment('', null).then((_) {}, onError: completer);
     });
 
     test('8. Put Attachment No Attachment ', () {
@@ -204,9 +206,7 @@ void main() {
             SporranException.headerEx + SporranException.deleteAttNoDocIdEx);
       });
 
-      sporran!
-          .deleteAttachment(null, null, null)
-          .then((_) {}, onError: completer);
+      sporran!.deleteAttachment('', '', '').then((_) {}, onError: completer);
     });
 
     test('10. Delete Attachment No Attachment Name ', () {
@@ -219,7 +219,7 @@ void main() {
       });
 
       sporran!
-          .deleteAttachment('billy', null, null)
+          .deleteAttachment('billy', '', '')
           .then((_) {}, onError: completer);
     });
 
@@ -233,7 +233,7 @@ void main() {
       });
       //sporran.online = false;
       sporran!
-          .deleteAttachment('billy', 'fred', null)
+          .deleteAttachment('billy', 'fred', '')
           .then((_) {}, onError: completer);
     });
 
@@ -246,7 +246,7 @@ void main() {
             SporranException.headerEx + SporranException.getAttNoDocIdEx);
       });
 
-      sporran!.getAttachment(null, null).then((_) {}, onError: completer);
+      sporran!.getAttachment('', '').then((_) {}, onError: completer);
     });
 
     test('13. Get Attachment No Attachment Name ', () {
@@ -258,7 +258,7 @@ void main() {
             SporranException.headerEx + SporranException.getAttNoAttNameEx);
       });
 
-      sporran!.getAttachment('billy', null).then((_) {}, onError: completer);
+      sporran!.getAttachment('billy', '').then((_) {}, onError: completer);
     });
 
     test('14. Bulk Create No Document List ', () {
@@ -270,14 +270,15 @@ void main() {
             SporranException.headerEx + SporranException.bulkCreateNoDocListEx);
       });
 
-      sporran!.bulkCreate(null).then((_) {}, onError: completer);
+      sporran!.bulkCreate(<String, JsonObjectLite<dynamic>>{}).then((_) {},
+          onError: completer);
     });
 
     test('15. Login invalid user ', () {
       print('2.15');
 
       try {
-        sporran!.login(null, 'password');
+        sporran!.login('', 'password');
       } on SporranException catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(),
@@ -289,24 +290,11 @@ void main() {
       print('2.16');
 
       try {
-        sporran!.login('billy', null);
+        sporran!.login('billy', '');
       } on SporranException catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
         expect(e.toString(),
             SporranException.headerEx + SporranException.invalidLoginCredsEx);
-      }
-    });
-
-    test('17. Null Initialiser ', () {
-      print('2.17');
-
-      try {
-        final bad = Sporran(null);
-        bad.toString();
-      } on SporranException catch (e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.noInitialiserEx);
       }
     });
   }, skip: false);
@@ -319,7 +307,7 @@ void main() {
     const docIdPutOffline = 'putOfflineg3';
     final dynamic onlineDoc = JsonObjectLite<dynamic>();
     final dynamic offlineDoc = JsonObjectLite<dynamic>();
-    String? onlineDocRev;
+    var onlineDocRev = '';
 
     test('1. Create and Open Sporran', () {
       print('3.1');
@@ -536,7 +524,7 @@ void main() {
     const docIdPutOffline = 'putOfflineg4';
     final dynamic onlineDoc = JsonObjectLite<dynamic>();
     final dynamic offlineDoc = JsonObjectLite<dynamic>();
-    String? onlineDocRev;
+    var onlineDocRev = '';
 
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
@@ -723,7 +711,7 @@ void main() {
 
       sporran4.online = false;
       sporran4
-          .deleteAttachment(docIdPutOffline, 'offlineAttachment', null)
+          .deleteAttachment(docIdPutOffline, 'offlineAttachment', '')
           .then(wrapper);
     });
 
@@ -739,7 +727,7 @@ void main() {
       });
 
       sporran4.online = false;
-      sporran4.deleteAttachment(docIdPutOffline, 'Billy', null).then(wrapper);
+      sporran4.deleteAttachment(docIdPutOffline, 'Billy', '').then(wrapper);
     }, skip: false);
 
     /*test('13. Group Pause', () {
@@ -755,9 +743,9 @@ void main() {
   /* Group 5 - Sporran Bulk Documents tests */
   group('5. Bulk Document Tests - ', () {
     late Sporran sporran5;
-    String? docid1rev;
-    String? docid2rev;
-    String? docid3rev;
+    var docid1rev = '';
+    var docid2rev = '';
+    var docid3rev = '';
 
     test('1. Create and Open Sporran', () {
       print('5.1');
