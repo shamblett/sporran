@@ -28,5 +28,5 @@ class LocalStorageStore extends _MapStore {
   }
 
   @override
-  Map<String, String?> _generateMap() => window.localStorage;
+  Map<String, String> _generateMap() => window.localStorage;
 }

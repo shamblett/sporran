@@ -341,13 +341,15 @@ class _SporranDatabase {
 
   /// Create local storage not updated entry
   JsonObjectLite<dynamic> _createNotUpdated(
-      String key, String? revision, JsonObjectLite<dynamic>? payload) {
+      String key, String revision, JsonObjectLite<dynamic> payload) {
     /* Add our type marker and set to 'not updated' */
     final dynamic update = JsonObjectLite<dynamic>();
     update.status = notUpdatedc;
     update.key = key;
     update.payload = payload;
-    update.rev = revision;
+    if (revision.isNotEmpty) {
+      update.rev = revision;
+    }
     return update;
   }
 
@@ -528,8 +530,7 @@ class _SporranDatabase {
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
       Map<String?, JsonObjectLite<dynamic>> documentsToUpdate) {
-    final completer =
-        Completer<Map<String, String>>();
+    final completer = Completer<Map<String, String>>();
     final revisions = <String, String>{};
 
     final length = documentsToUpdate.length;
