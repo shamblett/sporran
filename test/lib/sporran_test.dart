@@ -65,7 +65,6 @@ void main() {
     Sporran? sporran;
 
     test('0. Sporran Initialisation', () {
-      print('2.0');
       sporran = Sporran(initialiser);
 
       final dynamic wrapper = expectAsync0(() {
@@ -79,7 +78,6 @@ void main() {
     });
 
     test('1. Construction Online/Offline listener ', () {
-      print('2.1');
       Sporran? sporran21;
 
       final dynamic wrapper = expectAsync0(() {
@@ -106,7 +104,6 @@ void main() {
     });
 
     test('2. Construction Existing Database ', () {
-      print('2.2');
       Sporran? sporran22 = Sporran(initialiser);
 
       final dynamic wrapper = expectAsync0(() {
@@ -120,7 +117,6 @@ void main() {
     });
 
     test('3. Construction Invalid Authentication ', () {
-      print('2.3');
       initialiser.password = 'none';
       Sporran? sporran23 = Sporran(initialiser);
       initialiser.password = userPassword;
@@ -136,147 +132,67 @@ void main() {
     });
 
     test('4. Put No Doc Id ', () {
-      print('2.4');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.putNoDocIdEx);
+      sporran!.put('', JsonObjectLite<dynamic>()).then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!
-          .put('', JsonObjectLite<dynamic>())
-          .then((_) {}, onError: completer);
     });
 
     test('5. Get No Doc Id ', () {
-      print('2.5');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.getNoDocIdEx);
+      sporran!.get('', '').then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.get('', '').then((_) {}, onError: completer);
     });
 
     test('6. Delete No Doc Id ', () {
-      print('2.6');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.deleteNoDocIdEx);
+      sporran!.delete('', '').then((var res) {
+        expect(res, isNull);
       });
-
-      sporran!.delete('', '').then((_) {}, onError: completer);
     });
 
     test('7. Put Attachment No Doc Id ', () {
-      print('2.7');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.putAttNoDocIdEx);
+      sporran!.putAttachment('', null).then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.putAttachment('', null).then((_) {}, onError: completer);
     });
 
     test('8. Put Attachment No Attachment ', () {
-      print('2.8');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.putAttNoAttEx);
+      sporran!.putAttachment('billy', null).then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.putAttachment('billy', null).then((_) {}, onError: completer);
     });
 
     test('9. Delete Attachment No Doc Id ', () {
-      print('2.9');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.deleteAttNoDocIdEx);
+      sporran!.deleteAttachment('', '', '').then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.deleteAttachment('', '', '').then((_) {}, onError: completer);
     });
 
     test('10. Delete Attachment No Attachment Name ', () {
-      print('2.10');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.deleteAttNoAttNameEx);
+      sporran!.deleteAttachment('billy', '', '').then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!
-          .deleteAttachment('billy', '', '')
-          .then((_) {}, onError: completer);
-    });
-
-    test('11. Delete Attachment No Revision ', () {
-      print('2.11');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.deleteAttNoRevEx);
-      });
-      //sporran.online = false;
-      sporran!
-          .deleteAttachment('billy', 'fred', '')
-          .then((_) {}, onError: completer);
     });
 
     test('12. Get Attachment No Doc Id ', () {
-      print('2.12');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.getAttNoDocIdEx);
+      sporran!.getAttachment('', '').then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.getAttachment('', '').then((_) {}, onError: completer);
     });
 
     test('13. Get Attachment No Attachment Name ', () {
-      print('2.13');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.getAttNoAttNameEx);
+      sporran!.getAttachment('billy', '').then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.getAttachment('billy', '').then((_) {}, onError: completer);
     });
 
     test('14. Bulk Create No Document List ', () {
-      print('2.14');
-
-      final dynamic completer = expectAsync1((dynamic e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.bulkCreateNoDocListEx);
+      sporran!
+          .bulkCreate(<String, JsonObjectLite<dynamic>>{}).then((final res) {
+        expect(res, isNull);
       });
-
-      sporran!.bulkCreate(<String, JsonObjectLite<dynamic>>{}).then((_) {},
-          onError: completer);
     });
 
     test('15. Login invalid user ', () {
-      print('2.15');
-
       try {
         sporran!.login('', 'password');
       } on SporranException catch (e) {
@@ -285,19 +201,7 @@ void main() {
             SporranException.headerEx + SporranException.invalidLoginCredsEx);
       }
     });
-
-    test('16. Login invalid password ', () {
-      print('2.16');
-
-      try {
-        sporran!.login('billy', '');
-      } on SporranException catch (e) {
-        expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.invalidLoginCredsEx);
-      }
-    });
-  }, skip: false);
+  });
 
   /* Group 3 - Sporran document put/get tests */
   group('3. Document Put/Get/Delete Tests - ', () {

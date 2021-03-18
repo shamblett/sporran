@@ -57,7 +57,7 @@ class Sporran {
   /// Lawndart database
   Store get lawndart => _database.lawndart;
 
-  /// Lawndart databse is open
+  /// Lawndart database is open
   bool get lawnIsOpen => _database.lawnIsOpen;
 
   /// Wilt database
@@ -180,10 +180,14 @@ class Sporran {
   /// If the document does not exist a create is performed.
   ///
   /// For an update operation a specific revision must be specified.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
       [String rev = '']) {
     final opCompleter = Completer<dynamic>();
-
+    if (id.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     /* Update LawnDart */
     _database
         .updateLocalStorageObject(
@@ -242,9 +246,13 @@ class Sporran {
   }
 
   /// Get a document
+  /// /// If the parameters are invalid null is returned.
   Future<dynamic> get(String id, [String rev = '']) {
     final opCompleter = Completer<dynamic>();
-
+    if (id.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     /* Check for offline, if so try the get from local storage */
     if (!online) {
       _database.getLocalStorageObject(id).then((dynamic document) {
@@ -306,10 +314,14 @@ class Sporran {
 
   /// Delete a document.
   ///
-  /// Revision must be supplied if we are online
+  /// Revision must be supplied if we are online.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> delete(String id, [String rev = '']) {
     final opCompleter = Completer<dynamic>();
-
+    if (id.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     /* Remove from Lawndart */
     _database.lawndart.getByKey(id).then((String? document) {
       if (document != null) {
@@ -391,10 +403,18 @@ class Sporran {
   /// String attachmentName
   /// String rev - maybe '', see above
   /// String contentType - mime type in the form 'image/png'
-  /// String payload - stringified binary blob
+  /// String payload - stringified binary blob.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> putAttachment(String id, dynamic attachment) {
     final opCompleter = Completer<dynamic>();
-
+    if (id.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
+    if (attachment == null) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     /* Update LawnDart */
     final key = '$id-${attachment.attachmentName}-'
         '${_SporranDatabase.attachmentMarkerc}';
@@ -469,10 +489,19 @@ class Sporran {
   }
 
   /// Delete an attachment.
-  /// Revision can be null if offline
+  /// Revision can be null if offline.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> deleteAttachment(String id, String attachmentName,
       [String rev = '']) {
     final opCompleter = Completer<dynamic>();
+    if (id.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
+    if (attachmentName.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
     /* Remove from Lawndart */
@@ -527,7 +556,7 @@ class Sporran {
           }
         });
       } else {
-        /* Doesnt exist, return error */
+        /* Doesn't exist, return error */
         final dynamic res = JsonObjectLite<dynamic>();
         res.localResponse = true;
         res.operation = deleteAttachmentc;
@@ -546,9 +575,18 @@ class Sporran {
     return opCompleter.future;
   }
 
-  /// Get an attachment
+  /// Get an attachment.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> getAttachment(String id, String attachmentName) {
     final opCompleter = Completer<dynamic>();
+    if (id.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
+    if (attachmentName.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
     /* Check for offline, if so try the get from local storage */
@@ -616,10 +654,14 @@ class Sporran {
 
   /// Bulk document create.
   ///
-  /// docList is a map of documents with their keys
+  /// docList is a map of documents with their keys.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> bulkCreate(Map<String, JsonObjectLite<dynamic>> docList) {
     final opCompleter = Completer<dynamic>();
-
+    if (docList.isEmpty) {
+      opCompleter.complete(null);
+      return opCompleter.future;
+    }
     /* Futures list for LawnDart update */
     final updateList = <Future<dynamic>>[];
 
@@ -898,7 +940,11 @@ class Sporran {
   ///
   /// Allows log in credentials to be changed if needed.
   void login(String user, String password) {
-    _database.login(user, password);
+    if (user.isNotEmpty) {
+      _database.login(user, password);
+    } else {
+      throw SporranException(SporranException.invalidLoginCredsEx);
+    }
   }
 
   /// Serialize a map to a JSON string
