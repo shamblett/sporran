@@ -74,7 +74,7 @@ class IndexedDbStore extends Store {
       _runInTxn<String>((dynamic store) async => await store.put(obj, key));
 
   @override
-  Future<String> getByKey(String key) => _runInTxn<String>(
+  Future<dynamic> getByKey(String key) => _runInTxn<String>(
       (dynamic store) async => await store.getObject(key), 'readonly');
 
   @override
@@ -116,8 +116,10 @@ class IndexedDbStore extends Store {
   Stream<String> getByKeys(Iterable<String> keys) async* {
     for (final key in keys) {
       final v = await getByKey(key);
-      if (v.isNotEmpty) {
-        yield v;
+      if (v != null) {
+        if (v.isNotEmpty) {
+          yield v as String;
+        }
       }
     }
   }

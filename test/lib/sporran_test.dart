@@ -214,16 +214,13 @@ void main() {
     var onlineDocRev = '';
 
     test('1. Create and Open Sporran', () {
-      print('3.1');
-
       final dynamic wrapper1 = expectAsync0(() {
         expect(sporran3.lawnIsOpen, isTrue);
       });
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran3.dbName, databaseName);
-        final timer = Timer(const Duration(seconds: 3), wrapper1);
-        print(timer);
+        Timer(const Duration(seconds: 3), wrapper1);
       });
 
       sporran3 = Sporran(initialiser);
@@ -232,7 +229,6 @@ void main() {
     });
 
     test('2. Put Document Online docIdPutOnline', () {
-      print('3.2');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);
@@ -243,12 +239,12 @@ void main() {
         expect(res.payload.name, 'Online');
       });
 
+      sporran3.online = true;
       onlineDoc.name = 'Online';
       sporran3.put(docIdPutOnline, onlineDoc).then(wrapper);
     });
 
     test('3. Put Document Offline docIdPutOffline', () {
-      print('3.3');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putc);

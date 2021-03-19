@@ -388,9 +388,13 @@ class _SporranDatabase {
     final dynamic localObject = JsonObjectLite<dynamic>();
     final completer = Completer<JsonObjectLite<dynamic>>();
 
-    lawndart.getByKey(key).then((String document) {
-      localObject.payload = document;
-      completer.complete(localObject);
+    lawndart.getByKey(key).then((dynamic document) {
+      if (document != null) {
+        localObject.payload = document;
+        completer.complete(localObject);
+      } else {
+        completer.complete(null);
+      }
     });
 
     return completer.future;

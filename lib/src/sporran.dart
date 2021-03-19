@@ -239,7 +239,8 @@ class Sporran {
       }
 
       /* Do the put */
-      _database.wilt.putDocument(id, document, rev).then(completer);
+      final wiltRev = rev.isNotEmpty ? rev : null;
+      _database.wilt.putDocument(id, document, wiltRev).then(completer);
     });
 
     return opCompleter.future;
@@ -306,7 +307,8 @@ class Sporran {
       }
 
       /* Get the document from CouchDb with its attachments */
-      _database.wilt.getDocument(id, rev, true).then(completer);
+      final wiltRev = rev.isNotEmpty ? rev : null;
+      _database.wilt.getDocument(id, wiltRev, true).then(completer);
     }
 
     return opCompleter.future;
@@ -323,7 +325,7 @@ class Sporran {
       return opCompleter.future;
     }
     /* Remove from Lawndart */
-    _database.lawndart.getByKey(id).then((String? document) {
+    _database.lawndart.getByKey(id).then((dynamic document) {
       if (document != null) {
         _database.lawndart.removeByKey(id)
             // ignore: missing_return
@@ -369,7 +371,8 @@ class Sporran {
             }
 
             /* Delete the document from CouchDB */
-            _database.wilt.deleteDocument(id, rev).then(completer);
+            final wiltRev = rev.isNotEmpty ? rev : null;
+            _database.wilt.deleteDocument(id, wiltRev).then(completer);
           }
         });
       } else {
@@ -550,8 +553,9 @@ class Sporran {
             }
 
             /* Delete the attachment from CouchDB */
+            final wiltRev = rev.isNotEmpty ? rev : null;
             _database.wilt
-                .deleteAttachment(id, attachmentName, rev)
+                .deleteAttachment(id, attachmentName, wiltRev)
                 .then(completer);
           }
         });

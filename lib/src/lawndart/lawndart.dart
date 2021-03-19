@@ -92,7 +92,7 @@ abstract class Store {
 
   /// Returns a Future that completes with the value for a key,
   /// or null if the key does not exist.
-  Future<String> getByKey(String key);
+  Future<dynamic> getByKey(String key);
 
   /// Returns a Stream of all values for the keys.
   /// If a particular key is not found,
