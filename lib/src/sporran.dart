@@ -262,7 +262,7 @@ class Sporran {
         res.operation = getc;
         res.id = id;
         res.rev = null;
-        if (document.isEmpty) {
+        if (document == null) {
           res.ok = false;
           res.payload = null;
         } else {
@@ -601,7 +601,7 @@ class Sporran {
         res.id = id;
         res.rev = null;
         res.operation = getAttachmentc;
-        if (document.isEmpty) {
+        if (document == null) {
           res.ok = false;
           res.payload = null;
         } else {
@@ -622,7 +622,7 @@ class Sporran {
         res.operation = getAttachmentc;
         res.id = id;
         res.localResponse = false;
-        res.rev = null;
+        res.rev = '';
 
         if (!res.error) {
           final dynamic successResponse = res.jsonCouchResponse;

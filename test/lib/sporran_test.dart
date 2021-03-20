@@ -39,7 +39,6 @@ void main() async {
 
   /* Group 1 - Environment tests */
   group('1. Environment Tests - ', () {
-    print('1.1');
     var status = 'online';
 
     test('Online/Offline', () {
@@ -513,7 +512,7 @@ void main() async {
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         expect(res.payload.attachmentName, 'onlineAttachment');
-        expect(res.payload.contentType, 'image/png');
+        expect(res.payload.contentType, 'image/png; charset=utf-8');
         expect(res.payload.payload, attachmentPayload);
       });
 
@@ -542,7 +541,6 @@ void main() async {
     });
 
     test('8. Get Document Online docIdPutOnline', () {
-      print('4.8');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -558,7 +556,6 @@ void main() async {
     });
 
     test('9. Delete Attachment Online docIdPutOnline', () {
-      print('4.9');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -575,7 +572,6 @@ void main() async {
     });
 
     test('10. Delete Document Online docIdPutOnline', () {
-      print('4.10');
       final dynamic wrapper = expectAsync1((dynamic res) {});
 
       /* Tidy up only, tested in group 3 */
@@ -583,7 +579,6 @@ void main() async {
     });
 
     test('11. Delete Attachment Offline docIdPutOffline', () {
-      print('4.11');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -600,7 +595,6 @@ void main() async {
     });
 
     test('12. Delete Attachment Not Exist', () {
-      print('4.12');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.deleteAttachmentc);
@@ -613,15 +607,6 @@ void main() async {
       sporran4.online = false;
       sporran4.deleteAttachment(docIdPutOffline, 'Billy', '').then(wrapper);
     }, skip: false);
-
-    /*test('13. Group Pause', () {
-
-      print('4.13');
-      var wrapper = expectAsync0(() {});
-
-      Timer pause = Timer(Duration(seconds: 3), wrapper);
-
-    });*/
   });
 
   /* Group 5 - Sporran Bulk Documents tests */
@@ -632,7 +617,6 @@ void main() async {
     var docid3rev = '';
 
     test('1. Create and Open Sporran', () {
-      print('5.1');
       final dynamic wrapper = expectAsync0(() {
         expect(sporran5.dbName, databaseName);
         expect(sporran5.lawnIsOpen, isTrue);
@@ -645,7 +629,6 @@ void main() async {
     });
 
     test('2. Bulk Insert Documents Online', () {
-      print('5.2');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -689,7 +672,6 @@ void main() async {
     });
 
     test('3. Bulk Insert Documents Offline', () {
-      print('5.3');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -728,7 +710,6 @@ void main() async {
     });
 
     test('4. Get All Docs Online', () {
-      print('5.4');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -745,7 +726,6 @@ void main() async {
     });
 
     test('5. Get All Docs Offline', () {
-      print('5.5');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -753,7 +733,7 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        expect(res.payload.length, 6);
+        expect(res.payload.length, greaterThanOrEqualTo(6));
         expect(res.payload['docid1'].payload.title, 'Document 1');
         expect(res.payload['docid2'].payload.title, 'Document 2');
         expect(res.payload['docid3'].payload.title, 'Document 3');
@@ -776,7 +756,6 @@ void main() async {
     });
 
     test('6. Get Database Info Offline', () {
-      print('5.6');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -784,7 +763,7 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        expect(res.payload.length, 6);
+        expect(res.payload.length, greaterThanOrEqualTo(6));
         expect(res.payload.contains('docid1'), isTrue);
         expect(res.payload.contains('docid2'), isTrue);
         expect(res.payload.contains('docid3'), isTrue);
@@ -797,7 +776,6 @@ void main() async {
     });
 
     test('7. Get Database Info Online', () {
-      print('5.7');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -814,23 +792,13 @@ void main() async {
     });
 
     test('8. Tidy Up All Docs Online', () {
-      print('5.8');
       final dynamic wrapper = expectAsync1((dynamic res) {}, count: 3);
 
       sporran5.delete('docid1', docid1rev).then(wrapper);
       sporran5.delete('docid2', docid2rev).then(wrapper);
       sporran5.delete('docid3', docid3rev).then(wrapper);
     });
-
-    /*test('9. Group Pause', () {
-
-      print('5.9');
-      var wrapper = expectAsync0(() {});
-
-      Timer pause = Timer(Duration(seconds: 3), wrapper);
-
-    });*/
-  }, skip: false);
+  });
 
   /* Group 6 - Sporran Change notification tests */
   group('6. Change notification Tests Documents - ', () {
@@ -852,7 +820,6 @@ void main() async {
     String? docId3Rev;
 
     test('1. Create and Open Sporran', () {
-      print('6.1');
       final dynamic wrapper = expectAsync0(() {
         expect(sporran6.dbName, databaseName);
         expect(sporran6.lawnIsOpen, isTrue);
@@ -866,7 +833,6 @@ void main() async {
     });
 
     test('2. Wilt - Bulk Insert Supplied Keys', () {
-      print('6.2');
       final dynamic completer = expectAsync1((dynamic res) {
         try {
           expect(res.error, isFalse);
@@ -916,14 +882,12 @@ void main() async {
 
     /* Pause a little for the notifications to come through */
     test('3. Notification Pause', () {
-      print('6.4');
       final dynamic wrapper = expectAsync0(() {});
       Timer(const Duration(seconds: 3), wrapper);
     });
 
     /* Go offline and get our created documents, from local storage */
     test('4. Get Document Offline MyBulkId1', () {
-      print('6.4');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -939,7 +903,6 @@ void main() async {
     });
 
     test('5. Get Document Offline MyBulkId2', () {
-      print('6.5');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -954,7 +917,6 @@ void main() async {
     });
 
     test('6. Get Document Offline MyBulkId3', () {
-      print('6.6');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.getc);
@@ -969,7 +931,6 @@ void main() async {
     });
 
     test('7. Wilt - Delete Document MyBulkId1', () {
-      print('6.7');
       final dynamic wrapper = expectAsync1((dynamic res) {
         try {
           expect(res.error, isFalse);
@@ -993,7 +954,6 @@ void main() async {
     });
 
     test('8. Wilt - Delete Document MyBulkId2', () {
-      print('6.8');
       final dynamic wrapper = expectAsync1((dynamic res) {
         try {
           expect(res.error, isFalse);
@@ -1017,7 +977,6 @@ void main() async {
     });
 
     test('9. Wilt - Delete Document MyBulkId3', () {
-      print('6.9');
       final dynamic wrapper = expectAsync1((dynamic res) {
         try {
           expect(res.error, isFalse);
@@ -1042,14 +1001,12 @@ void main() async {
 
     /* Pause a little for the notifications to come through */
     test('10. Notification Pause', () {
-      print('6.10');
       final dynamic wrapper = expectAsync0(() {});
       Timer(const Duration(seconds: 3), wrapper);
     });
 
     /* Go offline and get our created documents, from local storage */
     test('11. Get Document Offline Deleted MyBulkId1', () {
-      print('6.11');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -1061,7 +1018,6 @@ void main() async {
     });
 
     test('12. Get Document Offline Deleted MyBulkId2', () {
-      print('6.12');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -1072,7 +1028,6 @@ void main() async {
     });
 
     test('13. Get Document Offline Deleted MyBulkId3', () {
-      print('6.13');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getc);
@@ -1083,7 +1038,6 @@ void main() async {
     });
 
     test('14. Group Pause', () {
-      print('6.14');
       final dynamic wrapper = expectAsync0(() {});
       Timer(const Duration(seconds: 3), wrapper);
     });
@@ -1109,7 +1063,6 @@ void main() async {
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test('1. Create and Open Sporran', () {
-      print('7.1');
       final dynamic wrapper = expectAsync0(() {
         expect(sporran7.dbName, databaseName);
         expect(sporran7.lawnIsOpen, isTrue);
@@ -1123,7 +1076,6 @@ void main() async {
     });
 
     test('2. Wilt - Bulk Insert Supplied Keys', () {
-      print('7.2');
       final dynamic completer = expectAsync1((dynamic res) {
         try {
           expect(res.error, isFalse);
@@ -1171,13 +1123,11 @@ void main() async {
 
     /* Pause a little for the notifications to come through */
     test('3. Notification Pause', () {
-      print('7.3');
       final dynamic wrapper = expectAsync0(() {});
       Timer(const Duration(seconds: 3), wrapper);
     });
 
     test('4. Create Attachment Online MyBulkId1 Attachment 1', () {
-      print('7.4');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -1200,7 +1150,6 @@ void main() async {
     });
 
     test('5. Create Attachment Online MyBulkId1 Attachment 2', () {
-      print('7.5');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
@@ -1224,13 +1173,11 @@ void main() async {
 
     /* Pause a little for the notifications to come through */
     test('6. Notification Pause', () {
-      print('7.6');
       final dynamic wrapper = expectAsync0(() {});
       Timer(const Duration(seconds: 3), wrapper);
     });
 
     test('7. Delete Attachment Online MyBulkId1 Attachment 1', () {
-      print('7.7');
       final dynamic completer = expectAsync1((dynamic res) {
         try {
           expect(res.error, isFalse);
@@ -1258,13 +1205,11 @@ void main() async {
     });
 
     test('8. Notification Pause', () {
-      print('7.8');
       final dynamic wrapper = expectAsync0(() {});
       Timer(const Duration(seconds: 3), wrapper);
     });
 
     test('9. Get Attachment Offline MyBulkId1 AttachmentName1', () {
-      print('7.9');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isFalse);
         expect(res.operation, Sporran.getAttachmentc);
@@ -1274,5 +1219,5 @@ void main() async {
       sporran7.online = false;
       sporran7.getAttachment('MyBulkId1', 'AttachmentName1').then(wrapper);
     });
-  }, skip: false);
+  });
 }
