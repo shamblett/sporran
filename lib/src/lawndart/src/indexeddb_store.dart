@@ -74,7 +74,7 @@ class IndexedDbStore extends Store {
       _runInTxn<String>((dynamic store) async => await store.put(obj, key));
 
   @override
-  Future<dynamic> getByKey(String key) => _runInTxn<String>(
+  Future<dynamic> getByKey(String key) => _runInTxn<dynamic>(
       (dynamic store) async => await store.getObject(key), 'readonly');
 
   @override

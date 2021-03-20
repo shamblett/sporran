@@ -383,10 +383,11 @@ class _SporranDatabase {
     return completer.future;
   }
 
-  /// Get an object from local storage
-  Future<JsonObjectLite<dynamic>> getLocalStorageObject(String key) {
+  /// Get an object from local storage.
+  /// Returns null if the object cannot be found.
+  Future<dynamic> getLocalStorageObject(String key) {
     final dynamic localObject = JsonObjectLite<dynamic>();
-    final completer = Completer<JsonObjectLite<dynamic>>();
+    final completer = Completer<dynamic>();
 
     lawndart.getByKey(key).then((dynamic document) {
       if (document != null) {

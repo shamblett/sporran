@@ -247,7 +247,7 @@ class Sporran {
   }
 
   /// Get a document
-  /// /// If the parameters are invalid null is returned.
+  /// If the parameters are invalid null is returned.
   Future<dynamic> get(String id, [String rev = '']) {
     final opCompleter = Completer<dynamic>();
     if (id.isEmpty) {
