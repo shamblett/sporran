@@ -14,10 +14,10 @@ import 'package:json_object_lite/json_object_lite.dart';
 import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
-void main() {
+void main() async {
   /* Common initialiser */
   final initialiser = SporranInitialiser();
-  initialiser.dbName = databaseName;
+  initialiser.dbName = 'scenariotest1';
   initialiser.hostname = hostName;
   initialiser.manualNotificationControl = false;
   initialiser.port = port;
@@ -25,8 +25,11 @@ void main() {
   initialiser.username = userName;
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
-  Timer? pause;
-  print(pause);
+
+  // Delete any existing test databases
+  final deleter = Wilt('localhost');
+  deleter.login(userName, userPassword);
+  await deleter.deleteDatabase('scenariotest1');
 
   /* Group 8 - Sporran Scenario test 1 */
   /**
@@ -48,9 +51,8 @@ void main() {
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
     test('1. Create and Open Sporran', () {
-      print('8.1');
       final dynamic wrapper = expectAsync0(() {
-        expect(sporran8.dbName, databaseName);
+        expect(sporran8.dbName, 'scenariotest1');
         expect(sporran8.lawnIsOpen, isTrue);
         sporran8.online = false;
       });
@@ -60,7 +62,6 @@ void main() {
     });
 
     test('2. Bulk Insert Documents Offline', () {
-      print('8.2');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -98,14 +99,13 @@ void main() {
     });
 
     test('3. Create Attachment Offline docid1 Attachment 1', () {
-      print('8.3');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, '8docid1');
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
-        docid1rev = res.rev;
+        docid1rev = res.rev ?? '';
         expect(res.payload.attachmentName, 'AttachmentName1');
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -120,14 +120,13 @@ void main() {
     });
 
     test('4. Create Attachment Offline docid1 Attachment 2', () {
-      print('8.4');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, '8docid1');
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
-        docid1rev = res.rev;
+        docid1rev = res.rev ?? '';
         expect(res.payload.attachmentName, 'AttachmentName2');
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -142,14 +141,13 @@ void main() {
     });
 
     test('5. Create Attachment Offline docid2 Attachment 1', () {
-      print('8.5');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.operation, Sporran.putAttachmentc);
         expect(res.id, '8docid2');
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
-        docid2rev = res.rev;
+        docid2rev = res.rev ?? '';
         expect(res.payload.attachmentName, 'AttachmentName1');
         expect(res.payload.contentType, 'image/png');
         expect(res.payload.payload, attachmentPayload);
@@ -164,7 +162,6 @@ void main() {
     });
 
     test('6. Delete Document Offline docid3', () {
-      print('8.6');
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isTrue);
@@ -178,20 +175,7 @@ void main() {
       sporran8.delete('8docid3', docid3rev).then(wrapper);
     });
 
-    test('7. Transition to online', () {
-      print('8.7');
-      sporran8.online = true;
-    });
-
-    test('8. Sync Pause', () {
-      print('8.8');
-      final dynamic wrapper = expectAsync0(() {});
-
-      pause = Timer(const Duration(seconds: 6), wrapper);
-    });
-
-    test('9. Check - Get All Docs Online', () {
-      print('8.9');
+    test('7. Check - Get All Docs Online', () {
       final dynamic wrapper = expectAsync1((dynamic res) {
         expect(res.ok, isTrue);
         expect(res.localResponse, isFalse);
@@ -225,7 +209,11 @@ void main() {
         expect(doc2Attachments.length, 1);
       });
 
-      sporran8.getAllDocs(includeDocs: true).then(wrapper);
+      final dynamic cmdWrapper = expectAsync0(() {
+        sporran8.getAllDocs(includeDocs: true).then(wrapper);
+      });
+      sporran8.online = true;
+      Timer(const Duration(seconds: 20), cmdWrapper);
     });
   });
 }

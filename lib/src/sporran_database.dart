@@ -534,14 +534,20 @@ class _SporranDatabase {
 
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
-      Map<String?, JsonObjectLite<dynamic>> documentsToUpdate) {
+      Map<String, JsonObjectLite<dynamic>> documentsToUpdate) {
     final completer = Completer<Map<String, String>>();
     final revisions = <String, String>{};
 
     final length = documentsToUpdate.length;
     var count = 0;
-    documentsToUpdate.forEach((String? key, dynamic document) {
-      update(key!, document.payload, document.rev).then((String rev) {
+    documentsToUpdate.forEach((String key, dynamic document) {
+      final jsonDoc = JsonObjectLite();
+      JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
+      if (!jsonDoc.containsKey('rev')) {
+        document.isImmutable = false;
+        document.rev = '';
+      }
+      update(key, document.payload, document.rev).then((String rev) {
         revisions[document.key] = rev;
         count++;
         if (count == length) {
@@ -613,7 +619,12 @@ class _SporranDatabase {
        * If there is no revision the document hasn't been updated
        * from Couch, we have to ignore this here.
        */
-      final String? revision = document.rev;
+      var revision;
+      final jsonDoc = JsonObjectLite();
+      JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
+      if (jsonDoc.contains('rev')) {
+        revision = document.rev;
+      }
       if (revision != null) {
         /* Check for an attachment */
         final List<String> keyList = key.split('-');
