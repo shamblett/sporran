@@ -527,7 +527,11 @@ class _SporranDatabase {
     }
 
     wilting.db = _dbName!;
-    wilting.putDocument(key, document, revision).then(localCompleter);
+    var docRevision;
+    if (revision.isNotEmpty) {
+      docRevision = revision;
+    }
+    wilting.putDocument(key, document, docRevision).then(localCompleter);
 
     return completer.future;
   }
