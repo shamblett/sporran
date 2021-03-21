@@ -651,7 +651,11 @@ class _SporranDatabase {
           lawndart.removeByKey(key);
         }
       }
-      delete(key, revision);
+      // If we have no revision the document is not yet in CouchDb
+      // so we can't delete it.
+      if (revision != null) {
+        delete(key, revision);
+      }
     });
 
     pendingDeletes.clear();

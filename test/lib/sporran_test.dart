@@ -354,7 +354,7 @@ void main() async {
         expect(res.operation, Sporran.deletec);
         expect(res.id, docIdPutOffline);
         expect(res.payload, isNull);
-        expect(res.rev, isNull);
+        expect(res.rev, '');
         expect(sporran3.pendingDeleteSize, 1);
       });
 

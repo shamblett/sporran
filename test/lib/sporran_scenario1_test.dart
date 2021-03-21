@@ -168,7 +168,7 @@ void main() async {
         expect(res.operation, Sporran.deletec);
         expect(res.id, '8docid3');
         expect(res.payload, isNull);
-        expect(res.rev, isNull);
+        expect(res.rev, '');
         expect(sporran8.pendingDeleteSize, 1);
       });
 
