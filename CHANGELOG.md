@@ -1,3 +1,6 @@
+## 6.0.0
+Issue 22(NNBD)
+
 ## 5.0.0
 Issue 21, the port parameter is now an int not a String.
 
