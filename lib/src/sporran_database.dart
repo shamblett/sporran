@@ -39,7 +39,7 @@ class _SporranDatabase {
     _lawndart = await IndexedDbStore.open(_dbName, 'Sporran');
     _lawnIsOpen = true;
     // Delete the local database unless told to preserve it.
-    if (_preserveLocalDatabase) {
+    if (!_preserveLocalDatabase) {
       await _lawndart.nuke();
     }
     // Instantiate a Wilt object
