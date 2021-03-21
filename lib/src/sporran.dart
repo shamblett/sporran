@@ -340,7 +340,7 @@ class Sporran {
             res.ok = true;
             res.id = id;
             res.payload = null;
-            res.rev = null;
+            res.rev = rev;
             opCompleter.complete(res);
             if (_clientCompleter != null) {
               _completionResponse = _createCompletionResponse(res);

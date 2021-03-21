@@ -433,7 +433,11 @@ class _SporranDatabase {
     }
 
     wilting.db = _dbName!;
-    wilting.deleteDocument(key, revision);
+    var docRevision;
+    if (revision.isNotEmpty) {
+      docRevision = revision;
+    }
+    wilting.deleteDocument(key, docRevision);
   }
 
   /// Delete a CouchDb attachment.
@@ -450,7 +454,11 @@ class _SporranDatabase {
     }
 
     wilting.db = _dbName!;
-    wilting.deleteAttachment(key, name, revision);
+    var docRevision;
+    if (revision.isNotEmpty) {
+      docRevision = revision;
+    }
+    wilting.deleteAttachment(key, name, docRevision);
   }
 
   /// Update/create a CouchDb attachment
@@ -502,8 +510,12 @@ class _SporranDatabase {
     }
 
     wilting.db = _dbName!;
+    var docRevision;
+    if (revision.isNotEmpty) {
+      docRevision = revision;
+    }
     await wilting
-        .updateAttachment(key, name, revision, contentType, payload)
+        .updateAttachment(key, name, docRevision, contentType, payload)
         .then(putCompleter);
   }
 
@@ -626,7 +638,7 @@ class _SporranDatabase {
       var revision;
       final jsonDoc = JsonObjectLite();
       JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
-      if (jsonDoc.contains('rev')) {
+      if (jsonDoc.containsKey('rev')) {
         revision = document.rev;
       }
       if (revision != null) {
@@ -637,10 +649,9 @@ class _SporranDatabase {
           deleteAttachment(keyList[0], keyList[1], revision);
           /* Just in case */
           lawndart.removeByKey(key);
-        } else {
-          delete(key, revision);
         }
       }
+      delete(key, revision);
     });
 
     pendingDeletes.clear();
