@@ -1,0 +1,28 @@
+SPDXVersion: SPDX-2.2DataLicense: CC0-1.0SPDXID: SPDXRef-DOCUMENTDocumentName: sporranDocumentNamespace: https://pub.dev/packages/sporranLicenseListVersion: 3.8Creator: Tool: https://pub.dev/packages/sbomCreated: 2022-09-06T15:13:47Z
+
+PackageName: sporranSPDXID: SPDXRef-Package-sporranPackageVersion: 6.0.1PackageFileName: sporranPackageSupplier: NOASSERTIONPackageOriginator: NOASSERTIONPackageDownloadLocation: https://pub.dev/packages/sporranFilesAnalyzed: truePackageVerificationCode: a178b91683c49e9329612f1ddd4e4ddd60701c61PackageHomePage: https://pub.dev/packages/sporranPackageLicenseConcluded: NOASSERTIONPackageLicenseInfoFromFiles: NOASSERTIONPackageLicenseDeclared: NOASSERTIONPackageCopyrightText: NOASSERTIONPackageSummary: <text>A PouchDB alike for Dart. Uses lawndart for local storage and Wilt for CouchDB access.</text>
+
+FileName: /lib/sporran.dartSPDXID: SPDXRef-sporran-0FileType: SOURCEFileChecksum: SHA1: 956fb5512cd93f546de64db544287053131b3586LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/lawndart/lawndart.dartSPDXID: SPDXRef-lawndart-1FileType: SOURCEFileChecksum: SHA1: 72083355947f2823e23bf09cd6f8c54e23c02969LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/lawndart/src/indexeddb_store.dartSPDXID: SPDXRef-indexeddb-store-2FileType: SOURCEFileChecksum: SHA1: edcba82a3c0bae8837deebb1f9fb4bb3a8d6c5c9LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/lawndart/src/local_storage_store.dartSPDXID: SPDXRef-local-storage-store-3FileType: SOURCEFileChecksum: SHA1: 6676685c062b701296be7e98ca682380b8550d3eLicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/lawndart/src/map_store.dartSPDXID: SPDXRef-map-store-4FileType: SOURCEFileChecksum: SHA1: 159faa2fc9bc7dff6bbb67491a1be7bfa9404765LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/lawndart/src/memory_store.dartSPDXID: SPDXRef-memory-store-5FileType: SOURCEFileChecksum: SHA1: e9368d09cdb8a21ef4882ebff70a005602ab03d9LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/sporran.dartSPDXID: SPDXRef-sporran-6FileType: SOURCEFileChecksum: SHA1: 997f518314d335b11a556d5786130c8534eeaf25LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/sporran_database.dartSPDXID: SPDXRef-sporran-database-7FileType: SOURCEFileChecksum: SHA1: 668ca27df92f7c0af4bbaf0ea134c2c46de92461LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/sporran_exception.dartSPDXID: SPDXRef-sporran-exception-8FileType: SOURCEFileChecksum: SHA1: c3253bdf2b2150cb0baab7642aa197257854b842LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /lib/src/sporran_initialiser.dartSPDXID: SPDXRef-sporran-initialiser-9FileType: SOURCEFileChecksum: SHA1: 6893fa2d501058143ed7b86a5d611cd0c00f7247LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+FileName: /pubspec.yamlSPDXID: SPDXRef-pubspec-10FileType: TEXTFileChecksum: SHA1: 689e84abd0b4fcee7847c1e8613b3ca722560899LicenseConcluded: NOASSERTIONLicenseInfoInFile: NOASSERTIONFileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-pubspec-10 DEPENDENCY_MANIFEST_OF SPDXRef-Package-sporran
+

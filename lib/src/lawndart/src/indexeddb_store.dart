@@ -23,10 +23,10 @@ class IndexedDbStore extends Store {
   static final Map<String, idb.Database> _databases = <String, idb.Database>{};
 
   /// Database name
-  final dbName;
+  final String dbName;
 
   /// Store name
-  final storeName;
+  final String storeName;
 
   /// Open
   static Future<IndexedDbStore> open(String dbName, String storeName) async {
@@ -48,12 +48,12 @@ class IndexedDbStore extends Store {
       _db!.close();
     }
 
-    var db = await window.indexedDB!.open(dbName!);
+    var db = await window.indexedDB!.open(dbName);
 
     if (!db.objectStoreNames!.contains(storeName)) {
       db.close();
       //print('Attempting upgrading $storeName from ${db.version}');
-      db = await window.indexedDB!.open(dbName!, version: db.version! + 1,
+      db = await window.indexedDB!.open(dbName, version: db.version! + 1,
           onUpgradeNeeded: (dynamic e) {
         final idb.Database d = e.target.result;
         d.createObjectStore(storeName);
@@ -109,6 +109,7 @@ class IndexedDbStore extends Store {
       objectsByKey.forEach((dynamic k, dynamic v) {
         store.put(v, k);
       });
+      return null;
     });
   }
 
@@ -129,6 +130,7 @@ class IndexedDbStore extends Store {
     // ignore: missing_return
     return _runInTxn((dynamic store) {
       keys.forEach(store.delete);
+      return null;
     });
   }
 

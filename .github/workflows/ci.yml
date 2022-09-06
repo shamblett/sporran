@@ -1,0 +1,71 @@
+name: Build Status
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: browser-actions/setup-chrome@latest
+      - run: chrome --version
+
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: dart analyze
+
+      - name: Pull Couchdb
+        shell: bash
+        run: |
+          docker pull couchdb:latest
+
+      - name: Start Couchdb
+        shell: bash
+        run: |
+          docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password --name couchdb -p 5984:5984 -d couchdb:latest
+
+      - name: Check Couchdb
+        shell: bash
+        run: |
+          docker ps -a
+
+      - name: Run tests
+        run: dart run build_runner test --fail-on-severe -- -p chrome
+
+  package-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: axel-op/dart-package-analyzer@v3
+        id: analysis # set an id for the current step
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      # You can then use this id to retrieve the outputs in the next steps.
+      # The following step shows how to exit the workflow with an error if a score is below 100:
+      - name: Check scores
+        env:
+          # NB: "analysis" is the id set above. Replace it with the one you used if different.
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < 50 ))
+          then
+            echo Score too low!
+            exit 1
+          fi

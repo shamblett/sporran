@@ -1,4 +1,5 @@
 # Sporran - a PouchDB alike database client for Dart
+[![Build Status](https://github.com/shamblett/sporran/actions/workflows/ci.yml/badge.svg)](https://github.com/shamblett/sporran/actions/workflows/ci.yml)
 
 ## Introduction
 

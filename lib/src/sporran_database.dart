@@ -53,7 +53,7 @@ class _SporranDatabase {
   }
 
   /// Host name
-  final _host;
+  final String _host;
   String get host => _host;
 
   /// Port number
@@ -91,7 +91,7 @@ class _SporranDatabase {
   bool get lawnIsOpen => _lawnIsOpen;
 
   /// Database name
-  final _dbName;
+  final String _dbName;
   String get dbName => _dbName;
 
   /// CouchDb database is intact
@@ -199,7 +199,7 @@ class _SporranDatabase {
     /// If the CouchDb database does not exist create it.
     void createCompleter(dynamic res) {
       if (!res.error) {
-        _wilt.db = _dbName!;
+        _wilt.db = _dbName;
         _noCouchDb = false;
       } else {
         _noCouchDb = true;
@@ -230,7 +230,7 @@ class _SporranDatabase {
         final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
         final created = successResponse.contains(_dbName);
         if (created == false) {
-          _wilt.createDatabase(_dbName!).then(createCompleter);
+          _wilt.createDatabase(_dbName).then(createCompleter);
         } else {
           _wilt.db = _dbName;
           _noCouchDb = false;
@@ -322,7 +322,7 @@ class _SporranDatabase {
       }
 
       /* Get the attachment */
-      wilting.db = _dbName!;
+      wilting.db = _dbName;
       wilting.getAttachment(id, attachment.name).then(completer);
     }
   }
@@ -432,8 +432,8 @@ class _SporranDatabase {
       wilting.login(_user, _password);
     }
 
-    wilting.db = _dbName!;
-    var docRevision;
+    wilting.db = _dbName;
+    String docRevision = '';
     if (revision.isNotEmpty) {
       docRevision = revision;
     }
@@ -453,8 +453,8 @@ class _SporranDatabase {
       wilting.login(_user, _password);
     }
 
-    wilting.db = _dbName!;
-    var docRevision;
+    wilting.db = _dbName;
+    String docRevision = '';
     if (revision.isNotEmpty) {
       docRevision = revision;
     }
@@ -509,8 +509,8 @@ class _SporranDatabase {
       }
     }
 
-    wilting.db = _dbName!;
-    var docRevision;
+    wilting.db = _dbName;
+    String docRevision = '';
     if (revision.isNotEmpty) {
       docRevision = revision;
     }
@@ -538,8 +538,8 @@ class _SporranDatabase {
       }
     }
 
-    wilting.db = _dbName!;
-    var docRevision;
+    wilting.db = _dbName;
+    String docRevision = '';
     if (revision.isNotEmpty) {
       docRevision = revision;
     }
@@ -602,7 +602,7 @@ class _SporranDatabase {
     final docs = WiltUserUtils.createBulkInsertString(documentList);
 
     /* Do the bulk create*/
-    wilting.db = _dbName!;
+    wilting.db = _dbName;
     wilting.bulkString(docs).then((dynamic res) {
       completer.complete(res);
     });
@@ -633,29 +633,26 @@ class _SporranDatabase {
     pendingDeletes.forEach((dynamic key, dynamic document) {
       /**
        * If there is no revision the document hasn't been updated
-       * from Couch, we have to ignore this here.
+       * from CouchDb.
        */
-      var revision;
+      String revision = '';
       final jsonDoc = JsonObjectLite();
       JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
       if (jsonDoc.containsKey('rev')) {
         revision = document.rev;
+      } else {
+        return;
       }
-      if (revision != null) {
-        /* Check for an attachment */
-        final List<String> keyList = key.split('-');
-        if ((keyList.length == 3) &&
-            (keyList[2] == _SporranDatabase.attachmentMarkerc)) {
-          deleteAttachment(keyList[0], keyList[1], revision);
-          /* Just in case */
-          lawndart.removeByKey(key);
-        }
+      final List<String> keyList = key.split('-');
+      if ((keyList.length == 3) &&
+          (keyList[2] == _SporranDatabase.attachmentMarkerc)) {
+        deleteAttachment(keyList[0], keyList[1], revision);
+        /* Just in case */
+        lawndart.removeByKey(key);
       }
       // If we have no revision the document is not yet in CouchDb
       // so we can't delete it.
-      if (revision != null) {
-        delete(key, revision);
-      }
+      delete(key, revision);
     });
 
     pendingDeletes.clear();
