@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - uses: browser-actions/setup-chrome@latest
-      - run: chrome --version
+      - run: chrome --version --disable-web-security
 
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1

@@ -72,7 +72,7 @@ void main() async {
       final dynamic wrapper = expectAsync0(() {
         expect(sporran, isNotNull);
         expect(sporran!.dbName, databaseName);
-        expect(sporran!.online, true);
+        expect(sporran!.online, false);
       });
 
       sporran!.autoSync = false;
