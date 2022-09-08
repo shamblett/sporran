@@ -7,6 +7,48 @@ on:
     branches: [ master ]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: browser-actions/setup-chrome@latest
+      - run: chrome --version
+
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: dart analyze
+
+      - name: Pull Couchdb with CORS enabled
+        shell: bash
+        run: |
+          docker pull kobretti/couchdb-cors
+
+      - name: Start Couchdb
+        shell: bash
+        run: |
+          docker run -e COUCHDB_USERNAME=admin -e COUCHDB_PASSWORD=password --name couchdb -p 5984:5984 -d kobretti/couchdb-cors
+
+      - name: Wait for Couchdb to become ready
+        # This seems to take a while for me locally so being generous here
+        shell: bash
+        run: |
+          sleep 220s
+
+      - name: Check Couchdb
+        shell: bash
+        run: |
+          docker ps -a
+
+      - name: Run tests
+        run: dart run build_runner test --fail-on-severe -- -p chrome
 
   package-analysis:
     runs-on: ubuntu-latest
