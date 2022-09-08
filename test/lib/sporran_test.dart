@@ -718,7 +718,7 @@ void main() async {
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
         final dynamic successResponse = res.payload;
-        expect(successResponse.total_rows, equals(3));
+        expect(successResponse.total_rows, equals(5));
       });
 
       sporran5.online = true;
@@ -783,7 +783,7 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        expect(res.payload.doc_count, 3);
+        expect(res.payload.doc_count, 8);
         expect(res.payload.db_name, databaseName);
       });
 

@@ -685,12 +685,14 @@ class _SporranDatabase {
           attachment.isImmutable = false;
           final List<String> keyList = key.split('-');
           attachment.rev = revisions[keyList[0]];
-          updateAttachment(
-              keyList[0],
-              attachment.payload.attachmentName,
-              attachment.rev,
-              attachment.payload.contentType,
-              attachment.payload.payload);
+          if (attachment.rev != null) {
+            updateAttachment(
+                keyList[0],
+                attachment.payload.attachmentName,
+                attachment.rev,
+                attachment.payload.contentType,
+                attachment.payload.payload);
+          }
         });
       });
     });

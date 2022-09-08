@@ -25,7 +25,7 @@ void main() async {
   initialiser.preserveLocal = false;
 
   // Delete any existing test databases
-  final deleter = Wilt('localhost');
+  final deleter = Wilt(hostName);
   deleter.login(userName, userPassword);
   await deleter.deleteDatabase('scenariotest2');
 
