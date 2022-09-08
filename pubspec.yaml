@@ -1,5 +1,5 @@
 name: sporran
-version: 6.0.1
+version: 6.1.0
 description: A PouchDB alike for Dart. Uses lawndart for local storage and Wilt for CouchDB access.
 homepage: https://github.com/shamblett/sporran
 
