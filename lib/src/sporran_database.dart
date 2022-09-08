@@ -542,8 +542,10 @@ class _SporranDatabase {
     String docRevision = '';
     if (revision.isNotEmpty) {
       docRevision = revision;
+      wilting.putDocument(key, document, docRevision).then(localCompleter);
+    } else {
+      wilting.putDocument(key, document).then(localCompleter);
     }
-    wilting.putDocument(key, document, docRevision).then(localCompleter);
 
     return completer.future;
   }

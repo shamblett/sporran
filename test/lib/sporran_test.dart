@@ -33,7 +33,7 @@ void main() async {
   initialiser.preserveLocal = false;
 
   // Delete any existing test databases
-  final deleter = Wilt('localhost');
+  final deleter = Wilt(hostName);
   deleter.login(userName, userPassword);
   await deleter.deleteDatabase(databaseName);
 
@@ -72,7 +72,7 @@ void main() async {
       final dynamic wrapper = expectAsync0(() {
         expect(sporran, isNotNull);
         expect(sporran!.dbName, databaseName);
-        expect(sporran!.online, false);
+        expect(sporran!.online, true);
       });
 
       sporran!.autoSync = false;
@@ -88,18 +88,18 @@ void main() async {
         expect(sporran21!.online, isFalse);
         final online = Event.eventType('Event', 'online');
         window.dispatchEvent(online);
-        expect(sporran21!.online, isTrue);
-        sporran21 = null;
       });
 
       Timer? pause;
 
       final dynamic wrapper1 = expectAsync1((Timer pause) {
-        sporran21 = Sporran(initialiser);
-        sporran21!.autoSync = false;
-        sporran21!.onReady!.first.then((dynamic e) => wrapper());
+        expect(sporran21!.online, isTrue);
+        sporran21 = null;
       });
 
+      sporran21 = Sporran(initialiser);
+      sporran21!.autoSync = false;
+      sporran21!.onReady!.first.then((dynamic e) => wrapper());
       pause = Timer(const Duration(seconds: 2), () {
         wrapper1(pause);
       });

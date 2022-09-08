@@ -137,12 +137,12 @@ class Sporran {
      * If we have never connected to CouchDb try now,
      * otherwise we can sync straight away
      */
-    if (_database.noCouchDb) {
+    if (!_database.noCouchDb) {
       _database.connectToCouch(true);
-    } else {
-      if (autoSync) {
-        sync();
-      }
+    }
+
+    if (autoSync) {
+      sync();
     }
   }
 
