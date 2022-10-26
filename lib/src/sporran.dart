@@ -762,8 +762,8 @@ class Sporran {
   Future<JsonObjectLite<dynamic>> getAllDocs(
       {bool includeDocs = false,
       int limit = 10,
-      String startKey = '',
-      String endKey = '',
+      String? startKey,
+      String? endKey,
       List<String> keys = const <String>[],
       bool descending = false}) {
     final opCompleter = Completer<JsonObjectLite<dynamic>>();
@@ -863,7 +863,7 @@ class Sporran {
               limit: limit,
               startKey: startKey,
               endKey: endKey,
-              keys: keys,
+              keys: keys.isEmpty ? null : keys,
               descending: descending)
           .then(completer);
     }
