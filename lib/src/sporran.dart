@@ -327,7 +327,8 @@ class Sporran {
     /* Remove from Lawndart */
     _database.lawndart.getByKey(id).then((dynamic document) {
       if (document != null) {
-        _database.lawndart.removeByKey(id)
+        _database.lawndart
+            .removeByKey(id)
             // ignore: missing_return
             .then((_) {
           /* Check for offline, if so add to the pending delete queue
@@ -510,7 +511,8 @@ class Sporran {
     /* Remove from Lawndart */
     _database.lawndart.getByKey(key).then((dynamic document) {
       if (document != null) {
-        _database.lawndart.removeByKey(key)
+        _database.lawndart
+            .removeByKey(key)
             // ignore: missing_return
             .then((_) {
           /* Check for offline, if so add to the pending delete
@@ -780,7 +782,6 @@ class Sporran {
             if ((temp.length == 3) &&
                 (temp[2] == _SporranDatabase.attachmentMarkerc)) {
               /* Attachment, discard the key */
-
             } else {
               docList.add(key);
             }
