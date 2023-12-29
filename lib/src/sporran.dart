@@ -8,7 +8,7 @@
  *
  */
 
-part of sporran;
+part of '../sporran.dart';
 
 ///  This is the main Sporran API class.
 ///

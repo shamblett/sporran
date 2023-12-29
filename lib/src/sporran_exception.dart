@@ -5,7 +5,7 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-part of sporran;
+part of '../sporran.dart';
 
 /// Sporran exceptions
 class SporranException implements Exception {

@@ -5,7 +5,7 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-part of sporran;
+part of '../sporran.dart';
 
 /// Initialisation class, passed to Sporrans constructor
 class SporranInitialiser {
