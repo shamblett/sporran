@@ -12,7 +12,7 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-part of lawndart;
+part of '../lawndart.dart';
 
 /// Wraps the IndexedDB API and exposes it as a [Store].
 /// IndexedDB is generally the preferred API if it is available.

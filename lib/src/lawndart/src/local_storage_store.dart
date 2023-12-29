@@ -12,7 +12,7 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-part of lawndart;
+part of '../lawndart.dart';
 
 /// Wraps the local storage API and exposes it as a [Store].
 /// Local storage is a synchronous API, and generally not recommended

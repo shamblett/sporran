@@ -8,7 +8,7 @@
  * 
  */
 
-part of sporran;
+part of '../sporran.dart';
 
 /// The main Sporran Database class.
 ///
