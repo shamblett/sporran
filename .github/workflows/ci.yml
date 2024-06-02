@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: browser-actions/setup-firefox@v1
-      - run: firefox --version
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
 
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
