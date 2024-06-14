@@ -48,7 +48,10 @@ jobs:
           docker ps -a
 
       - name: Run tests
-        run: dart run build_runner test --fail-on-severe -- -p chrome
+        run: dart run build_runner test --fail-on-severe -- -p chrome  test/lib/sporran_test.dart
+             dart run build_runner test --fail-on-severe -- -p chrome  test/lib/sporran_scenario1_test.dart
+             dart run build_runner test --fail-on-severe -- -p chrome  test/lib/sporran_scenario2_test.dart
+             dart run build_runner test --fail-on-severe -- -p chrome  test/lib/sporran_scenario3_test.dart
 
   package-analysis:
     runs-on: ubuntu-latest
