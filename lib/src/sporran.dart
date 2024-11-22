@@ -31,8 +31,9 @@ class Sporran {
         initialiser.preserveLocal);
 
     // Online/offline listeners
-    window.onOnline.listen((_) => _transitionToOnline());
-    window.onOffline.listen((_) => _online = false);
+    void goOffline() => _online = false;
+    window.ononline = (_transitionToOnline()) as EventHandler;
+    window.onoffline = (goOffline()) as EventHandler;
   }
 
   /// Method constants

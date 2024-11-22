@@ -190,7 +190,7 @@ class _SporranDatabase {
 
   /// Signal we are ready
   void _signalReady() {
-    final e = Event.eventType('Event', 'SporranReady');
+    final e = Event('SporranReady');
     _onReady.add(e);
   }
 
