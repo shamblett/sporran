@@ -38,7 +38,7 @@
 
 /// See the `example/` directory for more sample code.
 
-library lawndart;
+library;
 
 import 'dart:async';
 import 'dart:html';

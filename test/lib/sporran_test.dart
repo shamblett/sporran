@@ -5,6 +5,7 @@
  * Copyright :  S.Hamblett@OSCF
  */
 @TestOn('browser')
+library;
 
 import 'dart:async';
 import 'dart:html';

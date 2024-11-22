@@ -6,6 +6,7 @@
  */
 
 @TestOn('browser')
+library;
 
 import 'dart:async';
 import 'package:wilt/wilt.dart';

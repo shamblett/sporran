@@ -5,6 +5,7 @@
  * Copyright :  S.Hamblett@OSCF
  */
 @TestOn('browser')
+library;
 
 import 'package:sporran/sporran.dart';
 import 'package:json_object_lite/json_object_lite.dart';

@@ -5,7 +5,7 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-library sporran;
+library;
 
 import 'dart:async';
 import 'dart:convert';
