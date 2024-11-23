@@ -31,9 +31,13 @@ class Sporran {
         initialiser.preserveLocal);
 
     // Online/offline listeners
-    void goOffline() => _online = false;
-    window.ononline = (_transitionToOnline()) as EventHandler;
-    window.onoffline = (goOffline()) as EventHandler;
+    EventHandler goOffline() {
+      _online = false;
+      return null;
+    }
+
+    window.ononline = _transitionToOnline();
+    window.onoffline = (goOffline());
   }
 
   /// Method constants
@@ -131,7 +135,7 @@ class Sporran {
   bool autoSync = true;
 
   /// Online transition
-  void _transitionToOnline() {
+  EventHandler _transitionToOnline() {
     _online = true;
 
     /**
@@ -145,6 +149,7 @@ class Sporran {
     if (autoSync) {
       sync();
     }
+    return null;
   }
 
   /// Common completion response creator for all databases
