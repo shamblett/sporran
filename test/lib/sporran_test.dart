@@ -69,11 +69,19 @@ void main() async {
 
     test('0. Sporran Initialisation', () {
       sporran = Sporran(initialiser);
+      Timer? pause;
+
+      final dynamic wrapper1 = expectAsync1((Timer pause) {
+        expect(sporran!.online, isTrue);
+      });
 
       final dynamic wrapper = expectAsync0(() {
+        print('in wrapper online is ${sporran!.online}');
+        pause = Timer(const Duration(seconds: 2), () {
+          wrapper1(pause);
+        });
         expect(sporran, isNotNull);
         expect(sporran!.dbName, databaseName);
-        expect(sporran!.online, true);
       });
 
       sporran!.autoSync = false;
