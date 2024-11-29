@@ -75,8 +75,8 @@ void main() async {
         expect(sporran!.online, isTrue);
       });
 
-      final dynamic wrapper = expectAsync0(() {
-        print('in wrapper online is ${sporran!.online}');
+      final dynamic wrapper = expectAsync1((e) {
+        print(e);
         pause = Timer(const Duration(seconds: 2), () {
           wrapper1(pause);
         });
@@ -85,7 +85,7 @@ void main() async {
       });
 
       sporran!.autoSync = false;
-      sporran!.onReady!.first.then((dynamic e) => wrapper());
+      sporran!.onReady!.first.then((dynamic e) => wrapper(e));
     });
 
     test('1. Construction Online/Offline listener ', () {
