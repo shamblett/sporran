@@ -109,6 +109,14 @@ class _SporranDatabase {
 
   Stream<dynamic>? get onReady => _onReady.stream;
 
+  /// Get the JSON success response from an API operation result.
+  JsonObjectLite getJsonResponse(JsonObjectLite result) {
+    final JsonObjectLite response = JsonObjectLite();
+    JsonObjectLite.toTypedJsonObjectLite(
+        (result as dynamic).jsonCouchResponse, response);
+    return response;
+  }
+
   /// Start change notifications
   void startChangeNotifications() {
     final parameters = WiltChangeNotificationParameters();
@@ -227,7 +235,7 @@ class _SporranDatabase {
 
     void allCompleter(dynamic res) {
       if (!res.error) {
-        final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
+        final JsonObjectLite<dynamic> successResponse = getJsonResponse(res);
         final created = successResponse.contains(_dbName);
         if (created == false) {
           _wilt.createDatabase(_dbName).then(createCompleter);
@@ -308,7 +316,7 @@ class _SporranDatabase {
     for (final dynamic attachment in attachments) {
       void completer(dynamic res) {
         if (!res.error) {
-          final dynamic successResponse = res.jsonCouchResponse;
+          final dynamic successResponse = getJsonResponse(res);
           final dynamic newAttachment = JsonObjectLite<dynamic>();
           newAttachment.attachmentName = attachment.name;
           newAttachment.rev = WiltUserUtils.getDocumentRev(document);
@@ -480,7 +488,7 @@ class _SporranDatabase {
        * nothing we can do.
        */
       if (!res.error) {
-        final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
+        final JsonObjectLite<dynamic> successResponse = getJsonResponse(res);
         final attachments = WiltUserUtils.getAttachments(successResponse);
         var found = false;
         for (final dynamic attachment in attachments) {
