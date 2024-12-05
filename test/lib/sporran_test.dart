@@ -68,7 +68,6 @@ void main() async {
     Sporran? sporran;
 
     test('0. Sporran Initialisation', () {
-
       Timer? pause;
 
       final dynamic wrapper1 = expectAsync1((Timer pause) {
@@ -82,7 +81,7 @@ void main() async {
         expect(sporran, isNotNull);
         expect(sporran!.dbName, databaseName);
       });
-      sporran = Sporran(initialiser);
+      sporran = Sporran(initialiser)..initialise();
       sporran!.autoSync = false;
       sporran!.onReady!.first.then((dynamic e) => wrapper());
     });
@@ -105,7 +104,7 @@ void main() async {
         sporran21 = null;
       });
 
-      sporran21 = Sporran(initialiser);
+      sporran21 = Sporran(initialiser)..initialise();
       sporran21!.autoSync = false;
       sporran21!.onReady!.first.then((dynamic e) => wrapper());
       pause = Timer(const Duration(seconds: 2), () {
@@ -114,7 +113,7 @@ void main() async {
     });
 
     test('2. Construction Existing Database ', () {
-      Sporran? sporran22 = Sporran(initialiser);
+      Sporran? sporran22 = Sporran(initialiser)..initialise();
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran22, isNotNull);
@@ -128,7 +127,7 @@ void main() async {
 
     test('3. Construction Invalid Authentication ', () {
       initialiser.password = 'none';
-      Sporran? sporran23 = Sporran(initialiser);
+      Sporran? sporran23 = Sporran(initialiser)..initialise();
       initialiser.password = userPassword;
 
       final dynamic wrapper = expectAsync0(() {
@@ -233,7 +232,7 @@ void main() async {
         Timer(const Duration(seconds: 3), wrapper1);
       });
 
-      sporran3 = Sporran(initialiser);
+      sporran3 = Sporran(initialiser)..initialise();
       sporran3.autoSync = false;
       sporran3.onReady!.first.then((dynamic e) => wrapper());
     });
@@ -433,7 +432,7 @@ void main() async {
         expect(sporran4.lawnIsOpen, isTrue);
       });
 
-      sporran4 = Sporran(initialiser);
+      sporran4 = Sporran(initialiser)..initialise();
 
       sporran4.autoSync = false;
       sporran4.onReady!.first.then((dynamic e) => wrapper());
@@ -630,7 +629,7 @@ void main() async {
         expect(sporran5.lawnIsOpen, isTrue);
       });
 
-      sporran5 = Sporran(initialiser);
+      sporran5 = Sporran(initialiser)..initialise();
 
       sporran5.autoSync = false;
       sporran5.onReady!.first.then((dynamic e) => wrapper());
@@ -834,7 +833,7 @@ void main() async {
       });
 
       initialiser.manualNotificationControl = false;
-      sporran6 = Sporran(initialiser);
+      sporran6 = Sporran(initialiser)..initialise();
 
       sporran6.autoSync = false;
       sporran6.onReady!.first.then((dynamic e) => wrapper());
@@ -1077,7 +1076,7 @@ void main() async {
       });
 
       initialiser.manualNotificationControl = false;
-      sporran7 = Sporran(initialiser);
+      sporran7 = Sporran(initialiser)..initialise();
 
       sporran7.autoSync = false;
       sporran7.onReady!.first.then((dynamic e) => wrapper());

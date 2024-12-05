@@ -26,31 +26,12 @@ class _SporranDatabase {
       this._scheme = 'http://',
       this._user = '',
       this._password = '',
-      this._preserveLocalDatabase = false]) {
-    _initialise();
-  }
+      this._preserveLocalDatabase = false]);
 
   /// Constants
   static const String notUpdatedc = 'not_updated';
   static const String updatedc = 'updated';
   static const String attachmentMarkerc = 'sporranAttachment';
-
-  Future<dynamic> _initialise() async {
-    _lawndart = await IndexedDbStore.open(_dbName, 'Sporran');
-    _lawnIsOpen = true;
-    // Delete the local database unless told to preserve it.
-    if (!_preserveLocalDatabase) {
-      await _lawndart.nuke();
-    }
-    // Instantiate a Wilt object
-    _wilt = Wilt(_host, port: _port);
-    // Login
-    if (_user.isNotEmpty) {
-      _wilt.login(_user, _password);
-    }
-    // Open CouchDb
-    connectToCouch();
-  }
 
   /// Host name
   final String _host;
@@ -108,6 +89,23 @@ class _SporranDatabase {
   final dynamic _onReady = StreamController<Event>.broadcast();
 
   Stream<dynamic>? get onReady => _onReady.stream;
+
+  Future<dynamic> initialise() async {
+    _lawndart = await IndexedDbStore.open(_dbName, 'Sporran');
+    _lawnIsOpen = true;
+    // Delete the local database unless told to preserve it.
+    if (!_preserveLocalDatabase) {
+      await _lawndart.nuke();
+    }
+    // Instantiate a Wilt object
+    _wilt = Wilt(_host, port: _port);
+    // Login
+    if (_user.isNotEmpty) {
+      _wilt.login(_user, _password);
+    }
+    // Open CouchDb
+    await connectToCouch();
+  }
 
   /// Get the JSON success response from an API operation result.
   JsonObjectLite getJsonResponse(JsonObjectLite result) {
@@ -203,7 +201,9 @@ class _SporranDatabase {
   }
 
   /// Create and/or connect to CouchDb
-  void connectToCouch([bool transitionToOnline = false]) {
+  FutureOr<void> connectToCouch([bool transitionToOnline = false]) async {
+    final completer = Completer<void>();
+
     /// If the CouchDb database does not exist create it.
     void createCompleter(dynamic res) {
       if (!res.error) {
@@ -274,6 +274,8 @@ class _SporranDatabase {
         _noCouchDb = true;
         _signalReady();
       });
+
+    return completer.future;
   }
 
   /// Add a key to the pending delete queue

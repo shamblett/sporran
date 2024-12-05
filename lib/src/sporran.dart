@@ -29,15 +29,6 @@ class Sporran {
         initialiser.username,
         initialiser.password,
         initialiser.preserveLocal);
-
-    // Online/offline listeners
-    EventHandler goOffline() {
-      _online = false;
-      return null;
-    }
-
-    window.ononline = _transitionToOnline();
-    window.onoffline = (goOffline());
   }
 
   /// Method constants
@@ -69,6 +60,22 @@ class Sporran {
   Wilt get wilt => _database.wilt;
 
   bool _online = true;
+
+  /// Initialise sporran
+  Future<bool> initialise() async {
+    await _database.initialise();
+
+    // Online/offline listeners
+    EventHandler goOffline() {
+      _online = false;
+      return null;
+    }
+
+    window.ononline = _transitionToOnline();
+    window.onoffline = (goOffline());
+
+    return true;
+  }
 
   /// On/Offline indicator
   bool get online {
