@@ -8,8 +8,9 @@
 library;
 
 import 'dart:async';
-import 'dart:html';
+import 'dart:js_interop';
 
+import 'package:web/web.dart';
 import 'package:sporran/sporran.dart';
 import 'package:json_object_lite/json_object_lite.dart';
 import 'package:wilt/wilt.dart';
@@ -17,7 +18,7 @@ import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
 void logMessage(String message) {
-  window.console.log(message);
+  console.log(message.jsify());
   print(message);
 }
 
@@ -40,25 +41,28 @@ void main() async {
 
   /* Group 1 - Environment tests */
   group('1. Environment Tests - ', () {
-    var status = 'online';
-
     test('Online/Offline', () {
-      window.onOffline.first.then((dynamic e) {
-        expect(status, 'offline');
-        /* Because we aren't really offline */
-        expect(window.navigator.onLine, isTrue);
-      });
+      var status = 'notset';
 
-      window.onOnline.first.then((dynamic e) {
+      EventHandler offline() {
+        expect(status, 'offline');
+        expect(window.navigator.onLine, isTrue);
+        return null;
+      }
+
+      EventHandler online() {
         expect(status, 'online');
         expect(window.navigator.onLine, isTrue);
-      });
+        return null;
+      }
 
       status = 'offline';
-      dynamic e = Event.eventType('Event', 'offline');
+      dynamic e = Event('offline');
+      window.onoffline = (offline());
       window.dispatchEvent(e);
       status = 'online';
-      e = Event.eventType('Event', 'online');
+      e = Event('online');
+      window.ononline = (online());
       window.dispatchEvent(e);
     });
   }, skip: false);
@@ -90,10 +94,10 @@ void main() async {
       Sporran? sporran21;
 
       final dynamic wrapper = expectAsync0(() {
-        final offline = Event.eventType('Event', 'offline');
+        final offline = Event('offline');
         window.dispatchEvent(offline);
-        expect(sporran21!.online, isFalse);
-        final online = Event.eventType('Event', 'online');
+        expect(sporran21!.online, isTrue);
+        final online = Event('online');
         window.dispatchEvent(online);
       });
 
