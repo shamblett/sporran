@@ -544,7 +544,7 @@ class _SporranDatabase {
 
     void localCompleter(dynamic res) {
       if (!res.error) {
-        completer.complete(res.jsonCouchResponse.rev);
+        completer.complete((getJsonResponse(res) as dynamic).rev);
       }
     }
 
