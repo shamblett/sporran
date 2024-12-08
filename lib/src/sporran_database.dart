@@ -550,7 +550,7 @@ class _SporranDatabase {
 
     wilting.db = _dbName;
     String docRevision = '';
-    if (revision.isNotEmpty) {
+    if (revision.toJS.isDefinedAndNotNull) {
       docRevision = revision;
       wilting.putDocument(key, document, docRevision).then(localCompleter);
     } else {
