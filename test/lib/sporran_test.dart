@@ -728,8 +728,9 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        final dynamic successResponse = res.payload;
-        expect(successResponse.total_rows, equals(5));
+        final successResponse = JsonObjectLite();
+        JsonObjectLite.toTypedJsonObjectLite(res.payload, successResponse);
+        expect(successResponse['total_rows'], equals(5));
       });
 
       sporran5.online = true;

@@ -115,6 +115,14 @@ class Sporran {
   /// Manual notification control
   bool get manualNotificationControl => _database.manualNotificationControl;
 
+  /// Get the JSON success response from an API operation result.
+  JsonObjectLite getJsonResponse(JsonObjectLite result) {
+    final JsonObjectLite response = JsonObjectLite();
+    JsonObjectLite.toTypedJsonObjectLite(
+        (result as dynamic).jsonCouchResponse, response);
+    return response;
+  }
+
   /// Start change notification manually
   void startChangeNotifications() {
     if (manualNotificationControl) {
@@ -196,6 +204,8 @@ class Sporran {
   /// If the parameters are invalid null is returned.
   Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
       [String rev = '']) {
+    final document1 = JsonObjectLite();
+    JsonObjectLite.toTypedJsonObjectLite(document, document1);
     final opCompleter = Completer<dynamic>();
     if (id.isEmpty) {
       opCompleter.complete(null);
@@ -213,7 +223,7 @@ class Sporran {
         res.localResponse = true;
         res.operation = putc;
         res.ok = true;
-        res.payload = document;
+        res.payload = document1;
         res.id = id;
         res.rev = rev;
 
@@ -232,7 +242,7 @@ class Sporran {
         res.localResponse = false;
         res.operation = putc;
         res.id = id;
-        res.payload = document;
+        res.payload = document1;
         if (!res.error) {
           res.rev = res.jsonCouchResponse.rev;
           _database.updateLocalStorageObject(
@@ -253,7 +263,7 @@ class Sporran {
 
       /* Do the put */
       final wiltRev = rev.isNotEmpty ? rev : null;
-      _database.wilt.putDocument(id, document, wiltRev).then(completer);
+      _database.wilt.putDocument(id, document1, wiltRev).then(completer);
     });
 
     return opCompleter.future;
@@ -722,7 +732,8 @@ class Sporran {
         res.rev = null;
         if (!res.error) {
           /* Get the revisions for the updates */
-          final JsonObjectLite<dynamic> couchResp = res.jsonCouchResponse;
+          final JsonObjectLite<dynamic> couchResp =
+              getJsonResponse(res.jsonCouchResponse);
           final revisions = <JsonObjectLite<dynamic>?>[];
           final revisionsMap = <String, String>{};
 

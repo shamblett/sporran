@@ -550,7 +550,7 @@ class _SporranDatabase {
 
     wilting.db = _dbName;
     String docRevision = '';
-    if (revision.toJS.isDefinedAndNotNull) {
+    if (revision.isNotEmpty) {
       docRevision = revision;
       wilting.putDocument(key, document, docRevision).then(localCompleter);
     } else {
@@ -572,10 +572,10 @@ class _SporranDatabase {
       final jsonDoc = JsonObjectLite();
       JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
       if (!jsonDoc.containsKey('rev')) {
-        document.isImmutable = false;
-        document.rev = '';
+        jsonDoc.isImmutable = false;
+        (jsonDoc as dynamic).rev = '';
       }
-      update(key, document.payload, document.rev).then((String rev) {
+      update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev).then((String rev) {
         revisions[document.key] = rev;
         count++;
         if (count == length) {
