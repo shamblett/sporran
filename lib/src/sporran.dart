@@ -732,8 +732,7 @@ class Sporran {
         res.rev = null;
         if (!res.error) {
           /* Get the revisions for the updates */
-          final JsonObjectLite<dynamic> couchResp =
-              getJsonResponse(res.jsonCouchResponse);
+          final JsonObjectLite<dynamic> couchResp = getJsonResponse(res);
           final revisions = <JsonObjectLite<dynamic>?>[];
           final revisionsMap = <String, String>{};
 

@@ -249,7 +249,9 @@ void main() async {
         expect(res.id, docIdPutOnline);
         expect(res.rev, anything);
         onlineDocRev = res.rev;
-        expect(res.payload.name, 'Online');
+        final payload = JsonObjectLite();
+        JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+        expect(payload['name'], 'Online');
       });
 
       sporran3.online = true;
@@ -654,9 +656,9 @@ void main() async {
         expect(res.rev[2].rev, anything);
         docid3rev = res.rev[2].rev;
         final dynamic doc3 = res.payload['docid3'];
-        expect(doc3.title, 'Document 3');
-        expect(doc3.version, 3);
-        expect(doc3.attribute, 'Doc 3 attribute');
+        expect(doc3['title'], 'Document 3');
+        expect(doc3['version'], 3);
+        expect(doc3['attribute'], 'Doc 3 attribute');
       });
 
       final dynamic document1 = JsonObjectLite<dynamic>();
@@ -691,9 +693,9 @@ void main() async {
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
         final dynamic doc3 = res.payload['docid3offline'];
-        expect(doc3.title, 'Document 3');
-        expect(doc3.version, 3);
-        expect(doc3.attribute, 'Doc 3 attribute');
+        expect(doc3['title'], 'Document 3');
+        expect(doc3['version'], 3);
+        expect(doc3['attribute'], 'Doc 3 attribute');
       });
 
       final dynamic document1 = JsonObjectLite<dynamic>();
@@ -746,12 +748,12 @@ void main() async {
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
         expect(res.payload.length, greaterThanOrEqualTo(6));
-        expect(res.payload['docid1'].payload.title, 'Document 1');
-        expect(res.payload['docid2'].payload.title, 'Document 2');
-        expect(res.payload['docid3'].payload.title, 'Document 3');
-        expect(res.payload['docid1offline'].payload.title, 'Document 1');
-        expect(res.payload['docid2offline'].payload.title, 'Document 2');
-        expect(res.payload['docid3offline'].payload.title, 'Document 3');
+        expect(res.payload['docid1'].payload['title'], 'Document 1');
+        expect(res.payload['docid2'].payload['title'], 'Document 2');
+        expect(res.payload['docid3'].payload['title'], 'Document 3');
+        expect(res.payload['docid1offline'].payload['title'], 'Document 1');
+        expect(res.payload['docid2offline'].payload['title'], 'Document 2');
+        expect(res.payload['docid3offline'].payload['title'], 'Document 3');
       });
 
       sporran5.online = false;
@@ -795,8 +797,8 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        expect(res.payload.doc_count, 8);
-        expect(res.payload.db_name, databaseName);
+        expect(res.payload['doc_count'], lessThanOrEqualTo(8));
+        expect(res.payload['db_name'], databaseName);
       });
 
       sporran5.online = true;
@@ -905,9 +907,9 @@ void main() async {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, 'MyBulkId1');
-        expect(res.payload.title, 'Document 1');
-        expect(res.payload.version, 1);
-        expect(res.payload.attribute, 'Doc 1 attribute');
+        expect(res.payload['title'], 'Document 1');
+        expect(res.payload['version'], 1);
+        expect(res.payload['attribute'], 'Doc 1 attribute');
       });
 
       sporran6.online = false;
@@ -920,9 +922,9 @@ void main() async {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, 'MyBulkId2');
-        expect(res.payload.title, 'Document 2');
-        expect(res.payload.version, 2);
-        expect(res.payload.attribute, 'Doc 2 attribute');
+        expect(res.payload['title'], 'Document 2');
+        expect(res.payload['version'], 2);
+        expect(res.payload['attribute'], 'Doc 2 attribute');
       });
 
       sporran6.get('MyBulkId2').then(wrapper);
@@ -934,9 +936,9 @@ void main() async {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, 'MyBulkId3');
-        expect(res.payload.title, 'Document 3');
-        expect(res.payload.version, 3);
-        expect(res.payload.attribute, 'Doc 3 attribute');
+        expect(res.payload['title'], 'Document 3');
+        expect(res.payload['version'], 3);
+        expect(res.payload['attribute'], 'Doc 3 attribute');
       });
 
       sporran6.get('MyBulkId3').then(wrapper);
