@@ -26,7 +26,7 @@ void main() async {
   initialiser.preserveLocal = false;
 
   // Create the client
-  final sporran = Sporran(initialiser);
+  final sporran = Sporran(initialiser)..initialise();
   sporran.autoSync = false;
   await sporran.onReady!.first;
 
