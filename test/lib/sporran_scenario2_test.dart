@@ -48,7 +48,7 @@ void main() async {
 
     /* Common initialiser */
     final initialiser = SporranInitialiser();
-    initialiser.dbName = 'scenariotest2';
+    initialiser.dbName = 'sporranscenariotest2';
     initialiser.hostname = hostName;
     initialiser.manualNotificationControl = false;
     initialiser.port = port;
@@ -59,7 +59,7 @@ void main() async {
 
     test('1. Create and Open Sporran', () {
       final dynamic wrapper = expectAsync0(() {
-        expect(sporran9.dbName, 'scenariotest2');
+        expect(sporran9.dbName, 'sporranscenariotest2');
         expect(sporran9.lawnIsOpen, isTrue);
         sporran9.online = true;
       });

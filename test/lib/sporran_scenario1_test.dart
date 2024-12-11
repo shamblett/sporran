@@ -18,7 +18,7 @@ import 'sporran_test_config.dart';
 void main() async {
   /* Common initialiser */
   final initialiser = SporranInitialiser();
-  initialiser.dbName = 'scenariotest1';
+  initialiser.dbName = 'sporranscenariotest1';
   initialiser.hostname = hostName;
   initialiser.manualNotificationControl = false;
   initialiser.port = port;
@@ -53,7 +53,7 @@ void main() async {
 
     test('1. Create and Open Sporran', () {
       final dynamic wrapper = expectAsync0(() {
-        expect(sporran8.dbName, 'scenariotest1');
+        expect(sporran8.dbName, 'sporrancenariotest1');
         expect(sporran8.lawnIsOpen, isTrue);
         sporran8.online = false;
       });
