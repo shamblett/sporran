@@ -25,9 +25,10 @@ void main() async {
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
 
-  // Create the client
+  // Create the client, and initialise it
   final sporran = Sporran(initialiser)..initialise();
   sporran.autoSync = false;
+  // Wait for ready
   await sporran.onReady!.first;
 
   // Put a document
@@ -38,12 +39,13 @@ void main() async {
 
   // Get it
   dynamic res = await sporran.get(docIdPutOnline);
-  dynamic payload = JsonObjectLite<dynamic>.fromJsonString(res.payload);
-  print(payload.payload.name);
+  dynamic payload = JsonObjectLite();
+  JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+  print(payload['payload']['name']);
 
   // Get it offline
   sporran.online = false;
   res = sporran.get(docIdPutOnline);
-  payload = JsonObjectLite<dynamic>.fromJsonString(res.payload);
-  print(payload.payload.name);
+  JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+  print(payload['payload']['name']);
 }
