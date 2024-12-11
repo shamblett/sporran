@@ -58,7 +58,7 @@ void main() async {
         sporran8.online = false;
       });
 
-      sporran8 = Sporran(initialiser);
+      sporran8 = Sporran(initialiser)..initialise();
       sporran8.onReady!.first.then((dynamic e) => wrapper());
     });
 
@@ -71,25 +71,25 @@ void main() async {
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
         final dynamic doc3 = res.payload['8docid3'];
-        expect(doc3.title, 'Document 3');
-        expect(doc3.version, 3);
-        expect(doc3.attribute, 'Doc 3 attribute');
+        expect(doc3['title'], 'Document 3');
+        expect(doc3['version'], 3);
+        expect(doc3['attribute'], 'Doc 3 attribute');
       });
 
       final dynamic document1 = JsonObjectLite<dynamic>();
-      document1.title = 'Document 1';
-      document1.version = 1;
-      document1.attribute = 'Doc 1 attribute';
+      document1['title'] = 'Document 1';
+      document1['version'] = 1;
+      document1['attribute'] = 'Doc 1 attribute';
 
       final dynamic document2 = JsonObjectLite<dynamic>();
-      document2.title = 'Document 2';
-      document2.version = 2;
-      document2.attribute = 'Doc 2 attribute';
+      document2['title'] = 'Document 2';
+      document2['version'] = 2;
+      document2['attribute'] = 'Doc 2 attribute';
 
       final dynamic document3 = JsonObjectLite<dynamic>();
-      document3.title = 'Document 3';
-      document3.version = 3;
-      document3.attribute = 'Doc 3 attribute';
+      document3['title'] = 'Document 3';
+      document3['version'] = 3;
+      document3['attribute'] = 'Doc 3 attribute';
 
       final docs = <String, JsonObjectLite<dynamic>>{};
       docs['8docid1'] = document1;
@@ -107,15 +107,15 @@ void main() async {
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
         docid1rev = res.rev ?? '';
-        expect(res.payload.attachmentName, 'AttachmentName1');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        expect(res.payload['attachmentName'], 'AttachmentName1');
+        expect(res.payload['contentType'], 'image/png');
+        expect(res.payload['payload'], attachmentPayload);
       });
 
       final dynamic attachment = JsonObjectLite<dynamic>();
-      attachment.attachmentName = 'AttachmentName1';
+      attachment['attachmentName'] = 'AttachmentName1';
       attachment.rev = docid1rev;
-      attachment.contentType = 'image/png';
+      attachment['contentType'] = 'image/png';
       attachment.payload = attachmentPayload;
       sporran8.putAttachment('8docid1', attachment).then(wrapper);
     });
@@ -128,9 +128,9 @@ void main() async {
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
         docid1rev = res.rev ?? '';
-        expect(res.payload.attachmentName, 'AttachmentName2');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        expect(res.payload['attachmentName'], 'AttachmentName2');
+        expect(res.payload['contentType'], 'image/png');
+        expect(res.payload['payload'], attachmentPayload);
       });
 
       final dynamic attachment = JsonObjectLite<dynamic>();
@@ -149,9 +149,9 @@ void main() async {
         expect(res.localResponse, isTrue);
         expect(res.rev, anything);
         docid2rev = res.rev ?? '';
-        expect(res.payload.attachmentName, 'AttachmentName1');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        expect(res.payload['attachmentName'], 'AttachmentName1');
+        expect(res.payload['contentType'], 'image/png');
+        expect(res.payload['payload'], attachmentPayload);
       });
 
       final dynamic attachment = JsonObjectLite<dynamic>();
@@ -185,7 +185,7 @@ void main() async {
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
         final dynamic successResponse = res.payload;
-        expect(successResponse.total_rows, equals(2));
+        expect(successResponse['total_rows'], equals(2));
       });
 
       final dynamic cmdWrapper = expectAsync0(() {
