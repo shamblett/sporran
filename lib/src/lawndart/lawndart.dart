@@ -41,8 +41,9 @@
 library;
 
 import 'dart:async';
-import 'dart:html';
 import 'dart:indexed_db' as idb;
+
+import 'package:web/web.dart';
 
 part 'src/indexeddb_store.dart';
 

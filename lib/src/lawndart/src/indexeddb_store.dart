@@ -44,21 +44,30 @@ class IndexedDbStore extends Store {
       throw UnsupportedError('IndexedDB is not supported on this platform');
     }
 
+    final db = window.indexedDB.open(dbName);
+
     if (_db != null) {
       _db!.close();
     }
 
-    var db = await window.indexedDB!.open(dbName);
+    EventHandler onerror(event) {
+      return null;
+    };
+    db.onerror = (onerror(event));
 
-    if (!db.objectStoreNames!.contains(storeName)) {
-      db.close();
-      //print('Attempting upgrading $storeName from ${db.version}');
-      db = await window.indexedDB!.open(dbName, version: db.version! + 1,
-          onUpgradeNeeded: (dynamic e) {
-        final idb.Database d = e.target.result;
-        d.createObjectStore(storeName);
-      });
-    }
+    EventHandler onupgradeneeded(event) {
+      final db = event.target.result;
+      if (!db.databases!.contains(storeName)) {
+        db.close();
+        //print('Attempting upgrading $storeName from ${db.version}');
+        db = await window.indexedDB!.open(dbName, version: db.version! + 1,
+            onUpgradeNeeded: (dynamic e) {
+              final idb.Database d = e.target.result;
+              d.createObjectStore(storeName);
+            });
+    }}
+    db.onupgradeneeded()
+
 
     _databases[dbName] = db;
   }
