@@ -145,20 +145,20 @@ class _SporranDatabase {
       final attachmentsToDelete = <String>[];
 
       /* For all the keys... */
-      _lawndart.keys().listen((String key) {
+      _lawndart.keys().listen((String? key) {
         /* If an attachment... */
-        final keyList = key.split('-');
-        if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
+        final keyList = key?.split('-');
+        if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
           /* ...for this document... */
-          if (e.docId == keyList[0]) {
+          if (e.docId == keyList?[0]) {
             /* ..potentially now deleted... */
-            attachmentsToDelete.add(key);
+            attachmentsToDelete.add(key!);
 
             /* ...check against all the documents current attachments */
             for (final dynamic attachment in attachments) {
-              if ((keyList[1] == attachment.name) &&
-                  (keyList[0] == e.docId) &&
-                  (keyList[2] == attachmentMarkerc)) {
+              if ((keyList?[1] == attachment.name) &&
+                  (keyList?[0] == e.docId) &&
+                  (keyList?[2] == attachmentMarkerc)) {
                 /* If still valid remove it from the delete list */
                 attachmentsToDelete.remove(key);
               }
@@ -184,10 +184,10 @@ class _SporranDatabase {
       /* Do the delete */
       await _lawndart.removeByKey(e.docId!).then((_) {
         /* Remove all document attachments */
-        _lawndart.keys().listen((String key) {
-          final keyList = key.split('-');
-          if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
-            _lawndart.removeByKey(key);
+        _lawndart.keys().listen((String? key) {
+          final keyList = key?.split('-');
+          if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
+            _lawndart.removeByKey(key!);
           }
         });
       });
@@ -575,7 +575,8 @@ class _SporranDatabase {
         jsonDoc.isImmutable = false;
         (jsonDoc as dynamic).rev = '';
       }
-      update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev).then((String rev) {
+      update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev)
+          .then((String rev) {
         revisions[document.key] = rev;
         count++;
         if (count == length) {
@@ -625,12 +626,12 @@ class _SporranDatabase {
   /// Update the revision of any attachments for a document
   /// if the document is updated from Couch
   void updateAttachmentRevisions(String id, String revision) {
-    lawndart.all().listen((String document) {
+    lawndart.all().listen((String? document) {
       final key = document;
-      final keyList = key.split('-');
-      if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
-        if (id == keyList[0]) {
-          final attachment = JsonObjectLite<dynamic>.fromJsonString(document);
+      final keyList = key?.split('-');
+      if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
+        if (id == keyList?[0]) {
+          final attachment = JsonObjectLite<dynamic>.fromJsonString(document!);
           updateLocalStorageObject(id, attachment, revision, updatedc);
         }
       }
@@ -675,8 +676,8 @@ class _SporranDatabase {
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
-    lawndart.all().listen((String document) {
-      final doc = JsonObjectLite<dynamic>.fromJsonString(document);
+    lawndart.all().listen((String? document) {
+      final doc = JsonObjectLite<dynamic>.fromJsonString(document!);
       final String? key = doc['key'];
       if (doc['status'] == notUpdatedc) {
         final update = doc;
