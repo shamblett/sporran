@@ -30,7 +30,7 @@ void main() async {
   // Delete any existing test databases
   final deleter = Wilt(hostName);
   deleter.login(userName, userPassword);
-  await deleter.deleteDatabase('scenariotest1');
+  await deleter.deleteDatabase('sporranscenariotest1');
 
   /* Group 8 - Sporran Scenario test 1 */
   /**
@@ -53,7 +53,7 @@ void main() async {
 
     test('1. Create and Open Sporran', () {
       final dynamic wrapper = expectAsync0(() {
-        expect(sporran8.dbName, 'sporrancenariotest1');
+        expect(sporran8.dbName, 'sporranscenariotest1');
         expect(sporran8.lawnIsOpen, isTrue);
         sporran8.online = false;
       });

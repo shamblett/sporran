@@ -699,10 +699,10 @@ class _SporranDatabase {
           if (attachment.rev != null) {
             updateAttachment(
                 keyList[0],
-                attachment.payload.attachmentName,
-                attachment.rev,
-                attachment.payload.contentType,
-                attachment.payload.payload);
+                attachment['payload']['attachmentName'],
+                attachment['rev'],
+                attachment['payload']['contentType'],
+                attachment['payload']['payload']);
           }
         });
       });
