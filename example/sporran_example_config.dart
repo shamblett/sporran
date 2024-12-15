@@ -6,7 +6,7 @@ const int port = 5984;
 const String scheme = 'http://';
 
 /* Database to use for testing */
-String databaseName = 'sporrantest';
+String databaseName = 'sporranexample';
 
 /// Authentication, set as you wish, note leaving userName and password null
 /// implies no authentication, i.e admin party, if set Basic authentication is

@@ -28,7 +28,7 @@ void main() async {
   // Delete any existing test databases
   final deleter = Wilt(hostName);
   deleter.login(userName, userPassword);
-  await deleter.deleteDatabase('scenariotest2');
+  await deleter.deleteDatabase('sporranscenariotest3');
 
   /* Group 9 - Sporran Scenario test 3 */
   /**
