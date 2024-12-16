@@ -4,12 +4,10 @@
  * Date   : 17/09/2018
  * Copyright :  S.Hamblett
  */
-@TestOn('browser')
-library;
 
 import 'package:sporran/sporran.dart';
 import 'package:json_object_lite/json_object_lite.dart';
-import 'package:test/test.dart';
+import 'package:wilt/wilt.dart';
 
 // ignore: avoid_relative_lib_imports
 import './sporran_example_config.dart';
@@ -28,30 +26,32 @@ void main() async {
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
 
+  // Delete any existing test databases
+  final deleter = Wilt(hostName);
+  deleter.login(userName, userPassword);
+  await deleter.deleteDatabase(databaseName);
+
   // Create the client, and initialise it
   final sporran = Sporran(initialiser)..initialise();
   sporran.autoSync = false;
   // Wait for ready
   await sporran.onReady!.first;
 
-  test('Main', () async {
-    // Put a document
-    final dynamic onlineDoc = JsonObjectLite<dynamic>();
-    const docIdPutOnline = 'putOnlineg3';
-    onlineDoc.name = 'Online';
-    await sporran.put(docIdPutOnline, onlineDoc);
+  // Put a document
+  final dynamic onlineDoc = JsonObjectLite<dynamic>();
+  const docIdPutOnline = 'putOnlineg3';
+  onlineDoc.name = 'Online';
+  await sporran.put(docIdPutOnline, onlineDoc);
 
-    // Get it
-    dynamic res = await sporran.get(docIdPutOnline);
-    dynamic payload = JsonObjectLite();
-    JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
-    print(payload['name']);
+  // Get it
+  dynamic res = await sporran.get(docIdPutOnline);
+  dynamic payload = JsonObjectLite();
+  JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+  print(payload['name']);
 
-    // Get it offline
-    sporran.online = false;
-    dynamic res2 = await sporran.get(docIdPutOnline);
-    dynamic payload2 = JsonObjectLite();
-    JsonObjectLite.toTypedJsonObjectLite(res2['payload'], payload2);
-    print(payload2['name']);
-  });
+  // Get it offline
+  sporran.online = false;
+  dynamic res2 = await sporran.get(docIdPutOnline);
+  final dynamic payload2 = JsonObjectLite<dynamic>.fromJsonString(res2.payload);
+  print(payload2['payload']['name']);
 }
