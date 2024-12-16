@@ -5,12 +5,12 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-library sporran;
+library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
 
+import 'package:web/web.dart';
 import 'package:wilt/wilt.dart';
 import 'package:json_object_lite/json_object_lite.dart';
 import 'src/lawndart/lawndart.dart';

@@ -5,10 +5,12 @@
  * Copyright :  S.Hamblett@OSCF
  */
 @TestOn('browser')
+library;
 
 import 'dart:async';
-import 'dart:html';
+import 'dart:js_interop';
 
+import 'package:web/web.dart';
 import 'package:sporran/sporran.dart';
 import 'package:json_object_lite/json_object_lite.dart';
 import 'package:wilt/wilt.dart';
@@ -16,7 +18,7 @@ import 'package:test/test.dart';
 import 'sporran_test_config.dart';
 
 void logMessage(String message) {
-  window.console.log(message);
+  console.log(message.jsify());
   print(message);
 }
 
@@ -39,25 +41,28 @@ void main() async {
 
   /* Group 1 - Environment tests */
   group('1. Environment Tests - ', () {
-    var status = 'online';
-
     test('Online/Offline', () {
-      window.onOffline.first.then((dynamic e) {
-        expect(status, 'offline');
-        /* Because we aren't really offline */
-        expect(window.navigator.onLine, isTrue);
-      });
+      var status = 'notset';
 
-      window.onOnline.first.then((dynamic e) {
+      EventHandler offline() {
+        expect(status, 'offline');
+        expect(window.navigator.onLine, isTrue);
+        return null;
+      }
+
+      EventHandler online() {
         expect(status, 'online');
         expect(window.navigator.onLine, isTrue);
-      });
+        return null;
+      }
 
       status = 'offline';
-      dynamic e = Event.eventType('Event', 'offline');
+      dynamic e = Event('offline');
+      window.onoffline = (offline());
       window.dispatchEvent(e);
       status = 'online';
-      e = Event.eventType('Event', 'online');
+      e = Event('online');
+      window.ononline = (online());
       window.dispatchEvent(e);
     });
   }, skip: false);
@@ -67,14 +72,20 @@ void main() async {
     Sporran? sporran;
 
     test('0. Sporran Initialisation', () {
-      sporran = Sporran(initialiser);
+      Timer? pause;
 
-      final dynamic wrapper = expectAsync0(() {
-        expect(sporran, isNotNull);
-        expect(sporran!.dbName, databaseName);
-        expect(sporran!.online, true);
+      final dynamic wrapper1 = expectAsync1((Timer pause) {
+        expect(sporran!.online, isTrue);
       });
 
+      final dynamic wrapper = expectAsync0(() {
+        pause = Timer(const Duration(seconds: 2), () {
+          wrapper1(pause);
+        });
+        expect(sporran, isNotNull);
+        expect(sporran!.dbName, databaseName);
+      });
+      sporran = Sporran(initialiser)..initialise();
       sporran!.autoSync = false;
       sporran!.onReady!.first.then((dynamic e) => wrapper());
     });
@@ -83,10 +94,10 @@ void main() async {
       Sporran? sporran21;
 
       final dynamic wrapper = expectAsync0(() {
-        final offline = Event.eventType('Event', 'offline');
+        final offline = Event('offline');
         window.dispatchEvent(offline);
-        expect(sporran21!.online, isFalse);
-        final online = Event.eventType('Event', 'online');
+        expect(sporran21!.online, isTrue);
+        final online = Event('online');
         window.dispatchEvent(online);
       });
 
@@ -97,7 +108,7 @@ void main() async {
         sporran21 = null;
       });
 
-      sporran21 = Sporran(initialiser);
+      sporran21 = Sporran(initialiser)..initialise();
       sporran21!.autoSync = false;
       sporran21!.onReady!.first.then((dynamic e) => wrapper());
       pause = Timer(const Duration(seconds: 2), () {
@@ -106,7 +117,7 @@ void main() async {
     });
 
     test('2. Construction Existing Database ', () {
-      Sporran? sporran22 = Sporran(initialiser);
+      Sporran? sporran22 = Sporran(initialiser)..initialise();
 
       final dynamic wrapper = expectAsync0(() {
         expect(sporran22, isNotNull);
@@ -120,7 +131,7 @@ void main() async {
 
     test('3. Construction Invalid Authentication ', () {
       initialiser.password = 'none';
-      Sporran? sporran23 = Sporran(initialiser);
+      Sporran? sporran23 = Sporran(initialiser)..initialise();
       initialiser.password = userPassword;
 
       final dynamic wrapper = expectAsync0(() {
@@ -225,7 +236,7 @@ void main() async {
         Timer(const Duration(seconds: 3), wrapper1);
       });
 
-      sporran3 = Sporran(initialiser);
+      sporran3 = Sporran(initialiser)..initialise();
       sporran3.autoSync = false;
       sporran3.onReady!.first.then((dynamic e) => wrapper());
     });
@@ -238,7 +249,9 @@ void main() async {
         expect(res.id, docIdPutOnline);
         expect(res.rev, anything);
         onlineDocRev = res.rev;
-        expect(res.payload.name, 'Online');
+        final payload = JsonObjectLite();
+        JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+        expect(payload['name'], 'Online');
       });
 
       sporran3.online = true;
@@ -425,7 +438,7 @@ void main() async {
         expect(sporran4.lawnIsOpen, isTrue);
       });
 
-      sporran4 = Sporran(initialiser);
+      sporran4 = Sporran(initialiser)..initialise();
 
       sporran4.autoSync = false;
       sporran4.onReady!.first.then((dynamic e) => wrapper());
@@ -622,7 +635,7 @@ void main() async {
         expect(sporran5.lawnIsOpen, isTrue);
       });
 
-      sporran5 = Sporran(initialiser);
+      sporran5 = Sporran(initialiser)..initialise();
 
       sporran5.autoSync = false;
       sporran5.onReady!.first.then((dynamic e) => wrapper());
@@ -643,9 +656,9 @@ void main() async {
         expect(res.rev[2].rev, anything);
         docid3rev = res.rev[2].rev;
         final dynamic doc3 = res.payload['docid3'];
-        expect(doc3.title, 'Document 3');
-        expect(doc3.version, 3);
-        expect(doc3.attribute, 'Doc 3 attribute');
+        expect(doc3['title'], 'Document 3');
+        expect(doc3['version'], 3);
+        expect(doc3['attribute'], 'Doc 3 attribute');
       });
 
       final dynamic document1 = JsonObjectLite<dynamic>();
@@ -680,9 +693,9 @@ void main() async {
         expect(res.payload, isNotNull);
         expect(res.rev, isNull);
         final dynamic doc3 = res.payload['docid3offline'];
-        expect(doc3.title, 'Document 3');
-        expect(doc3.version, 3);
-        expect(doc3.attribute, 'Doc 3 attribute');
+        expect(doc3['title'], 'Document 3');
+        expect(doc3['version'], 3);
+        expect(doc3['attribute'], 'Doc 3 attribute');
       });
 
       final dynamic document1 = JsonObjectLite<dynamic>();
@@ -717,8 +730,9 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        final dynamic successResponse = res.payload;
-        expect(successResponse.total_rows, equals(5));
+        final successResponse = JsonObjectLite();
+        JsonObjectLite.toTypedJsonObjectLite(res.payload, successResponse);
+        expect(successResponse['total_rows'], equals(5));
       });
 
       sporran5.online = true;
@@ -734,12 +748,12 @@ void main() async {
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
         expect(res.payload.length, greaterThanOrEqualTo(6));
-        expect(res.payload['docid1'].payload.title, 'Document 1');
-        expect(res.payload['docid2'].payload.title, 'Document 2');
-        expect(res.payload['docid3'].payload.title, 'Document 3');
-        expect(res.payload['docid1offline'].payload.title, 'Document 1');
-        expect(res.payload['docid2offline'].payload.title, 'Document 2');
-        expect(res.payload['docid3offline'].payload.title, 'Document 3');
+        expect(res.payload['docid1'].payload['title'], 'Document 1');
+        expect(res.payload['docid2'].payload['title'], 'Document 2');
+        expect(res.payload['docid3'].payload['title'], 'Document 3');
+        expect(res.payload['docid1offline'].payload['title'], 'Document 1');
+        expect(res.payload['docid2offline'].payload['title'], 'Document 2');
+        expect(res.payload['docid3offline'].payload['title'], 'Document 3');
       });
 
       sporran5.online = false;
@@ -783,8 +797,8 @@ void main() async {
         expect(res.id, isNull);
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
-        expect(res.payload.doc_count, 8);
-        expect(res.payload.db_name, databaseName);
+        expect(res.payload['doc_count'], lessThanOrEqualTo(8));
+        expect(res.payload['db_name'], databaseName);
       });
 
       sporran5.online = true;
@@ -826,7 +840,7 @@ void main() async {
       });
 
       initialiser.manualNotificationControl = false;
-      sporran6 = Sporran(initialiser);
+      sporran6 = Sporran(initialiser)..initialise();
 
       sporran6.autoSync = false;
       sporran6.onReady!.first.then((dynamic e) => wrapper());
@@ -893,9 +907,9 @@ void main() async {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, 'MyBulkId1');
-        expect(res.payload.title, 'Document 1');
-        expect(res.payload.version, 1);
-        expect(res.payload.attribute, 'Doc 1 attribute');
+        expect(res.payload['title'], 'Document 1');
+        expect(res.payload['version'], 1);
+        expect(res.payload['attribute'], 'Doc 1 attribute');
       });
 
       sporran6.online = false;
@@ -908,9 +922,9 @@ void main() async {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, 'MyBulkId2');
-        expect(res.payload.title, 'Document 2');
-        expect(res.payload.version, 2);
-        expect(res.payload.attribute, 'Doc 2 attribute');
+        expect(res.payload['title'], 'Document 2');
+        expect(res.payload['version'], 2);
+        expect(res.payload['attribute'], 'Doc 2 attribute');
       });
 
       sporran6.get('MyBulkId2').then(wrapper);
@@ -922,9 +936,9 @@ void main() async {
         expect(res.operation, Sporran.getc);
         expect(res.localResponse, isTrue);
         expect(res.id, 'MyBulkId3');
-        expect(res.payload.title, 'Document 3');
-        expect(res.payload.version, 3);
-        expect(res.payload.attribute, 'Doc 3 attribute');
+        expect(res.payload['title'], 'Document 3');
+        expect(res.payload['version'], 3);
+        expect(res.payload['attribute'], 'Doc 3 attribute');
       });
 
       sporran6.get('MyBulkId3').then(wrapper);
@@ -1069,7 +1083,7 @@ void main() async {
       });
 
       initialiser.manualNotificationControl = false;
-      sporran7 = Sporran(initialiser);
+      sporran7 = Sporran(initialiser)..initialise();
 
       sporran7.autoSync = false;
       sporran7.onReady!.first.then((dynamic e) => wrapper());

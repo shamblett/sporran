@@ -29,10 +29,6 @@ class Sporran {
         initialiser.username,
         initialiser.password,
         initialiser.preserveLocal);
-
-    // Online/offline listeners
-    window.onOnline.listen((_) => _transitionToOnline());
-    window.onOffline.listen((_) => _online = false);
   }
 
   /// Method constants
@@ -64,6 +60,22 @@ class Sporran {
   Wilt get wilt => _database.wilt;
 
   bool _online = true;
+
+  /// Initialise sporran
+  Future<bool> initialise() async {
+    await _database.initialise();
+
+    // Online/offline listeners
+    EventHandler goOffline() {
+      _online = false;
+      return null;
+    }
+
+    window.ononline = _transitionToOnline();
+    window.onoffline = (goOffline());
+
+    return true;
+  }
 
   /// On/Offline indicator
   bool get online {
@@ -103,6 +115,14 @@ class Sporran {
   /// Manual notification control
   bool get manualNotificationControl => _database.manualNotificationControl;
 
+  /// Get the JSON success response from an API operation result.
+  JsonObjectLite getJsonResponse(JsonObjectLite result) {
+    final JsonObjectLite response = JsonObjectLite();
+    JsonObjectLite.toTypedJsonObjectLite(
+        (result as dynamic).jsonCouchResponse, response);
+    return response;
+  }
+
   /// Start change notification manually
   void startChangeNotifications() {
     if (manualNotificationControl) {
@@ -130,7 +150,7 @@ class Sporran {
   bool autoSync = true;
 
   /// Online transition
-  void _transitionToOnline() {
+  EventHandler _transitionToOnline() {
     _online = true;
 
     /**
@@ -144,6 +164,7 @@ class Sporran {
     if (autoSync) {
       sync();
     }
+    return null;
   }
 
   /// Common completion response creator for all databases
@@ -183,6 +204,8 @@ class Sporran {
   /// If the parameters are invalid null is returned.
   Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
       [String rev = '']) {
+    final document1 = JsonObjectLite();
+    JsonObjectLite.toTypedJsonObjectLite(document, document1);
     final opCompleter = Completer<dynamic>();
     if (id.isEmpty) {
       opCompleter.complete(null);
@@ -200,7 +223,7 @@ class Sporran {
         res.localResponse = true;
         res.operation = putc;
         res.ok = true;
-        res.payload = document;
+        res.payload = document1;
         res.id = id;
         res.rev = rev;
 
@@ -219,7 +242,7 @@ class Sporran {
         res.localResponse = false;
         res.operation = putc;
         res.id = id;
-        res.payload = document;
+        res.payload = document1;
         if (!res.error) {
           res.rev = res.jsonCouchResponse.rev;
           _database.updateLocalStorageObject(
@@ -240,7 +263,7 @@ class Sporran {
 
       /* Do the put */
       final wiltRev = rev.isNotEmpty ? rev : null;
-      _database.wilt.putDocument(id, document, wiltRev).then(completer);
+      _database.wilt.putDocument(id, document1, wiltRev).then(completer);
     });
 
     return opCompleter.future;
@@ -709,7 +732,7 @@ class Sporran {
         res.rev = null;
         if (!res.error) {
           /* Get the revisions for the updates */
-          final JsonObjectLite<dynamic> couchResp = res.jsonCouchResponse;
+          final JsonObjectLite<dynamic> couchResp = getJsonResponse(res);
           final revisions = <JsonObjectLite<dynamic>?>[];
           final revisionsMap = <String, String>{};
 

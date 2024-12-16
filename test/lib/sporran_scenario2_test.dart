@@ -6,6 +6,7 @@
  */
 
 @TestOn('browser')
+library;
 
 import 'dart:async';
 
@@ -35,7 +36,7 @@ void main() async {
   // Delete any existing test databases
   final deleter = Wilt(hostName);
   deleter.login(userName, userPassword);
-  await deleter.deleteDatabase('scenariotest2');
+  await deleter.deleteDatabase('sporranscenariotest2');
 
   group('9. Scenario Tests 2 - ', () {
     late Sporran sporran9;
@@ -47,7 +48,7 @@ void main() async {
 
     /* Common initialiser */
     final initialiser = SporranInitialiser();
-    initialiser.dbName = 'scenariotest2';
+    initialiser.dbName = 'sporranscenariotest2';
     initialiser.hostname = hostName;
     initialiser.manualNotificationControl = false;
     initialiser.port = port;
@@ -58,12 +59,12 @@ void main() async {
 
     test('1. Create and Open Sporran', () {
       final dynamic wrapper = expectAsync0(() {
-        expect(sporran9.dbName, 'scenariotest2');
+        expect(sporran9.dbName, 'sporranscenariotest2');
         expect(sporran9.lawnIsOpen, isTrue);
         sporran9.online = true;
       });
 
-      sporran9 = Sporran(initialiser);
+      sporran9 = Sporran(initialiser)..initialise();
       sporran9.onReady!.first.then((dynamic e) => wrapper());
     });
 
@@ -85,9 +86,9 @@ void main() async {
         docid3rev = res.rev[2].rev;
         expect(docid1rev, anything);
         final dynamic doc3 = res.payload['9docid3'];
-        expect(doc3.title, 'Document 3');
-        expect(doc3.version, 3);
-        expect(doc3.attribute, 'Doc 3 attribute');
+        expect(doc3['title'], 'Document 3');
+        expect(doc3['version'], 3);
+        expect(doc3['attribute'], 'Doc 3 attribute');
       });
 
       final dynamic document1 = JsonObjectLite<dynamic>();
@@ -121,9 +122,9 @@ void main() async {
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         docid1rev = res.rev;
-        expect(res.payload.attachmentName, 'AttachmentName1');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        expect(res.payload['attachmentName'], 'AttachmentName1');
+        expect(res.payload['contentType'], 'image/png');
+        expect(res.payload['payload'], attachmentPayload);
       });
 
       final dynamic attachment = JsonObjectLite<dynamic>();
@@ -142,9 +143,9 @@ void main() async {
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         docid1rev = res.rev;
-        expect(res.payload.attachmentName, 'AttachmentName2');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        expect(res.payload['attachmentName'], 'AttachmentName2');
+        expect(res.payload['contentType'], 'image/png');
+        expect(res.payload['payload'], attachmentPayload);
       });
 
       final dynamic attachment = JsonObjectLite<dynamic>();
@@ -163,9 +164,9 @@ void main() async {
         expect(res.localResponse, isFalse);
         expect(res.rev, anything);
         docid2rev = res.rev;
-        expect(res.payload.attachmentName, 'AttachmentName1');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
+        expect(res.payload['attachmentName'], 'AttachmentName1');
+        expect(res.payload['contentType'], 'image/png');
+        expect(res.payload['payload'], attachmentPayload);
       });
 
       final dynamic attachment = JsonObjectLite<dynamic>();
@@ -216,7 +217,7 @@ void main() async {
         expect(res.localResponse, isTrue);
         expect(res.id, '9docid2');
         expect(res.rev, docid2rev);
-        expect(res.payload.title, 'Document 2 Updated');
+        expect(res.payload['title'], 'Document 2 Updated');
       });
 
       final dynamic wrapper1 = expectAsync1((dynamic res) {
@@ -241,7 +242,7 @@ void main() async {
         expect(res.localResponse, isTrue);
         expect(res.id, '9docid4');
         expect(res.rev, '');
-        expect(res.payload.title, 'Document 4');
+        expect(res.payload['title'], 'Document 4');
       });
 
       final dynamic document4 = JsonObjectLite<dynamic>();
@@ -260,7 +261,7 @@ void main() async {
         expect(res.rev, isNull);
         expect(res.payload, isNotNull);
         final dynamic successResponse = res.payload;
-        expect(successResponse.total_rows, equals(3));
+        expect(successResponse['total_rows'], equals(3));
       });
       final dynamic cmdWrapper = expectAsync0(() {
         sporran9.getAllDocs(includeDocs: true).then(wrapper);

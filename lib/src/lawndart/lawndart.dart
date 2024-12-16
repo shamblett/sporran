@@ -38,11 +38,13 @@
 
 /// See the `example/` directory for more sample code.
 
-library lawndart;
+library;
 
 import 'dart:async';
-import 'dart:html';
 import 'dart:indexed_db' as idb;
+import 'dart:js_interop';
+
+import 'package:web/web.dart';
 
 part 'src/indexeddb_store.dart';
 
@@ -77,7 +79,7 @@ abstract class Store {
   Future<void> _open();
 
   /// Returns all the keys as a stream. No order is guaranteed.
-  Stream<String> keys();
+  Stream<String?> keys();
 
   /// Stores an [obj] accessible by [key].
   /// The returned Future completes with the key when the objects
@@ -103,7 +105,7 @@ abstract class Store {
   Future<bool> exists(String key);
 
   /// Returns a Stream of all values in no particular order.
-  Stream<String> all();
+  Stream<String?> all();
 
   /// Returns a Future that completes when the key's value is removed.
   Future<void> removeByKey(String key);

@@ -16,7 +16,7 @@ part of '../lawndart.dart';
 
 abstract class _MapStore extends Store {
   _MapStore._() : super._();
-  late Map<String, String> storage;
+  late Storage storage;
 
   @override
   Future<bool> _open() async {
@@ -24,12 +24,12 @@ abstract class _MapStore extends Store {
     return true;
   }
 
-  Map<String, String> _generateMap();
+  Storage _generateMap();
 
   @override
-  Stream<String> keys() async* {
-    for (final k in storage.keys) {
-      yield k;
+  Stream<String?> keys() async* {
+    for (int k = 0; k < storage.length; k++) {
+      yield storage.key(k);
     }
   }
 
@@ -59,24 +59,27 @@ abstract class _MapStore extends Store {
   }
 
   @override
-  Future<bool> exists(String key) async => storage.containsKey(key);
+  Future<bool> exists(String key) async => storage.getItem(key) != null;
 
   @override
-  Stream<String> all() async* {
-    for (final v in storage.values) {
-      yield v;
+  Stream<String?> all() async* {
+    for (int k = 0; k < storage.length; k++) {
+      yield storage.getItem(storage.key(k)!);
     }
   }
 
   @override
   Future<bool> removeByKey(String key) async {
-    storage.remove(key);
+    storage.removeItem(key);
     return true;
   }
 
   @override
   Future<bool> removeByKeys(Iterable<String> keys) async {
-    keys.forEach(storage.remove);
+    for (final key in keys) {
+      storage.removeItem(key);
+    }
+
     return true;
   }
 

@@ -26,31 +26,12 @@ class _SporranDatabase {
       this._scheme = 'http://',
       this._user = '',
       this._password = '',
-      this._preserveLocalDatabase = false]) {
-    _initialise();
-  }
+      this._preserveLocalDatabase = false]);
 
   /// Constants
   static const String notUpdatedc = 'not_updated';
   static const String updatedc = 'updated';
   static const String attachmentMarkerc = 'sporranAttachment';
-
-  Future<dynamic> _initialise() async {
-    _lawndart = await IndexedDbStore.open(_dbName, 'Sporran');
-    _lawnIsOpen = true;
-    // Delete the local database unless told to preserve it.
-    if (!_preserveLocalDatabase) {
-      await _lawndart.nuke();
-    }
-    // Instantiate a Wilt object
-    _wilt = Wilt(_host, port: _port);
-    // Login
-    if (_user.isNotEmpty) {
-      _wilt.login(_user, _password);
-    }
-    // Open CouchDb
-    connectToCouch();
-  }
 
   /// Host name
   final String _host;
@@ -109,6 +90,31 @@ class _SporranDatabase {
 
   Stream<dynamic>? get onReady => _onReady.stream;
 
+  Future<dynamic> initialise() async {
+    _lawndart = await IndexedDbStore.open(_dbName, 'Sporran');
+    _lawnIsOpen = true;
+    // Delete the local database unless told to preserve it.
+    if (!_preserveLocalDatabase) {
+      await _lawndart.nuke();
+    }
+    // Instantiate a Wilt object
+    _wilt = Wilt(_host, port: _port);
+    // Login
+    if (_user.isNotEmpty) {
+      _wilt.login(_user, _password);
+    }
+    // Open CouchDb
+    await connectToCouch();
+  }
+
+  /// Get the JSON success response from an API operation result.
+  JsonObjectLite getJsonResponse(JsonObjectLite result) {
+    final JsonObjectLite response = JsonObjectLite();
+    JsonObjectLite.toTypedJsonObjectLite(
+        (result as dynamic).jsonCouchResponse, response);
+    return response;
+  }
+
   /// Start change notifications
   void startChangeNotifications() {
     final parameters = WiltChangeNotificationParameters();
@@ -139,20 +145,20 @@ class _SporranDatabase {
       final attachmentsToDelete = <String>[];
 
       /* For all the keys... */
-      _lawndart.keys().listen((String key) {
+      _lawndart.keys().listen((String? key) {
         /* If an attachment... */
-        final keyList = key.split('-');
-        if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
+        final keyList = key?.split('-');
+        if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
           /* ...for this document... */
-          if (e.docId == keyList[0]) {
+          if (e.docId == keyList?[0]) {
             /* ..potentially now deleted... */
-            attachmentsToDelete.add(key);
+            attachmentsToDelete.add(key!);
 
             /* ...check against all the documents current attachments */
             for (final dynamic attachment in attachments) {
-              if ((keyList[1] == attachment.name) &&
-                  (keyList[0] == e.docId) &&
-                  (keyList[2] == attachmentMarkerc)) {
+              if ((keyList?[1] == attachment.name) &&
+                  (keyList?[0] == e.docId) &&
+                  (keyList?[2] == attachmentMarkerc)) {
                 /* If still valid remove it from the delete list */
                 attachmentsToDelete.remove(key);
               }
@@ -178,10 +184,10 @@ class _SporranDatabase {
       /* Do the delete */
       await _lawndart.removeByKey(e.docId!).then((_) {
         /* Remove all document attachments */
-        _lawndart.keys().listen((String key) {
-          final keyList = key.split('-');
-          if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
-            _lawndart.removeByKey(key);
+        _lawndart.keys().listen((String? key) {
+          final keyList = key?.split('-');
+          if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
+            _lawndart.removeByKey(key!);
           }
         });
       });
@@ -190,12 +196,14 @@ class _SporranDatabase {
 
   /// Signal we are ready
   void _signalReady() {
-    final e = Event.eventType('Event', 'SporranReady');
+    final e = Event('SporranReady');
     _onReady.add(e);
   }
 
   /// Create and/or connect to CouchDb
-  void connectToCouch([bool transitionToOnline = false]) {
+  FutureOr<void> connectToCouch([bool transitionToOnline = false]) async {
+    final completer = Completer<void>();
+
     /// If the CouchDb database does not exist create it.
     void createCompleter(dynamic res) {
       if (!res.error) {
@@ -227,7 +235,7 @@ class _SporranDatabase {
 
     void allCompleter(dynamic res) {
       if (!res.error) {
-        final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
+        final JsonObjectLite<dynamic> successResponse = getJsonResponse(res);
         final created = successResponse.contains(_dbName);
         if (created == false) {
           _wilt.createDatabase(_dbName).then(createCompleter);
@@ -266,6 +274,8 @@ class _SporranDatabase {
         _noCouchDb = true;
         _signalReady();
       });
+
+    return completer.future;
   }
 
   /// Add a key to the pending delete queue
@@ -308,7 +318,7 @@ class _SporranDatabase {
     for (final dynamic attachment in attachments) {
       void completer(dynamic res) {
         if (!res.error) {
-          final dynamic successResponse = res.jsonCouchResponse;
+          final dynamic successResponse = getJsonResponse(res);
           final dynamic newAttachment = JsonObjectLite<dynamic>();
           newAttachment.attachmentName = attachment.name;
           newAttachment.rev = WiltUserUtils.getDocumentRev(document);
@@ -480,7 +490,7 @@ class _SporranDatabase {
        * nothing we can do.
        */
       if (!res.error) {
-        final JsonObjectLite<dynamic> successResponse = res.jsonCouchResponse;
+        final JsonObjectLite<dynamic> successResponse = getJsonResponse(res);
         final attachments = WiltUserUtils.getAttachments(successResponse);
         var found = false;
         for (final dynamic attachment in attachments) {
@@ -534,7 +544,7 @@ class _SporranDatabase {
 
     void localCompleter(dynamic res) {
       if (!res.error) {
-        completer.complete(res.jsonCouchResponse.rev);
+        completer.complete((getJsonResponse(res) as dynamic).rev);
       }
     }
 
@@ -562,10 +572,11 @@ class _SporranDatabase {
       final jsonDoc = JsonObjectLite();
       JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
       if (!jsonDoc.containsKey('rev')) {
-        document.isImmutable = false;
-        document.rev = '';
+        jsonDoc.isImmutable = false;
+        (jsonDoc as dynamic).rev = '';
       }
-      update(key, document.payload, document.rev).then((String rev) {
+      update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev)
+          .then((String rev) {
         revisions[document.key] = rev;
         count++;
         if (count == length) {
@@ -615,12 +626,12 @@ class _SporranDatabase {
   /// Update the revision of any attachments for a document
   /// if the document is updated from Couch
   void updateAttachmentRevisions(String id, String revision) {
-    lawndart.all().listen((String document) {
+    lawndart.all().listen((String? document) {
       final key = document;
-      final keyList = key.split('-');
-      if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
-        if (id == keyList[0]) {
-          final attachment = JsonObjectLite<dynamic>.fromJsonString(document);
+      final keyList = key?.split('-');
+      if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
+        if (id == keyList?[0]) {
+          final attachment = JsonObjectLite<dynamic>.fromJsonString(document!);
           updateLocalStorageObject(id, attachment, revision, updatedc);
         }
       }
@@ -665,8 +676,8 @@ class _SporranDatabase {
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
-    lawndart.all().listen((String document) {
-      final doc = JsonObjectLite<dynamic>.fromJsonString(document);
+    lawndart.all().listen((String? document) {
+      final doc = JsonObjectLite<dynamic>.fromJsonString(document!);
       final String? key = doc['key'];
       if (doc['status'] == notUpdatedc) {
         final update = doc;
@@ -688,10 +699,10 @@ class _SporranDatabase {
           if (attachment.rev != null) {
             updateAttachment(
                 keyList[0],
-                attachment.payload.attachmentName,
-                attachment.rev,
-                attachment.payload.contentType,
-                attachment.payload.payload);
+                attachment['payload']['attachmentName'],
+                attachment['rev'],
+                attachment['payload']['contentType'],
+                attachment['payload']['payload']);
           }
         });
       });

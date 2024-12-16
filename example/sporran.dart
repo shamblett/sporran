@@ -7,9 +7,10 @@
 
 import 'package:sporran/sporran.dart';
 import 'package:json_object_lite/json_object_lite.dart';
+import 'package:wilt/wilt.dart';
 
 // ignore: avoid_relative_lib_imports
-import '../test/lib/sporran_test_config.dart';
+import './sporran_example_config.dart';
 
 /// An example of sporran initialisation and usage, see the test
 /// scenarios for more detailed use cases.
@@ -25,9 +26,15 @@ void main() async {
   initialiser.password = userPassword;
   initialiser.preserveLocal = false;
 
-  // Create the client
-  final sporran = Sporran(initialiser);
+  // Delete any existing test databases
+  final deleter = Wilt(hostName);
+  deleter.login(userName, userPassword);
+  await deleter.deleteDatabase(databaseName);
+
+  // Create the client, and initialise it
+  final sporran = Sporran(initialiser)..initialise();
   sporran.autoSync = false;
+  // Wait for ready
   await sporran.onReady!.first;
 
   // Put a document
@@ -38,12 +45,13 @@ void main() async {
 
   // Get it
   dynamic res = await sporran.get(docIdPutOnline);
-  dynamic payload = JsonObjectLite<dynamic>.fromJsonString(res.payload);
-  print(payload.payload.name);
+  dynamic payload = JsonObjectLite();
+  JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+  print(payload['name']);
 
   // Get it offline
   sporran.online = false;
-  res = sporran.get(docIdPutOnline);
-  payload = JsonObjectLite<dynamic>.fromJsonString(res.payload);
-  print(payload.payload.name);
+  dynamic res2 = await sporran.get(docIdPutOnline);
+  final dynamic payload2 = JsonObjectLite<dynamic>.fromJsonString(res2.payload);
+  print(payload2['payload']['name']);
 }
