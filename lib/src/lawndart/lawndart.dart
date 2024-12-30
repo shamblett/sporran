@@ -41,9 +41,8 @@
 library;
 
 import 'dart:async';
-import 'dart:indexed_db' as idb;
-import 'dart:js_interop';
 
+import 'package:indexed_db/indexed_db.dart' as idb;
 import 'package:web/web.dart';
 
 part 'src/indexeddb_store.dart';
