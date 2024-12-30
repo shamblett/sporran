@@ -40,20 +40,25 @@ class IndexedDbStore extends Store {
 
   @override
   Future<void> _open() async {
-    final completer = Completer<void>();
+    final factory = idb.IdbFactory();
     if (!supported) {
       throw UnsupportedError('IndexedDB is not supported on this platform');
     }
 
-    final request = window.indexedDB.open(dbName);
-    // ignore: unnecessary_lambdas, avoid_types_on_closure_parameters
-    request.onsuccess = ((Event _) => completer.complete()).toJS;
-    // ignore: avoid_types_on_closure_parameters
-    request.onupgradeneeded = ((Event _) {
-      (request.result! as IDBDatabase).createObjectStore(storeName);
-    }).toJS;
-    await completer.future;
-    _databases[dbName] = (request.result as idb.Database);
+    void upgradeNeeded(idb.VersionChangeEvent event) async {
+      final db = event.target.database;
+      if (db.objectStoreNames != null) {
+        if (!db.objectStoreNames!.contains(storeName)) {
+          db.createObjectStore(storeName);
+        }
+      } else {
+        db.createObjectStore(storeName);
+      }
+    }
+
+    final db =
+        await factory.open(dbName, version: 1, onUpgradeNeeded: upgradeNeeded);
+    _databases[dbName] = db;
   }
 
   idb.Database? get _db => _databases[dbName];
