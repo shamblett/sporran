@@ -363,7 +363,7 @@ class Sporran {
   /// String contentType - mime type in the form 'image/png'
   /// String payload - stringified binary blob.
   /// If the parameters are invalid null is returned.
-  Future<dynamic> putAttachment(String id, dynamic attachment) {
+  Future<dynamic> putAttachment(String id, dynamic attachment) async {
     final opCompleter = Completer<dynamic>();
     if (id.isEmpty) {
       opCompleter.complete(null);
@@ -376,73 +376,61 @@ class Sporran {
     /* Update LawnDart */
     final key = '$id-${attachment.attachmentName}-'
         '${_SporranDatabase.attachmentMarkerc}';
-    _database
-        .updateLocalStorageObject(
-            key, attachment, attachment.rev, _SporranDatabase.notUpdatedc)
-        // ignore: missing_return
-        .then((_) {
-      /* If we are offline just return */
-      if (!online) {
-        final dynamic res = JsonObjectLite<dynamic>();
-        res.localResponse = true;
-        res.operation = putAttachmentc;
-        res.ok = true;
-        res.payload = attachment;
-        res.id = id;
-        res.rev = null;
-        opCompleter.complete(res);
-        if (_clientCompleter != null) {
-          _completionResponse = _createCompletionResponse(res);
-          _clientCompleter();
-        }
-        return opCompleter.future;
-      }
-
-      /* Complete locally, then boomerang to the client */
-      void completer(dynamic res) {
-        /* If success, mark the update as UPDATED in local storage */
-        res.ok = false;
-        res.localResponse = false;
-        res.id = id;
-        res.operation = putAttachmentc;
-        res.rev = null;
-        res.payload = null;
-
-        if (!res.error) {
-          final dynamic newAttachment =
-              JsonObjectLite<dynamic>.fromJsonString(_mapToJson(attachment));
-          newAttachment.contentType = attachment.contentType;
-          newAttachment.payload = attachment.payload;
-          newAttachment.attachmentName = attachment.attachmentName;
-          res.payload = newAttachment;
-          res.rev = res.jsonCouchResponse.rev;
-          newAttachment.rev = res.jsonCouchResponse.rev;
-          _database.updateLocalStorageObject(key, newAttachment,
-              res.jsonCouchResponse.rev, _SporranDatabase.updatedc);
-          _database.updateAttachmentRevisions(id, res.jsonCouchResponse.rev);
-          res.ok = true;
-        }
-        opCompleter.complete(res);
-        if (_clientCompleter != null) {
-          _completionResponse = _createCompletionResponse(res);
-          _clientCompleter();
-        }
-      }
-
+    await _database.updateLocalStorageObject(
+        key, attachment, attachment.rev, _SporranDatabase.notUpdatedc);
+    /* If we are offline just return */
+    if (!online) {
+      final dynamic res = JsonObjectLite<dynamic>();
+      res.localResponse = true;
+      res.operation = putAttachmentc;
+      res.ok = true;
+      res.payload = attachment;
+      res.id = id;
+      res.rev = null;
+      opCompleter.complete(res);
+      return opCompleter.future;
+    } else {
       /* Do the create */
+      dynamic res;
       if (attachment.rev == '') {
-        _database.wilt
-            .createAttachment(id, attachment.attachmentName, attachment.rev,
-                attachment.contentType, attachment.payload)
-            .then(completer);
+        res = await _database.wilt.createAttachment(
+            id,
+            attachment.attachmentName,
+            attachment.rev,
+            attachment.contentType,
+            attachment.payload);
       } else {
-        _database.wilt
-            .updateAttachment(id, attachment.attachmentName, attachment.rev,
-                attachment.contentType, attachment.payload)
-            .then(completer);
+        res = await _database.wilt.updateAttachment(
+            id,
+            attachment.attachmentName,
+            attachment.rev,
+            attachment.contentType,
+            attachment.payload);
       }
-    });
-
+      /* If success, mark the update as UPDATED in local storage */
+      res.ok = false;
+      res.localResponse = false;
+      res.id = id;
+      res.operation = putAttachmentc;
+      res.rev = null;
+      res.payload = null;
+      if (!res.error) {
+        final dynamic newAttachment =
+            JsonObjectLite<dynamic>.fromJsonString(_mapToJson(attachment));
+        newAttachment.contentType = attachment.contentType;
+        newAttachment.payload = attachment.payload;
+        newAttachment.attachmentName = attachment.attachmentName;
+        res.payload = newAttachment;
+        res.rev = res.jsonCouchResponse.rev;
+        newAttachment.rev = res.jsonCouchResponse.rev;
+        await _database.updateLocalStorageObject(key, newAttachment,
+            res.jsonCouchResponse.rev, _SporranDatabase.updatedc);
+        _database.updateAttachmentRevisions(id, res.jsonCouchResponse.rev);
+        res.ok = true;
+      } else {
+        return opCompleter.complete(res);
+      }
+    }
     return opCompleter.future;
   }
 
@@ -450,7 +438,7 @@ class Sporran {
   /// Revision can be null if offline.
   /// If the parameters are invalid null is returned.
   Future<dynamic> deleteAttachment(String id, String attachmentName,
-      [String rev = '']) {
+      [String rev = '']) async {
     final opCompleter = Completer<dynamic>();
     if (id.isEmpty) {
       opCompleter.complete(null);
@@ -463,74 +451,51 @@ class Sporran {
     final key = '$id-$attachmentName-${_SporranDatabase.attachmentMarkerc}';
 
     /* Remove from Lawndart */
-    _database.lawndart.getByKey(key).then((dynamic document) {
-      if (document != null) {
-        _database.lawndart
-            .removeByKey(key)
-            // ignore: missing_return
-            .then((_) {
-          /* Check for offline, if so add to the pending delete
+    final document = await _database.lawndart.getByKey(key);
+    if (document != null) {
+      await _database.lawndart.removeByKey(key);
+      /* Check for offline, if so add to the pending delete
               queue and return */
-          if (!online) {
-            _database.addPendingDelete(key, document);
-            final dynamic res = JsonObjectLite<dynamic>();
-            res.localResponse = true;
-            res.operation = deleteAttachmentc;
-            res.ok = true;
-            res.id = id;
-            res.payload = null;
-            res.rev = null;
-            opCompleter.complete(res);
-            if (_clientCompleter != null) {
-              _completionResponse = _createCompletionResponse(res);
-              _clientCompleter();
-            }
-            return opCompleter.future;
-          } else {
-            /* Online, delete from CouchDb */
-            void completer(dynamic res) {
-              res.operation = deleteAttachmentc;
-              res.localResponse = false;
-              res.payload = res.jsonCouchResponse;
-              res.id = id;
-              res.rev = null;
-              if (res.error) {
-                res.ok = false;
-              } else {
-                res.ok = true;
-                res.rev = res.jsonCouchResponse.rev;
-              }
-              _database.removePendingDelete(key);
-              opCompleter.complete(res);
-              if (_clientCompleter != null) {
-                _completionResponse = _createCompletionResponse(res);
-                _clientCompleter();
-              }
-            }
-
-            /* Delete the attachment from CouchDB */
-            final wiltRev = rev.isNotEmpty ? rev : null;
-            _database.wilt
-                .deleteAttachment(id, attachmentName, wiltRev)
-                .then(completer);
-          }
-        });
-      } else {
-        /* Doesn't exist, return error */
+      if (!online) {
+        _database.addPendingDelete(key, document);
         final dynamic res = JsonObjectLite<dynamic>();
         res.localResponse = true;
         res.operation = deleteAttachmentc;
+        res.ok = true;
         res.id = id;
         res.payload = null;
         res.rev = null;
-        res.ok = false;
         opCompleter.complete(res);
-        if (_clientCompleter != null) {
-          _completionResponse = _createCompletionResponse(res);
-          _clientCompleter();
+        return opCompleter.future;
+      } else {
+        _database.removePendingDelete(key);
+        /* Delete the attachment from CouchDB */
+        final wiltRev = rev.isNotEmpty ? rev : null;
+        dynamic res =
+            await _database.wilt.deleteAttachment(id, attachmentName, wiltRev);
+        res.operation = deleteAttachmentc;
+        res.localResponse = false;
+        res.payload = res.jsonCouchResponse;
+        res.id = id;
+        res.rev = null;
+        if (res.error) {
+          res.ok = false;
+        } else {
+          res.ok = true;
+          res.rev = res.jsonCouchResponse.rev;
         }
       }
-    });
+    } else {
+      /* Doesn't exist, return error */
+      final dynamic res = JsonObjectLite<dynamic>();
+      res.localResponse = true;
+      res.operation = deleteAttachmentc;
+      res.id = id;
+      res.payload = null;
+      res.rev = null;
+      res.ok = false;
+      opCompleter.complete(res);
+    }
 
     return opCompleter.future;
   }
