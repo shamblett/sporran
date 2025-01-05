@@ -153,35 +153,6 @@ class Sporran {
     return null;
   }
 
-  /// Common completion response creator for all databases
-  dynamic _createCompletionResponse(dynamic result) {
-    final dynamic completion = JsonObjectLite<dynamic>();
-
-    completion.operation = result.operation;
-    completion.payload = result.payload;
-    completion.localResponse = result.localResponse;
-    completion.id = result.id;
-    completion.rev = result.rev;
-
-    /**
-     * Check for a local or Wilt response
-     */
-    if (result.localResponse) {
-      completion.ok = result.ok;
-    } else {
-      if (result.error) {
-        completion.ok = false;
-        completion.errorCode = result.errorCode;
-        completion.errorText = result.jsonCouchResponse.error;
-        completion.errorReason = result.jsonCouchResponse.reason;
-      } else {
-        completion.ok = true;
-      }
-    }
-
-    return completion;
-  }
-
   /// Update document.
   ///
   /// If the document does not exist a create is performed.
@@ -663,7 +634,7 @@ class Sporran {
         /* Get all the keys from Lawndart */
         final keyList = await _database.lawndart.keys().toList();
         /* Only return documents */
-        final docList = <String?>[];
+        final docList = <String>[];
         for (var key in keyList) {
           final List<String?> temp = key!.split('-');
           if ((temp.length == 3) &&
@@ -692,15 +663,10 @@ class Sporran {
         res.operation = getAllDocsc;
         res.id = null;
         res.rev = null;
-        if (documents == null) {
-          res.ok = false;
-          res.payload = null;
-        } else {
-          res.ok = true;
-          res.payload = documents;
-          res.totalRows = documents.length;
-          res.keyList = documents.keys.toList();
-        }
+        res.ok = true;
+        res.payload = documents;
+        res.totalRows = documents.length;
+        res.keyList = documents.keys.toList();
         opCompleter.complete(res);
       }
     } else {
@@ -735,49 +701,36 @@ class Sporran {
   ///
   /// When offline the a list of the keys in the Lawndart database are returned,
   /// otherwise a response for CouchDb is returned.
-  Future<JsonObjectLite<dynamic>> getDatabaseInfo() {
+  Future<JsonObjectLite<dynamic>> getDatabaseInfo() async {
     final opCompleter = Completer<JsonObjectLite<dynamic>>();
 
     if (!online) {
-      _database.lawndart.keys().toList().then((List<dynamic> keys) {
-        final dynamic res = JsonObjectLite<dynamic>();
-        res.localResponse = true;
-        res.operation = dbInfoc;
-        res.id = null;
-        res.rev = null;
-        res.payload = keys;
-        res.ok = true;
-        opCompleter.complete(res);
-        if (_clientCompleter != null) {
-          _completionResponse = _createCompletionResponse(res);
-          _clientCompleter();
-        }
-      });
+      final keys = await _database.lawndart.keys().toList();
+      final dynamic res = JsonObjectLite<dynamic>();
+      res.localResponse = true;
+      res.operation = dbInfoc;
+      res.id = null;
+      res.rev = null;
+      res.payload = keys;
+      res.ok = true;
+      opCompleter.complete(res);
     } else {
-      void completer(dynamic res) {
-        /* If Ok update local storage with the database info */
-        res.operation = dbInfoc;
-        res.id = null;
-        res.rev = null;
-        res.localResponse = false;
-        if (!res.error) {
-          res.ok = true;
-          res.payload = res.jsonCouchResponse;
-        } else {
-          res.localResponse = false;
-          res.ok = false;
-          res.payload = null;
-        }
-
-        opCompleter.complete(res);
-        if (_clientCompleter != null) {
-          _completionResponse = _createCompletionResponse(res);
-          _clientCompleter();
-        }
-      }
-
       /* Get the database information from CouchDb */
-      _database.wilt.getDatabaseInfo().then(completer);
+      var res = await _database.wilt.getDatabaseInfo();
+      /* If Ok update local storage with the database info */
+      res.operation = dbInfoc;
+      res.id = null;
+      res.rev = null;
+      res.localResponse = false;
+      if (!res.error) {
+        res.ok = true;
+        res.payload = res.jsonCouchResponse;
+      } else {
+        res.localResponse = false;
+        res.ok = false;
+        res.payload = null;
+      }
+      opCompleter.complete(res);
     }
 
     return opCompleter.future;
