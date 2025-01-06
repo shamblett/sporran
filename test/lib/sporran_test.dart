@@ -506,26 +506,7 @@ void main() async {
       expect(sporran5.lawnIsOpen, isTrue);
     });
 
-    test('2. Bulk Insert Documents Online', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.bulkCreatec);
-        expect(res.id, isNull);
-        expect(res.payload, isNotNull);
-        expect(res.rev, isNotNull);
-        expect(res.rev[0].rev, anything);
-        docid1rev = res.rev[0].rev;
-        expect(res.rev[1].rev, anything);
-        docid2rev = res.rev[1].rev;
-        expect(res.rev[2].rev, anything);
-        docid3rev = res.rev[2].rev;
-        final dynamic doc3 = res.payload['docid3'];
-        expect(doc3['title'], 'Document 3');
-        expect(doc3['version'], 3);
-        expect(doc3['attribute'], 'Doc 3 attribute');
-      });
-
+    test('2. Bulk Insert Documents Online', () async {
       final dynamic document1 = JsonObjectLite<dynamic>();
       document1.title = 'Document 1';
       document1.version = 1;
@@ -546,23 +527,26 @@ void main() async {
       docs['docid2'] = document2;
       docs['docid3'] = document3;
 
-      sporran5.bulkCreate(docs).then(wrapper);
+      final res = await sporran5.bulkCreate(docs);
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isFalse);
+      expect(res.operation, Sporran.bulkCreatec);
+      expect(res.id, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.rev, isNotNull);
+      expect(res.rev[0].rev, anything);
+      docid1rev = res.rev[0].rev;
+      expect(res.rev[1].rev, anything);
+      docid2rev = res.rev[1].rev;
+      expect(res.rev[2].rev, anything);
+      docid3rev = res.rev[2].rev;
+      final dynamic doc3 = res.payload['docid3'];
+      expect(doc3['title'], 'Document 3');
+      expect(doc3['version'], 3);
+      expect(doc3['attribute'], 'Doc 3 attribute');
     });
 
-    test('3. Bulk Insert Documents Offline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.bulkCreatec);
-        expect(res.id, isNull);
-        expect(res.payload, isNotNull);
-        expect(res.rev, isNull);
-        final dynamic doc3 = res.payload['docid3offline'];
-        expect(doc3['title'], 'Document 3');
-        expect(doc3['version'], 3);
-        expect(doc3['attribute'], 'Doc 3 attribute');
-      });
-
+    test('3. Bulk Insert Documents Offline', () async {
       final dynamic document1 = JsonObjectLite<dynamic>();
       document1.title = 'Document 1';
       document1.version = 1;
@@ -584,43 +568,34 @@ void main() async {
       docs['docid3offline'] = document3;
 
       sporran5.online = false;
-      sporran5.bulkCreate(docs).then(wrapper);
+      final res = await sporran5.bulkCreate(docs);
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isTrue);
+      expect(res.operation, Sporran.bulkCreatec);
+      expect(res.id, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.rev, isNull);
+      final dynamic doc3 = res.payload['docid3offline'];
+      expect(doc3['title'], 'Document 3');
+      expect(doc3['version'], 3);
+      expect(doc3['attribute'], 'Doc 3 attribute');
     });
 
-    test('4. Get All Docs Online', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.getAllDocsc);
-        expect(res.id, isNull);
-        expect(res.rev, isNull);
-        expect(res.payload, isNotNull);
-        final successResponse = JsonObjectLite();
-        JsonObjectLite.toTypedJsonObjectLite(res.payload, successResponse);
-        expect(successResponse['total_rows'], equals(5));
-      });
-
+    test('4. Get All Docs Online', () async {
       sporran5.online = true;
-      sporran5.getAllDocs(includeDocs: true).then(wrapper);
+      final dynamic res = await sporran5.getAllDocs(includeDocs: true);
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isFalse);
+      expect(res.operation, Sporran.getAllDocsc);
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      final successResponse = JsonObjectLite();
+      JsonObjectLite.toTypedJsonObjectLite(res.payload, successResponse);
+      expect(successResponse['total_rows'], equals(5));
     });
 
-    test('5. Get All Docs Offline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.getAllDocsc);
-        expect(res.id, isNull);
-        expect(res.rev, isNull);
-        expect(res.payload, isNotNull);
-        expect(res.payload.length, greaterThanOrEqualTo(6));
-        expect(res.payload['docid1'].payload['title'], 'Document 1');
-        expect(res.payload['docid2'].payload['title'], 'Document 2');
-        expect(res.payload['docid3'].payload['title'], 'Document 3');
-        expect(res.payload['docid1offline'].payload['title'], 'Document 1');
-        expect(res.payload['docid2offline'].payload['title'], 'Document 2');
-        expect(res.payload['docid3offline'].payload['title'], 'Document 3');
-      });
-
+    test('5. Get All Docs Offline', () async {
       sporran5.online = false;
       final keys = <String>[
         'docid1offline',
@@ -631,51 +606,56 @@ void main() async {
         'docid3'
       ];
 
-      sporran5.getAllDocs(keys: keys).then(wrapper);
+      final dynamic res = await sporran5.getAllDocs(keys: keys);
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isTrue);
+      expect(res.operation, Sporran.getAllDocsc);
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.payload.length, greaterThanOrEqualTo(6));
+      expect(res.payload['docid1'].payload['title'], 'Document 1');
+      expect(res.payload['docid2'].payload['title'], 'Document 2');
+      expect(res.payload['docid3'].payload['title'], 'Document 3');
+      expect(res.payload['docid1offline'].payload['title'], 'Document 1');
+      expect(res.payload['docid2offline'].payload['title'], 'Document 2');
+      expect(res.payload['docid3offline'].payload['title'], 'Document 3');
     });
 
-    test('6. Get Database Info Offline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isTrue);
-        expect(res.operation, Sporran.dbInfoc);
-        expect(res.id, isNull);
-        expect(res.rev, isNull);
-        expect(res.payload, isNotNull);
-        expect(res.payload.length, greaterThanOrEqualTo(6));
-        expect(res.payload.contains('docid1'), isTrue);
-        expect(res.payload.contains('docid2'), isTrue);
-        expect(res.payload.contains('docid3'), isTrue);
-        expect(res.payload.contains('docid1offline'), isTrue);
-        expect(res.payload.contains('docid2offline'), isTrue);
-        expect(res.payload.contains('docid3offline'), isTrue);
-      });
-
-      sporran5.getDatabaseInfo().then(wrapper);
+    test('6. Get Database Info Offline', () async {
+      final dynamic res = await sporran5.getDatabaseInfo();
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isTrue);
+      expect(res.operation, Sporran.dbInfoc);
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.payload.length, greaterThanOrEqualTo(6));
+      expect(res.payload.contains('docid1'), isTrue);
+      expect(res.payload.contains('docid2'), isTrue);
+      expect(res.payload.contains('docid3'), isTrue);
+      expect(res.payload.contains('docid1offline'), isTrue);
+      expect(res.payload.contains('docid2offline'), isTrue);
+      expect(res.payload.contains('docid3offline'), isTrue);
     });
 
-    test('7. Get Database Info Online', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.localResponse, isFalse);
-        expect(res.operation, Sporran.dbInfoc);
-        expect(res.id, isNull);
-        expect(res.rev, isNull);
-        expect(res.payload, isNotNull);
-        expect(res.payload['doc_count'], lessThanOrEqualTo(8));
-        expect(res.payload['db_name'], databaseName);
-      });
-
+    test('7. Get Database Info Online', () async {
       sporran5.online = true;
-      sporran5.getDatabaseInfo().then(wrapper);
+      final dynamic res = await sporran5.getDatabaseInfo();
+      expect(res.ok, isTrue);
+      expect(res.localResponse, isFalse);
+      expect(res.operation, Sporran.dbInfoc);
+      expect(res.id, isNull);
+      expect(res.rev, isNull);
+      expect(res.payload, isNotNull);
+      expect(res.payload['doc_count'], lessThanOrEqualTo(8));
+      expect(res.payload['db_name'], databaseName);
     });
 
-    test('8. Tidy Up All Docs Online', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {}, count: 3);
-
-      sporran5.delete('docid1', docid1rev).then(wrapper);
-      sporran5.delete('docid2', docid2rev).then(wrapper);
-      sporran5.delete('docid3', docid3rev).then(wrapper);
+    test('8. Tidy Up All Docs Online', () async {
+      await sporran5.delete('docid1', docid1rev);
+      await sporran5.delete('docid2', docid2rev);
+      await sporran5.delete('docid3', docid3rev);
     });
   });
 
