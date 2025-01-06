@@ -244,7 +244,7 @@ void main() async {
       expect(res.localResponse, isTrue);
       expect(res.id, docIdPutOnline);
       final dynamic payload =
-      JsonObjectLite<dynamic>.fromJsonString(res.payload);
+          JsonObjectLite<dynamic>.fromJsonString(res.payload);
       expect(payload.payload.name, 'Online - Updated');
     });
 
@@ -256,7 +256,7 @@ void main() async {
       expect(res.localResponse, isTrue);
       expect(res.id, docIdPutOffline);
       final dynamic payload =
-      JsonObjectLite<dynamic>.fromJsonString(res.payload);
+          JsonObjectLite<dynamic>.fromJsonString(res.payload);
       expect(payload.payload.name, 'Offline');
       expect(res.rev, isNull);
     });
@@ -339,193 +339,155 @@ void main() async {
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
-    test('1. Create and Open Sporran', () {
-      final dynamic wrapper = expectAsync0(() {
-        expect(sporran4.dbName, databaseName);
-        expect(sporran4.lawnIsOpen, isTrue);
-      });
-
+    test('1. Create and Open Sporran', () async {
       sporran4 = Sporran(initialiser)..initialise();
-
       sporran4.autoSync = false;
-      sporran4.onReady!.first.then((dynamic e) => wrapper());
+      await sporran4.onReady!.first;
+      expect(sporran4.dbName, databaseName);
+      expect(sporran4.lawnIsOpen, isTrue);
     });
 
-    test('2. Put Document Online docIdPutOnline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.putc);
-        expect(res.id, docIdPutOnline);
-        expect(res.localResponse, isFalse);
-        expect(res.payload.name, 'Online');
-        expect(res.rev, anything);
-        onlineDocRev = res.rev;
-      });
-
+    test('2. Put Document Online docIdPutOnline', () async {
       sporran4.online = true;
       onlineDoc.name = 'Online';
-      sporran4.put(docIdPutOnline, onlineDoc).then(wrapper);
+      final res = await sporran4.put(docIdPutOnline, onlineDoc);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.putc);
+      expect(res.id, docIdPutOnline);
+      expect(res.localResponse, isFalse);
+      expect(res.payload.name, 'Online');
+      expect(res.rev, anything);
+      onlineDocRev = res.rev;
     });
 
-    test('3. Put Document Offline docIdPutOffline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.putc);
-        expect(res.id, docIdPutOffline);
-        expect(res.localResponse, isTrue);
-        expect(res.payload.name, 'Offline');
-      });
-
+    test('3. Put Document Offline docIdPutOffline', () async {
       sporran4.online = false;
       offlineDoc.name = 'Offline';
-      sporran4.put(docIdPutOffline, offlineDoc).then(wrapper);
+      final res = await sporran4.put(docIdPutOffline, offlineDoc);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.putc);
+      expect(res.id, docIdPutOffline);
+      expect(res.localResponse, isTrue);
+      expect(res.payload.name, 'Offline');
     });
 
-    test('4. Create Attachment Online docIdPutOnline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.putAttachmentc);
-        expect(res.id, docIdPutOnline);
-        expect(res.localResponse, isFalse);
-        expect(res.rev, anything);
-        onlineDocRev = res.rev;
-        expect(res.payload.attachmentName, 'onlineAttachment');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
-      });
-
+    test('4. Create Attachment Online docIdPutOnline', () async {
       sporran4.online = true;
       final dynamic attachment = JsonObjectLite<dynamic>();
       attachment.attachmentName = 'onlineAttachment';
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran4.putAttachment(docIdPutOnline, attachment).then(wrapper);
+      final res = await sporran4.putAttachment(docIdPutOnline, attachment);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.putAttachmentc);
+      expect(res.id, docIdPutOnline);
+      expect(res.localResponse, isFalse);
+      expect(res.rev, anything);
+      onlineDocRev = res.rev;
+      expect(res.payload.attachmentName, 'onlineAttachment');
+      expect(res.payload.contentType, 'image/png');
+      expect(res.payload.payload, attachmentPayload);
     });
 
-    test('5. Create Attachment Offline docIdPutOffline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.putAttachmentc);
-        expect(res.id, docIdPutOffline);
-        expect(res.localResponse, isTrue);
-        expect(res.rev, isNull);
-        expect(res.payload.attachmentName, 'offlineAttachment');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
-      });
-
+    test('5. Create Attachment Offline docIdPutOffline', () async {
       sporran4.online = false;
       final dynamic attachment = JsonObjectLite<dynamic>();
       attachment.attachmentName = 'offlineAttachment';
       attachment.rev = onlineDocRev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran4.putAttachment(docIdPutOffline, attachment).then(wrapper);
+      final res = await sporran4.putAttachment(docIdPutOffline, attachment);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.putAttachmentc);
+      expect(res.id, docIdPutOffline);
+      expect(res.localResponse, isTrue);
+      expect(res.rev, isNull);
+      expect(res.payload.attachmentName, 'offlineAttachment');
+      expect(res.payload.contentType, 'image/png');
+      expect(res.payload.payload, attachmentPayload);
     });
 
-    test('6. Get Attachment Online docIdPutOnline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.getAttachmentc);
-        expect(res.id, docIdPutOnline);
-        expect(res.localResponse, isFalse);
-        expect(res.rev, anything);
-        expect(res.payload.attachmentName, 'onlineAttachment');
-        expect(res.payload.contentType, 'image/png; charset=utf-8');
-        expect(res.payload.payload, attachmentPayload);
-      });
-
+    test('6. Get Attachment Online docIdPutOnline', () async {
       sporran4.online = true;
-      sporran4.getAttachment(docIdPutOnline, 'onlineAttachment').then(wrapper);
+      final res =
+          await sporran4.getAttachment(docIdPutOnline, 'onlineAttachment');
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.getAttachmentc);
+      expect(res.id, docIdPutOnline);
+      expect(res.localResponse, isFalse);
+      expect(res.rev, anything);
+      expect(res.payload.attachmentName, 'onlineAttachment');
+      expect(res.payload.contentType, 'image/png; charset=utf-8');
+      expect(res.payload.payload, attachmentPayload);
     });
 
-    test('7. Get Attachment Offline docIdPutOffline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.getAttachmentc);
-        expect(res.id, docIdPutOffline);
-        expect(res.localResponse, isTrue);
-        expect(res.rev, isNull);
-        final dynamic p2 =
-            JsonObjectLite<dynamic>.fromJsonString(res.payload.payload);
-        expect(p2.payload.attachmentName, 'offlineAttachment');
-        expect(p2.payload.contentType, 'image/png');
-        expect(p2.payload.payload, attachmentPayload);
-      });
-
+    test('7. Get Attachment Offline docIdPutOffline', () async {
       sporran4.online = false;
-      sporran4
-          .getAttachment(docIdPutOffline, 'offlineAttachment')
-          .then(wrapper);
+      final res =
+          await sporran4.getAttachment(docIdPutOffline, 'offlineAttachment');
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.getAttachmentc);
+      expect(res.id, docIdPutOffline);
+      expect(res.localResponse, isTrue);
+      expect(res.rev, isNull);
+      final dynamic p2 =
+          JsonObjectLite<dynamic>.fromJsonString(res.payload.payload);
+      expect(p2.payload.attachmentName, 'offlineAttachment');
+      expect(p2.payload.contentType, 'image/png');
+      expect(p2.payload.payload, attachmentPayload);
     });
 
-    test('8. Get Document Online docIdPutOnline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.getc);
-        expect(res.id, docIdPutOnline);
-        expect(res.localResponse, isFalse);
-        expect(res.rev, onlineDocRev);
-        final attachments = WiltUserUtils.getAttachments(res.payload);
-        expect(attachments.length, 1);
-      });
-
+    test('8. Get Document Online docIdPutOnline', () async {
       sporran4.online = true;
-      sporran4.get(docIdPutOnline, onlineDocRev).then(wrapper);
+      final res = await sporran4.get(docIdPutOnline, onlineDocRev);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.getc);
+      expect(res.id, docIdPutOnline);
+      expect(res.localResponse, isFalse);
+      expect(res.rev, onlineDocRev);
+      final attachments = WiltUserUtils.getAttachments(res.payload);
+      expect(attachments.length, 1);
     });
 
-    test('9. Delete Attachment Online docIdPutOnline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.deleteAttachmentc);
-        expect(res.id, docIdPutOnline);
-        expect(res.localResponse, isFalse);
-        onlineDocRev = res.rev;
-        expect(res.rev, anything);
-      });
-
+    test('9. Delete Attachment Online docIdPutOnline', () async {
       sporran4.online = true;
-      sporran4
-          .deleteAttachment(docIdPutOnline, 'onlineAttachment', onlineDocRev)
-          .then(wrapper);
+      final res = await sporran4.deleteAttachment(
+          docIdPutOnline, 'onlineAttachment', onlineDocRev);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.deleteAttachmentc);
+      expect(res.id, docIdPutOnline);
+      expect(res.localResponse, isFalse);
+      onlineDocRev = res.rev;
+      expect(res.rev, anything);
     });
 
-    test('10. Delete Document Online docIdPutOnline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {});
-
+    test('10. Delete Document Online docIdPutOnline', () async {
       /* Tidy up only, tested in group 3 */
-      sporran4.delete(docIdPutOnline, onlineDocRev).then(wrapper);
+      await sporran4.delete(docIdPutOnline, onlineDocRev);
     });
 
-    test('11. Delete Attachment Offline docIdPutOffline', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.deleteAttachmentc);
-        expect(res.id, docIdPutOffline);
-        expect(res.localResponse, isTrue);
-        expect(res.rev, isNull);
-        expect(res.payload, isNull);
-      });
-
+    test('11. Delete Attachment Offline docIdPutOffline', () async {
       sporran4.online = false;
-      sporran4
-          .deleteAttachment(docIdPutOffline, 'offlineAttachment', '')
-          .then(wrapper);
+      final res = await sporran4.deleteAttachment(
+          docIdPutOffline, 'offlineAttachment', '');
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.deleteAttachmentc);
+      expect(res.id, docIdPutOffline);
+      expect(res.localResponse, isTrue);
+      expect(res.rev, isNull);
+      expect(res.payload, isNull);
     });
 
-    test('12. Delete Attachment Not Exist', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isFalse);
-        expect(res.operation, Sporran.deleteAttachmentc);
-        expect(res.id, docIdPutOffline);
-        expect(res.localResponse, isTrue);
-        expect(res.rev, isNull);
-        expect(res.payload, isNull);
-      });
-
+    test('12. Delete Attachment Not Exist', () async {
       sporran4.online = false;
-      sporran4.deleteAttachment(docIdPutOffline, 'Billy', '').then(wrapper);
+      final res = await sporran4.deleteAttachment(docIdPutOffline, 'Billy', '');
+      expect(res.ok, isFalse);
+      expect(res.operation, Sporran.deleteAttachmentc);
+      expect(res.id, docIdPutOffline);
+      expect(res.localResponse, isTrue);
+      expect(res.rev, isNull);
+      expect(res.payload, isNull);
     }, skip: false);
   });
 
@@ -536,16 +498,12 @@ void main() async {
     var docid2rev = '';
     var docid3rev = '';
 
-    test('1. Create and Open Sporran', () {
-      final dynamic wrapper = expectAsync0(() {
-        expect(sporran5.dbName, databaseName);
-        expect(sporran5.lawnIsOpen, isTrue);
-      });
-
+    test('1. Create and Open Sporran', () async {
       sporran5 = Sporran(initialiser)..initialise();
-
       sporran5.autoSync = false;
-      sporran5.onReady!.first.then((dynamic e) => wrapper());
+      await sporran5.onReady!.first;
+      expect(sporran5.dbName, databaseName);
+      expect(sporran5.lawnIsOpen, isTrue);
     });
 
     test('2. Bulk Insert Documents Online', () {
