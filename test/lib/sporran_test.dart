@@ -71,23 +71,14 @@ void main() async {
   group('2. Constructor/Invalid Parameter Tests - ', () {
     Sporran? sporran;
 
-    test('0. Sporran Initialisation', () {
-      Timer? pause;
-
-      final dynamic wrapper1 = expectAsync1((Timer pause) {
-        expect(sporran!.online, isTrue);
-      });
-
-      final dynamic wrapper = expectAsync0(() {
-        pause = Timer(const Duration(seconds: 2), () {
-          wrapper1(pause);
-        });
-        expect(sporran, isNotNull);
-        expect(sporran!.dbName, databaseName);
-      });
+    test('0. Sporran Initialisation', () async {
       sporran = Sporran(initialiser)..initialise();
       sporran!.autoSync = false;
-      sporran!.onReady!.first.then((dynamic e) => wrapper());
+      await sporran!.onReady!.first;
+      //await Future.delayed(Duration(seconds:2));
+      expect(sporran!.online, isTrue);
+      expect(sporran, isNotNull);
+      expect(sporran!.dbName, databaseName);
     });
 
     test('1. Construction Online/Offline listener ', () {
