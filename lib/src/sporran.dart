@@ -180,6 +180,7 @@ class Sporran {
       res.id = id;
       res.rev = rev;
       opCompleter.complete(res);
+      return opCompleter.future;
     } else {
       // Do the put.
       final wiltRev = rev.isNotEmpty ? rev : null;
@@ -230,6 +231,7 @@ class Sporran {
         res.rev = WiltUserUtils.getDocumentRev(res);
       }
       opCompleter.complete(res);
+      return opCompleter.future;
     } else {
       // Get the document from CouchDb with its attachments.
       final wiltRev = rev.isNotEmpty ? rev : null;
@@ -251,10 +253,9 @@ class Sporran {
         res.payload = null;
         res.rev = null;
       }
-      return opCompleter.complete(res);
+      opCompleter.complete(res);
+      return opCompleter.future;
     }
-
-    return opCompleter.future;
   }
 
   /// Delete a document.
@@ -394,11 +395,10 @@ class Sporran {
             res.jsonCouchResponse.rev, _SporranDatabase.updatedc);
         _database.updateAttachmentRevisions(id, res.jsonCouchResponse.rev);
         res.ok = true;
-      } else {
-        return opCompleter.complete(res);
       }
+      opCompleter.complete(res);
+      return opCompleter.future;
     }
-    return opCompleter.future;
   }
 
   /// Delete an attachment.
@@ -451,6 +451,8 @@ class Sporran {
           res.ok = true;
           res.rev = res.jsonCouchResponse.rev;
         }
+        opCompleter.complete(res);
+        return opCompleter.future;
       }
     } else {
       // Doesn't exist, return error.
@@ -544,8 +546,8 @@ class Sporran {
     final updateList = <Future<dynamic>>[];
 
     // Update LawnDart.
-    docList.forEach((dynamic key, dynamic document) async {
-      updateList.add(await _database.updateLocalStorageObject(
+    docList.forEach((dynamic key, dynamic document) {
+      updateList.add(_database.updateLocalStorageObject(
           key, document, '', _SporranDatabase.notUpdatedc));
     });
 
@@ -604,14 +606,13 @@ class Sporran {
       }
 
       opCompleter.complete(res);
+      return opCompleter.future;
     }
-
-    return opCompleter.future;
   }
 
   /// Get all documents.
   ///
-  /// The parameters should be self explanatory and are addative.
+  /// The parameters should be self explanatory and are additive.
   ///
   /// In offline mode only the keys parameter is respected.
   /// The includeDocs parameter is also forced to true.
