@@ -67,7 +67,7 @@ void main() async {
     });
   }, skip: false);
 
-  /* Group 2 - Sporran constructor/ invalid parameter tests */
+  // Group 2 - Sporran constructor/ invalid parameter tests
   group('2. Constructor/Invalid Parameter Tests - ', () {
     Sporran? sporran;
 
@@ -171,7 +171,7 @@ void main() async {
     });
   });
 
-  /* Group 3 - Sporran document put/get tests */
+  // Group 3 - Sporran document put/get tests
   group('3. Document Put/Get/Delete Tests - ', () {
     late Sporran sporran3;
 
@@ -326,7 +326,7 @@ void main() async {
     });
   }, skip: false);
 
-  /* Group 4 - Sporran attachment put/get tests */
+  // Group 4 - Sporran attachment put/get tests
   group('4. Attachment Put/Get/Delete Tests - ', () {
     late Sporran sporran4;
 
@@ -491,7 +491,7 @@ void main() async {
     }, skip: false);
   });
 
-  /* Group 5 - Sporran Bulk Documents tests */
+  // Group 5 - Sporran Bulk Documents tests
   group('5. Bulk Document Tests - ', () {
     late Sporran sporran5;
     var docid1rev = '';
@@ -659,18 +659,17 @@ void main() async {
     });
   });
 
-  /* Group 6 - Sporran Change notification tests */
+  // Group 6 - Sporran Change notification tests
   group('6. Change notification Tests Documents - ', () {
     late Sporran sporran6;
 
-    /* We use Wilt here to change the CouchDb database independently
-     * of Sporran, these change will be picked up in change notifications.
-     */
+    // We use Wilt here to change the CouchDb database independently
+    // of Sporran, these change will be picked up in change notifications.
 
-    /* Create our Wilt */
+    // Create our Wilt
     final wilting = Wilt(hostName, port: port);
 
-    /* Login if we are using authentication */
+    // Login if we are using authentication
     wilting.login(userName, userPassword);
 
     wilting.db = databaseName;
@@ -678,44 +677,16 @@ void main() async {
     String? docId2Rev;
     String? docId3Rev;
 
-    test('1. Create and Open Sporran', () {
-      final dynamic wrapper = expectAsync0(() {
-        expect(sporran6.dbName, databaseName);
-        expect(sporran6.lawnIsOpen, isTrue);
-      });
-
+    test('1. Create and Open Sporran', () async {
       initialiser.manualNotificationControl = false;
       sporran6 = Sporran(initialiser)..initialise();
-
       sporran6.autoSync = false;
-      sporran6.onReady!.first.then((dynamic e) => wrapper());
+      await sporran6.onReady!.first;
+      expect(sporran6.dbName, databaseName);
+      expect(sporran6.lawnIsOpen, isTrue);
     });
 
-    test('2. Wilt - Bulk Insert Supplied Keys', () {
-      final dynamic completer = expectAsync1((dynamic res) {
-        try {
-          expect(res.error, isFalse);
-        } on Exception {
-          logMessage('WILT::Bulk Insert Supplied Keys');
-          final dynamic errorResponse = res.jsonCouchResponse;
-          final String? errorText = errorResponse.error;
-          logMessage('WILT::Error is $errorText');
-          final String? reasonText = errorResponse.reason;
-          logMessage('WILT::Reason is $reasonText');
-          final int? statusCode = res.errorCode;
-          logMessage('WILT::Status code is $statusCode');
-          return;
-        }
-
-        final dynamic successResponse = res.jsonCouchResponse;
-        expect(successResponse[0].id, equals('MyBulkId1'));
-        expect(successResponse[1].id, equals('MyBulkId2'));
-        expect(successResponse[2].id, equals('MyBulkId3'));
-        docId1Rev = successResponse[0].rev;
-        docId2Rev = successResponse[1].rev;
-        docId3Rev = successResponse[2].rev;
-      });
-
+    test('2. Wilt - Bulk Insert Supplied Keys', () async {
       final dynamic document1 = JsonObjectLite<dynamic>();
       document1.title = 'Document 1';
       document1.version = 1;
@@ -735,170 +706,158 @@ void main() async {
       docList.add(doc1);
       docList.add(doc2);
       docList.add(doc3);
+
       final docs = WiltUserUtils.createBulkInsertString(docList);
-      wilting.bulkString(docs).then(completer);
+      final res = await wilting.bulkString(docs);
+      try {
+        expect(res.error, isFalse);
+      } on Exception {
+        logMessage('WILT::Bulk Insert Supplied Keys');
+        final dynamic errorResponse = res.jsonCouchResponse;
+        final String? errorText = errorResponse.error;
+        logMessage('WILT::Error is $errorText');
+        final String? reasonText = errorResponse.reason;
+        logMessage('WILT::Reason is $reasonText');
+        final int? statusCode = res.errorCode;
+        logMessage('WILT::Status code is $statusCode');
+        return;
+      }
+      final dynamic successResponse = res.jsonCouchResponse;
+      expect(successResponse[0].id, equals('MyBulkId1'));
+      expect(successResponse[1].id, equals('MyBulkId2'));
+      expect(successResponse[2].id, equals('MyBulkId3'));
+      docId1Rev = successResponse[0].rev;
+      docId2Rev = successResponse[1].rev;
+      docId3Rev = successResponse[2].rev;
+    });
+
+    // Pause a little for the notifications to come through //
+    test('3. Notification Pause', () async {
+      await Future.delayed(Duration(seconds: 3));
+    });
+
+    // Go offline and get our created documents, from local storage
+    test('4. Get Document Offline MyBulkId1', () async {
+      sporran6.online = false;
+      final res = await sporran6.get('MyBulkId1');
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.getc);
+      expect(res.localResponse, isTrue);
+      expect(res.id, 'MyBulkId1');
+      expect(res.payload['title'], 'Document 1');
+      expect(res.payload['version'], 1);
+      expect(res.payload['attribute'], 'Doc 1 attribute');
+    });
+
+    test('5. Get Document Offline MyBulkId2', () async {
+      final res = await sporran6.get('MyBulkId2');
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.getc);
+      expect(res.localResponse, isTrue);
+      expect(res.id, 'MyBulkId2');
+      expect(res.payload['title'], 'Document 2');
+      expect(res.payload['version'], 2);
+      expect(res.payload['attribute'], 'Doc 2 attribute');
+    });
+
+    test('6. Get Document Offline MyBulkId3', () async {
+      final res = await sporran6.get('MyBulkId3');
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.getc);
+      expect(res.localResponse, isTrue);
+      expect(res.id, 'MyBulkId3');
+      expect(res.payload['title'], 'Document 3');
+      expect(res.payload['version'], 3);
+      expect(res.payload['attribute'], 'Doc 3 attribute');
+    });
+
+    test('7. Wilt - Delete Document MyBulkId1', () async {
+      final res = await wilting.deleteDocument('MyBulkId1', docId1Rev!);
+      try {
+        expect(res.error, isFalse);
+      } on Exception {
+        logMessage('WILT::Delete Document MyBulkId1');
+        final dynamic errorResponse = res.jsonCouchResponse;
+        final String? errorText = errorResponse.error;
+        logMessage('WILT::Error is $errorText');
+        final String? reasonText = errorResponse.reason;
+        logMessage('WILT::Reason is $reasonText');
+        final int? statusCode = res.errorCode;
+        logMessage('WILT::Status code is $statusCode');
+        return;
+      }
+      final dynamic successResponse = res.jsonCouchResponse;
+      expect(successResponse.id, 'MyBulkId1');
+    });
+
+    test('8. Wilt - Delete Document MyBulkId2', () async {
+      final res = await wilting.deleteDocument('MyBulkId2', docId2Rev!);
+      try {
+        expect(res.error, isFalse);
+      } on Exception {
+        logMessage('WILT::Delete Document MyBulkId2');
+        final dynamic errorResponse = res.jsonCouchResponse;
+        final String? errorText = errorResponse.error;
+        logMessage('WILT::Error is $errorText');
+        final String? reasonText = errorResponse.reason;
+        logMessage('WILT::Reason is $reasonText');
+        final int? statusCode = res.errorCode;
+        logMessage('WILT::Status code is $statusCode');
+        return;
+      }
+      final dynamic successResponse = res.jsonCouchResponse;
+      expect(successResponse.id, 'MyBulkId2');
+    });
+
+    test('9. Wilt - Delete Document MyBulkId3', () async {
+      final res = await wilting.deleteDocument('MyBulkId3', docId3Rev!);
+      try {
+        expect(res.error, isFalse);
+      } on Exception {
+        logMessage('WILT::Delete Document MyBulkId3');
+        final dynamic errorResponse = res.jsonCouchResponse;
+        final String? errorText = errorResponse.error;
+        logMessage('WILT::Error is $errorText');
+        final String? reasonText = errorResponse.reason;
+        logMessage('WILT::Reason is $reasonText');
+        final int? statusCode = res.errorCode;
+        logMessage('WILT::Status code is $statusCode');
+        return;
+      }
+      final dynamic successResponse = res.jsonCouchResponse;
+      expect(successResponse.id, 'MyBulkId3');
     });
 
     /* Pause a little for the notifications to come through */
-    test('3. Notification Pause', () {
-      final dynamic wrapper = expectAsync0(() {});
-      Timer(const Duration(seconds: 3), wrapper);
+    test('10. Notification Pause', () async {
+      await Future.delayed(Duration(seconds: 3));
     });
 
-    /* Go offline and get our created documents, from local storage */
-    test('4. Get Document Offline MyBulkId1', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.getc);
-        expect(res.localResponse, isTrue);
-        expect(res.id, 'MyBulkId1');
-        expect(res.payload['title'], 'Document 1');
-        expect(res.payload['version'], 1);
-        expect(res.payload['attribute'], 'Doc 1 attribute');
-      });
-
+    // Go offline and get our created documents, from local storage
+    test('11. Get Document Offline Deleted MyBulkId1', () async {
       sporran6.online = false;
-      sporran6.get('MyBulkId1').then(wrapper);
+      final res = await sporran6.get('MyBulkId1');
+      expect(res.ok, isFalse);
+      expect(res.operation, Sporran.getc);
+      expect(res.localResponse, isTrue);
     });
 
-    test('5. Get Document Offline MyBulkId2', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.getc);
-        expect(res.localResponse, isTrue);
-        expect(res.id, 'MyBulkId2');
-        expect(res.payload['title'], 'Document 2');
-        expect(res.payload['version'], 2);
-        expect(res.payload['attribute'], 'Doc 2 attribute');
-      });
-
-      sporran6.get('MyBulkId2').then(wrapper);
+    test('12. Get Document Offline Deleted MyBulkId2', () async {
+      final res = await sporran6.get('MyBulkId2');
+      expect(res.ok, isFalse);
+      expect(res.operation, Sporran.getc);
+      expect(res.localResponse, isTrue);
     });
 
-    test('6. Get Document Offline MyBulkId3', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.getc);
-        expect(res.localResponse, isTrue);
-        expect(res.id, 'MyBulkId3');
-        expect(res.payload['title'], 'Document 3');
-        expect(res.payload['version'], 3);
-        expect(res.payload['attribute'], 'Doc 3 attribute');
-      });
-
-      sporran6.get('MyBulkId3').then(wrapper);
+    test('13. Get Document Offline Deleted MyBulkId3', () async {
+      final res = await sporran6.get('MyBulkId3');
+      expect(res.ok, isFalse);
+      expect(res.operation, Sporran.getc);
+      expect(res.localResponse, isTrue);
     });
 
-    test('7. Wilt - Delete Document MyBulkId1', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        try {
-          expect(res.error, isFalse);
-        } on Exception {
-          logMessage('WILT::Delete Document MyBulkId1');
-          final dynamic errorResponse = res.jsonCouchResponse;
-          final String? errorText = errorResponse.error;
-          logMessage('WILT::Error is $errorText');
-          final String? reasonText = errorResponse.reason;
-          logMessage('WILT::Reason is $reasonText');
-          final int? statusCode = res.errorCode;
-          logMessage('WILT::Status code is $statusCode');
-          return;
-        }
-
-        final dynamic successResponse = res.jsonCouchResponse;
-        expect(successResponse.id, 'MyBulkId1');
-      });
-
-      wilting.deleteDocument('MyBulkId1', docId1Rev!).then(wrapper);
-    });
-
-    test('8. Wilt - Delete Document MyBulkId2', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        try {
-          expect(res.error, isFalse);
-        } on Exception {
-          logMessage('WILT::Delete Document MyBulkId2');
-          final dynamic errorResponse = res.jsonCouchResponse;
-          final String? errorText = errorResponse.error;
-          logMessage('WILT::Error is $errorText');
-          final String? reasonText = errorResponse.reason;
-          logMessage('WILT::Reason is $reasonText');
-          final int? statusCode = res.errorCode;
-          logMessage('WILT::Status code is $statusCode');
-          return;
-        }
-
-        final dynamic successResponse = res.jsonCouchResponse;
-        expect(successResponse.id, 'MyBulkId2');
-      });
-
-      wilting.deleteDocument('MyBulkId2', docId2Rev!).then(wrapper);
-    });
-
-    test('9. Wilt - Delete Document MyBulkId3', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        try {
-          expect(res.error, isFalse);
-        } on Exception {
-          logMessage('WILT::Delete Document MyBulkId3');
-          final dynamic errorResponse = res.jsonCouchResponse;
-          final String? errorText = errorResponse.error;
-          logMessage('WILT::Error is $errorText');
-          final String? reasonText = errorResponse.reason;
-          logMessage('WILT::Reason is $reasonText');
-          final int? statusCode = res.errorCode;
-          logMessage('WILT::Status code is $statusCode');
-          return;
-        }
-
-        final dynamic successResponse = res.jsonCouchResponse;
-        expect(successResponse.id, 'MyBulkId3');
-      });
-
-      wilting.deleteDocument('MyBulkId3', docId3Rev!).then(wrapper);
-    });
-
-    /* Pause a little for the notifications to come through */
-    test('10. Notification Pause', () {
-      final dynamic wrapper = expectAsync0(() {});
-      Timer(const Duration(seconds: 3), wrapper);
-    });
-
-    /* Go offline and get our created documents, from local storage */
-    test('11. Get Document Offline Deleted MyBulkId1', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isFalse);
-        expect(res.operation, Sporran.getc);
-        expect(res.localResponse, isTrue);
-      });
-
-      sporran6.online = false;
-      sporran6.get('MyBulkId1').then(wrapper);
-    });
-
-    test('12. Get Document Offline Deleted MyBulkId2', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isFalse);
-        expect(res.operation, Sporran.getc);
-        expect(res.localResponse, isTrue);
-      });
-
-      sporran6.get('MyBulkId2').then(wrapper);
-    });
-
-    test('13. Get Document Offline Deleted MyBulkId3', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isFalse);
-        expect(res.operation, Sporran.getc);
-        expect(res.localResponse, isTrue);
-      });
-
-      sporran6.get('MyBulkId3').then(wrapper);
-    });
-
-    test('14. Group Pause', () {
-      final dynamic wrapper = expectAsync0(() {});
-      Timer(const Duration(seconds: 3), wrapper);
+    test('14. Group Pause', () async {
+      await Future.delayed(Duration(seconds: 3));
     });
   }, skip: true);
 
