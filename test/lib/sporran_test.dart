@@ -861,18 +861,17 @@ void main() async {
     });
   }, skip: true);
 
-  /* Group 7 - Sporran Change notification tests */
+  // Group 7 - Sporran Change notification tests
   group('7. Change notification Tests Attachments - ', () {
     late Sporran sporran7;
 
-    /* We use Wilt here to change the CouchDb database independently
-     * of Sporran, these change will be picked up in change notifications.
-     */
+    // We use Wilt here to change the CouchDb database independently
+    // of Sporran, these change will be picked up in change notifications.
 
-    /* Create our Wilt */
+    // Create our Wilt
     final wilting = Wilt(hostName, port: port);
 
-    /* Login if we are using authentication */
+    // Login if we are using authentication
     wilting.login(userName, userPassword);
 
     wilting.db = databaseName;
@@ -880,42 +879,16 @@ void main() async {
     const attachmentPayload =
         'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABlBMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDrEX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg==';
 
-    test('1. Create and Open Sporran', () {
-      final dynamic wrapper = expectAsync0(() {
-        expect(sporran7.dbName, databaseName);
-        expect(sporran7.lawnIsOpen, isTrue);
-      });
-
+    test('1. Create and Open Sporran', () async {
       initialiser.manualNotificationControl = false;
       sporran7 = Sporran(initialiser)..initialise();
-
       sporran7.autoSync = false;
-      sporran7.onReady!.first.then((dynamic e) => wrapper());
+      await sporran7.onReady!.first;
+      expect(sporran7.dbName, databaseName);
+      expect(sporran7.lawnIsOpen, isTrue);
     });
 
-    test('2. Wilt - Bulk Insert Supplied Keys', () {
-      final dynamic completer = expectAsync1((dynamic res) {
-        try {
-          expect(res.error, isFalse);
-        } on Exception {
-          logMessage('WILT::Bulk Insert Supplied Keys');
-          final dynamic errorResponse = res.jsonCouchResponse;
-          final String? errorText = errorResponse.error;
-          logMessage('WILT::Error is $errorText');
-          final String? reasonText = errorResponse.reason;
-          logMessage('WILT::Reason is $reasonText');
-          final int? statusCode = res.errorCode;
-          logMessage('WILT::Status code is $statusCode');
-          return;
-        }
-
-        final dynamic successResponse = res.jsonCouchResponse;
-        expect(successResponse[0].id, equals('MyBulkId1'));
-        expect(successResponse[1].id, equals('MyBulkId2'));
-        expect(successResponse[2].id, equals('MyBulkId3'));
-        docId1Rev = WiltUserUtils.getDocumentRev(successResponse[0]);
-      });
-
+    test('2. Wilt - Bulk Insert Supplied Keys', () async {
       final dynamic document1 = JsonObjectLite<dynamic>();
       document1.title = 'Document 1';
       document1.version = 1;
@@ -935,107 +908,109 @@ void main() async {
       docList.add(doc1);
       docList.add(doc2);
       docList.add(doc3);
+
       final docs = WiltUserUtils.createBulkInsertString(docList);
-      wilting.bulkString(docs).then(completer);
+      final res = await wilting.bulkString(docs);
+      try {
+        expect(res.error, isFalse);
+      } on Exception {
+        logMessage('WILT::Bulk Insert Supplied Keys');
+        final dynamic errorResponse = res.jsonCouchResponse;
+        final String? errorText = errorResponse.error;
+        logMessage('WILT::Error is $errorText');
+        final String? reasonText = errorResponse.reason;
+        logMessage('WILT::Reason is $reasonText');
+        final int? statusCode = res.errorCode;
+        logMessage('WILT::Status code is $statusCode');
+        return;
+      }
+      final dynamic successResponse = res.jsonCouchResponse;
+      expect(successResponse[0].id, equals('MyBulkId1'));
+      expect(successResponse[1].id, equals('MyBulkId2'));
+      expect(successResponse[2].id, equals('MyBulkId3'));
+      docId1Rev = WiltUserUtils.getDocumentRev(successResponse[0]);
     });
 
-    /* Pause a little for the notifications to come through */
-    test('3. Notification Pause', () {
-      final dynamic wrapper = expectAsync0(() {});
-      Timer(const Duration(seconds: 3), wrapper);
+    // Pause a little for the notifications to come through
+    test('3. Notification Pause', () async {
+      await Future.delayed(Duration(seconds: 3));
     });
 
-    test('4. Create Attachment Online MyBulkId1 Attachment 1', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.putAttachmentc);
-        expect(res.id, 'MyBulkId1');
-        expect(res.localResponse, isFalse);
-        expect(res.rev, anything);
-        docId1Rev = res.rev;
-        expect(res.payload.attachmentName, 'AttachmentName1');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
-      });
-
+    test('4. Create Attachment Online MyBulkId1 Attachment 1', () async {
       sporran7.online = true;
       final dynamic attachment = JsonObjectLite<dynamic>();
       attachment.attachmentName = 'AttachmentName1';
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran7.putAttachment('MyBulkId1', attachment).then(wrapper);
+      final res = await sporran7.putAttachment('MyBulkId1', attachment);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.putAttachmentc);
+      expect(res.id, 'MyBulkId1');
+      expect(res.localResponse, isFalse);
+      expect(res.rev, anything);
+      docId1Rev = res.rev;
+      expect(res.payload.attachmentName, 'AttachmentName1');
+      expect(res.payload.contentType, 'image/png');
+      expect(res.payload.payload, attachmentPayload);
     });
 
-    test('5. Create Attachment Online MyBulkId1 Attachment 2', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isTrue);
-        expect(res.operation, Sporran.putAttachmentc);
-        expect(res.id, 'MyBulkId1');
-        expect(res.localResponse, isFalse);
-        expect(res.rev, anything);
-        docId1Rev = res.rev;
-        expect(res.payload.attachmentName, 'AttachmentName2');
-        expect(res.payload.contentType, 'image/png');
-        expect(res.payload.payload, attachmentPayload);
-      });
-
+    test('5. Create Attachment Online MyBulkId1 Attachment 2', () async {
       sporran7.online = true;
       final dynamic attachment = JsonObjectLite<dynamic>();
       attachment.attachmentName = 'AttachmentName2';
       attachment.rev = docId1Rev;
       attachment.contentType = 'image/png';
       attachment.payload = attachmentPayload;
-      sporran7.putAttachment('MyBulkId1', attachment).then(wrapper);
+      final res = await sporran7.putAttachment('MyBulkId1', attachment);
+      expect(res.ok, isTrue);
+      expect(res.operation, Sporran.putAttachmentc);
+      expect(res.id, 'MyBulkId1');
+      expect(res.localResponse, isFalse);
+      expect(res.rev, anything);
+      docId1Rev = res.rev;
+      expect(res.payload.attachmentName, 'AttachmentName2');
+      expect(res.payload.contentType, 'image/png');
+      expect(res.payload.payload, attachmentPayload);
     });
 
-    /* Pause a little for the notifications to come through */
-    test('6. Notification Pause', () {
-      final dynamic wrapper = expectAsync0(() {});
-      Timer(const Duration(seconds: 3), wrapper);
+    // Pause a little for the notifications to come through
+    test('6. Notification Pause', () async {
+      await Future.delayed(Duration(seconds: 3));
     });
 
-    test('7. Delete Attachment Online MyBulkId1 Attachment 1', () {
-      final dynamic completer = expectAsync1((dynamic res) {
-        try {
-          expect(res.error, isFalse);
-        } on Exception {
-          logMessage('WILT::Delete Attachment Failed');
-          final dynamic errorResponse = res.jsonCouchResponse;
-          final String? errorText = errorResponse.error;
-          logMessage('WILT::Error is $errorText');
-          final String? reasonText = errorResponse.reason;
-          logMessage('WILT::Reason is $reasonText');
-          final int? statusCode = res.errorCode;
-          logMessage('WILT::Status code is $statusCode');
-          return;
-        }
-
-        final dynamic successResponse = res.jsonCouchResponse;
-        expect(successResponse.ok, isTrue);
-        docId1Rev = successResponse.rev;
-      });
-
+    test('7. Delete Attachment Online MyBulkId1 Attachment 1', () async {
       wilting.db = databaseName;
-      wilting
-          .deleteAttachment('MyBulkId1', 'AttachmentName1', docId1Rev!)
-          .then(completer);
+      final res = await wilting.deleteAttachment(
+          'MyBulkId1', 'AttachmentName1', docId1Rev!);
+      try {
+        expect(res.error, isFalse);
+      } on Exception {
+        logMessage('WILT::Delete Attachment Failed');
+        final dynamic errorResponse = res.jsonCouchResponse;
+        final String? errorText = errorResponse.error;
+        logMessage('WILT::Error is $errorText');
+        final String? reasonText = errorResponse.reason;
+        logMessage('WILT::Reason is $reasonText');
+        final int? statusCode = res.errorCode;
+        logMessage('WILT::Status code is $statusCode');
+        return;
+      }
+      final dynamic successResponse = res.jsonCouchResponse;
+      expect(successResponse.ok, isTrue);
+      docId1Rev = successResponse.rev;
     });
 
-    test('8. Notification Pause', () {
-      final dynamic wrapper = expectAsync0(() {});
-      Timer(const Duration(seconds: 3), wrapper);
+    test('8. Notification Pause', () async {
+      await Future.delayed(Duration(seconds: 3));
     });
 
-    test('9. Get Attachment Offline MyBulkId1 AttachmentName1', () {
-      final dynamic wrapper = expectAsync1((dynamic res) {
-        expect(res.ok, isFalse);
-        expect(res.operation, Sporran.getAttachmentc);
-        expect(res.localResponse, isTrue);
-      });
-
+    test('9. Get Attachment Offline MyBulkId1 AttachmentName1', () async {
       sporran7.online = false;
-      sporran7.getAttachment('MyBulkId1', 'AttachmentName1').then(wrapper);
+      final res = await sporran7.getAttachment('MyBulkId1', 'AttachmentName1');
+      expect(res.ok, isFalse);
+      expect(res.operation, Sporran.getAttachmentc);
+      expect(res.localResponse, isTrue);
     });
   });
 }
