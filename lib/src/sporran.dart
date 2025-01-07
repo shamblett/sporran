@@ -652,6 +652,7 @@ class Sporran {
           res.totalRows = documents.length;
           res.keyList = documents.keys.toList();
           opCompleter.complete(res);
+          return opCompleter.future;
         }
       } else {
         final documents = await _database.getLocalStorageObjects(keys);
@@ -665,6 +666,7 @@ class Sporran {
         res.totalRows = documents.length;
         res.keyList = documents.keys.toList();
         opCompleter.complete(res);
+        return opCompleter.future;
       }
     } else {
       // Get the document from CouchDb.
@@ -689,6 +691,7 @@ class Sporran {
         res.payload = null;
       }
       opCompleter.complete(res);
+      return opCompleter.future;
     }
 
     return opCompleter.future;
