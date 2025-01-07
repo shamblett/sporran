@@ -357,8 +357,11 @@ class _SporranDatabase {
 
   /// Update local storage.
   ///
-  Future<dynamic> updateLocalStorageObject(String key,
-      JsonObjectLite<dynamic> update, String revision, String updateStatus) {
+  Future<dynamic> updateLocalStorageObject(
+      String key,
+      JsonObjectLite<dynamic> update,
+      String revision,
+      String updateStatus) async {
     final completer = Completer<dynamic>();
 
     /* Check for not initialized */
@@ -378,10 +381,8 @@ class _SporranDatabase {
     /**
      * Update LawnDart
      */
-    _lawndart.save(localUpdate.toString(), key).then((String key) {
-      completer.complete();
-    });
-
+    await _lawndart.save(localUpdate.toString(), key);
+    completer.complete();
     return completer.future;
   }
 

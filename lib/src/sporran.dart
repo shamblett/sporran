@@ -542,14 +542,11 @@ class Sporran {
       opCompleter.complete(null);
       return opCompleter.future;
     }
-    // Futures list for LawnDart update //
-    final updateList = <Future<dynamic>>[];
 
     // Update LawnDart.
-    for (final key in docList.keys ) {
-      final res = _database.updateLocalStorageObject(
+    for (final key in docList.keys) {
+      await _database.updateLocalStorageObject(
           key, docList[key]!, '', _SporranDatabase.notUpdatedc);
-      updateList.add(res);
     }
 
     // If we are offline just return.
