@@ -546,10 +546,11 @@ class Sporran {
     final updateList = <Future<dynamic>>[];
 
     // Update LawnDart.
-    docList.forEach((dynamic key, dynamic document) {
-      updateList.add(_database.updateLocalStorageObject(
-          key, document, '', _SporranDatabase.notUpdatedc));
-    });
+    for (final key in docList.keys ) {
+      final res = _database.updateLocalStorageObject(
+          key, docList[key]!, '', _SporranDatabase.notUpdatedc);
+      updateList.add(res);
+    }
 
     // If we are offline just return.
     if (!online) {
