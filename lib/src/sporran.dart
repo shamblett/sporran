@@ -628,19 +628,19 @@ class Sporran {
     if (!online) {
       if (keys.isEmpty) {
         // Get all the keys from Lawndart.
-        final keyList = await _database.lawndart.keys().toList();
-        // Only return documents.
-        final docList = <String>[];
-        for (var key in keyList) {
-          final List<String?> temp = key!.split('-');
-          if ((temp.length == 3) &&
-              (temp[2] == _SporranDatabase.attachmentMarkerc)) {
-            // Attachment, discard the key.
-          } else {
-            docList.add(key);
-          }
-
-          final documents = await _database.getLocalStorageObjects(docList);
+        _database.lawndart.keys().toList().then((dynamic keyList) async {
+          /* Only return documents */
+          final docList = <String>[];
+          keyList.forEach((dynamic key) {
+            final List<String> temp = key.split('-');
+            if ((temp.length == 3) &&
+                (temp[2] == _SporranDatabase.attachmentMarkerc)) {
+              /* Attachment, discard the key */
+            } else {
+              docList.add(key);
+            }
+          });
+          var documents = await _database.getLocalStorageObjects(docList);
           final dynamic res = JsonObjectLite<dynamic>();
           res.localResponse = true;
           res.operation = getAllDocsc;
@@ -651,8 +651,7 @@ class Sporran {
           res.totalRows = documents.length;
           res.keyList = documents.keys.toList();
           opCompleter.complete(res);
-          return opCompleter.future;
-        }
+        });
       } else {
         final documents = await _database.getLocalStorageObjects(keys);
         final dynamic res = JsonObjectLite<dynamic>();
