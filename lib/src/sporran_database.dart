@@ -184,10 +184,10 @@ class _SporranDatabase {
       /* Do the delete */
       await _lawndart.removeByKey(e.docId!).then((_) {
         /* Remove all document attachments */
-        _lawndart.keys().listen((String? key) {
+        _lawndart.keys().listen((String? key) async {
           final keyList = key?.split('-');
           if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
-            _lawndart.removeByKey(key!);
+            await _lawndart.removeByKey(key!);
           }
         });
       });
@@ -204,76 +204,68 @@ class _SporranDatabase {
   FutureOr<void> connectToCouch([bool transitionToOnline = false]) async {
     final completer = Completer<void>();
 
-    /// If the CouchDb database does not exist create it.
-    void createCompleter(dynamic res) {
-      if (!res.error) {
-        _wilt.db = _dbName;
-        _noCouchDb = false;
-      } else {
-        _noCouchDb = true;
-      }
-
-      /**
-       * Start change notifications
-       */
-      if (!manualNotificationControl) {
-        startChangeNotifications();
-      }
-
-      /**
-       * If this is a transition to online start syncing
-       */
-      if (transitionToOnline) {
-        sync();
-      }
-
-      /**
-       * Signal we are ready
-       */
+    final res = await _wilt.getAllDbs().catchError((dynamic error) {
+      _noCouchDb = true;
       _signalReady();
-    }
+    });
 
-    void allCompleter(dynamic res) {
-      if (!res.error) {
-        final JsonObjectLite<dynamic> successResponse = getJsonResponse(res);
-        final created = successResponse.contains(_dbName);
-        if (created == false) {
-          _wilt.createDatabase(_dbName).then(createCompleter);
-        } else {
+    if (!res.error) {
+      final JsonObjectLite<dynamic> successResponse = getJsonResponse(res);
+      final created = successResponse.contains(_dbName);
+      if (created == false) {
+        await _wilt.createDatabase(_dbName);
+        if (!res.error) {
           _wilt.db = _dbName;
           _noCouchDb = false;
-
-          /**
-           * Start change notifications
-           */
-          if (!manualNotificationControl) {
-            startChangeNotifications();
-          }
-
-          /**
-           * If this is a transition to online start syncing
-           */
-          if (transitionToOnline) {
-            sync();
-          }
-
-          /**
-          * Signal we are ready
-          */
-          _signalReady();
+        } else {
+          _noCouchDb = true;
         }
+
+        /**
+         * Start change notifications
+         */
+        if (!manualNotificationControl) {
+          startChangeNotifications();
+        }
+
+        /**
+         * If this is a transition to online start syncing
+         */
+        if (transitionToOnline) {
+          sync();
+        }
+
+        /**
+         * Signal we are ready
+         */
+        _signalReady();
       } else {
-        _noCouchDb = true;
+        _wilt.db = _dbName;
+        _noCouchDb = false;
+
+        /**
+         * Start change notifications
+         */
+        if (!manualNotificationControl) {
+          startChangeNotifications();
+        }
+
+        /**
+         * If this is a transition to online start syncing
+         */
+        if (transitionToOnline) {
+          sync();
+        }
+
+        /**
+         * Signal we are ready
+         */
         _signalReady();
       }
+    } else {
+      _noCouchDb = true;
+      _signalReady();
     }
-
-    _wilt.getAllDbs()
-      ..then(allCompleter)
-      ..catchError((dynamic error) {
-        _noCouchDb = true;
-        _signalReady();
-      });
 
     return completer.future;
   }
@@ -365,8 +357,11 @@ class _SporranDatabase {
 
   /// Update local storage.
   ///
-  Future<dynamic> updateLocalStorageObject(String key,
-      JsonObjectLite<dynamic> update, String revision, String updateStatus) {
+  Future<dynamic> updateLocalStorageObject(
+      String key,
+      JsonObjectLite<dynamic> update,
+      String revision,
+      String updateStatus) async {
     final completer = Completer<dynamic>();
 
     /* Check for not initialized */
@@ -386,27 +381,24 @@ class _SporranDatabase {
     /**
      * Update LawnDart
      */
-    _lawndart.save(localUpdate.toString(), key).then((String key) {
-      completer.complete();
-    });
-
+    await _lawndart.save(localUpdate.toString(), key);
+    completer.complete();
     return completer.future;
   }
 
   /// Get an object from local storage.
   /// Returns null if the object cannot be found.
-  Future<dynamic> getLocalStorageObject(String key) {
+  Future<dynamic> getLocalStorageObject(String key) async {
     final dynamic localObject = JsonObjectLite<dynamic>();
     final completer = Completer<dynamic>();
 
-    lawndart.getByKey(key).then((dynamic document) {
-      if (document != null) {
-        localObject.payload = document;
-        completer.complete(localObject);
-      } else {
-        completer.complete(null);
-      }
-    });
+    final document = await lawndart.getByKey(key);
+    if (document != null) {
+      localObject.payload = document;
+      completer.complete(localObject);
+    } else {
+      completer.complete(null);
+    }
 
     return completer.future;
   }
@@ -531,7 +523,7 @@ class _SporranDatabase {
 
   /// Update/create a CouchDb document
   Future<String> update(
-      String key, JsonObjectLite<dynamic> document, String revision) {
+      String key, JsonObjectLite<dynamic> document, String revision) async {
     final completer = Completer<String>();
 
     /* Create our own Wilt instance */
@@ -552,9 +544,11 @@ class _SporranDatabase {
     String docRevision = '';
     if (revision.isNotEmpty) {
       docRevision = revision;
-      wilting.putDocument(key, document, docRevision).then(localCompleter);
+      await wilting
+          .putDocument(key, document, docRevision)
+          .then(localCompleter);
     } else {
-      wilting.putDocument(key, document).then(localCompleter);
+      await wilting.putDocument(key, document).then(localCompleter);
     }
 
     return completer.future;
@@ -562,20 +556,20 @@ class _SporranDatabase {
 
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
-      Map<String, JsonObjectLite<dynamic>> documentsToUpdate) {
+      Map<String, JsonObjectLite<dynamic>> documentsToUpdate) async {
     final completer = Completer<Map<String, String>>();
     final revisions = <String, String>{};
 
     final length = documentsToUpdate.length;
     var count = 0;
-    documentsToUpdate.forEach((String key, dynamic document) {
+    documentsToUpdate.forEach((String key, dynamic document) async {
       final jsonDoc = JsonObjectLite();
       JsonObjectLite.toTypedJsonObjectLite(document, jsonDoc);
       if (!jsonDoc.containsKey('rev')) {
         jsonDoc.isImmutable = false;
         (jsonDoc as dynamic).rev = '';
       }
-      update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev)
+      await update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev)
           .then((String rev) {
         revisions[document.key] = rev;
         count++;
@@ -589,7 +583,8 @@ class _SporranDatabase {
   }
 
   /// Bulk insert documents using bulk insert
-  Future<JsonObjectLite<dynamic>> bulkInsert(Map<String, dynamic> docList) {
+  Future<JsonObjectLite<dynamic>> bulkInsert(
+      Map<String, dynamic> docList) async {
     final completer = Completer<JsonObjectLite<dynamic>>();
 
     /* Create our own Wilt instance */
@@ -616,7 +611,7 @@ class _SporranDatabase {
 
     /* Do the bulk create*/
     wilting.db = _dbName;
-    wilting.bulkString(docs).then((dynamic res) {
+    await wilting.bulkString(docs).then((dynamic res) {
       completer.complete(res);
     });
 
