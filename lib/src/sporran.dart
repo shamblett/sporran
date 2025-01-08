@@ -604,8 +604,9 @@ class Sporran {
       }
 
       opCompleter.complete(res);
-      return opCompleter.future;
     }
+
+    return opCompleter.future;
   }
 
   /// Get all documents.
