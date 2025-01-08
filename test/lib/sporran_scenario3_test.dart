@@ -89,6 +89,24 @@ void main() async {
       expect(doc3['title'], 'Document 3');
       expect(doc3['version'], 3);
       expect(doc3['attribute'], 'Doc 3 attribute');
+
+      dynamic res1 = await sporran9!.get('8docid1');
+      expect(res1.ok, isTrue);
+      expect(res1.operation, Sporran.getc);
+      expect(res1.localResponse, isTrue);
+      expect(res1.id, '8docid1');
+
+      res1 = await sporran9!.get('8docid2');
+      expect(res1.ok, isTrue);
+      expect(res1.operation, Sporran.getc);
+      expect(res1.localResponse, isTrue);
+      expect(res1.id, '8docid2');
+
+      res1 = await sporran9!.get('8docid3');
+      expect(res1.ok, isTrue);
+      expect(res1.operation, Sporran.getc);
+      expect(res1.localResponse, isTrue);
+      expect(res1.id, '8docid3');
     });
 
     test('3. Create Attachment Offline docid1 Attachment 1', () async {
