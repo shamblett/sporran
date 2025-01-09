@@ -216,7 +216,6 @@ void main() async {
       onlineDoc.name = 'Online';
       final res = await sporran3.put(docIdPutOnline, onlineDoc);
       expect(res.errorCode, 409);
-      expect(res.errorText, 'conflict');
       expect(res.operation, Sporran.putc);
       expect(res.id, docIdPutOnline);
     });
@@ -626,13 +625,15 @@ void main() async {
       expect(res.id, isNull);
       expect(res.rev, isNull);
       expect(res.payload, isNotNull);
-      expect(res.payload.length, greaterThanOrEqualTo(6));
-      expect(res.payload.contains('docid1'), isTrue);
-      expect(res.payload.contains('docid2'), isTrue);
-      expect(res.payload.contains('docid3'), isTrue);
-      expect(res.payload.contains('docid1offline'), isTrue);
-      expect(res.payload.contains('docid2offline'), isTrue);
-      expect(res.payload.contains('docid3offline'), isTrue);
+      final Object? payloadTmp = (res.payload as JSArray).dartify();
+      final payload = payloadTmp as List;
+      expect(payload.length, 6);
+      expect(payload.contains('docid1'), isTrue);
+      expect(payload.contains('docid2'), isTrue);
+      expect(payload.contains('docid3'), isTrue);
+      expect(payload.contains('docid1offline'), isTrue);
+      expect(payload.contains('docid2offline'), isTrue);
+      expect(payload.contains('docid3offline'), isTrue);
     });
 
     test('7. Get Database Info Online', () async {

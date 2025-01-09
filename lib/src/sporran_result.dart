@@ -13,7 +13,6 @@ part of '../sporran.dart';
 /// When an API method is invoked [Sporran] will supply a completion
 /// result [SporranResult] with the following properties.
 class SporranResult {
-
   /// Default
   SporranResult();
 
@@ -24,16 +23,22 @@ class SporranResult {
     localResponse = res.localResponse;
     ok = res.ok;
     if (!ok) {
-      res.containsKey['errorCode'] ? errorCode = res.errorCode : 0;
-      res.containsKey['errorText'] ? errorText = res.errorText : '';
-      res.containsKey['errorReason'] ? errorReason = res.errorReason : '';
+      res.containsKey('errorCode') && res['errorCode'] != null
+          ? errorCode = res.errorCode
+          : 0;
+      res.containsKey('errorText') && res['errorText'] != null
+          ? errorText = res.errorText
+          : '';
+      res.containsKey('errorReason') && res['errorReason'] != null
+          ? errorReason = res.errorReason
+          : '';
     }
     rev = res.rev;
-    res.containsKey['payload'] ? payload = res.payload : null;
+    res.containsKey('payload') ? payload = res.payload : null;
   }
 
-  /// Always present, the id of the document.
-  String id = '';
+  /// The id of the document. Not always present e.g. [Sporran.bulkCreatec]
+  String? id = '';
 
   /// Always present, the operation performed, one of the defined operation
   /// constants, e.g [Sporran.putc].
