@@ -38,6 +38,7 @@ class Sporran {
   static const String bulkCreatec = 'bulk_create';
   static const String getAllDocsc = 'get_all_docs';
   static const String dbInfoc = 'db_info';
+  static const String none = 'none';
 
   /// Database
   late _SporranDatabase _database;
@@ -157,14 +158,13 @@ class Sporran {
   ///
   /// For an update operation a specific revision must be specified.
   /// If the parameters are invalid null is returned.
-  Future<dynamic> put(String id, JsonObjectLite<dynamic> document,
+  Future<SporranResult> put(String id, JsonObjectLite<dynamic> document,
       [String rev = '']) async {
     final document1 = JsonObjectLite();
     JsonObjectLite.toTypedJsonObjectLite(document, document1);
-    final opCompleter = Completer<dynamic>();
+    final opCompleter = Completer<SporranResult>();
     if (id.isEmpty) {
-      opCompleter.complete(null);
-      return opCompleter.future;
+      throw ArgumentError('Empty id supplied', id);
     }
     // Update LawnDart
     await _database.updateLocalStorageObject(
@@ -172,7 +172,7 @@ class Sporran {
 
     // If we are offline just return
     if (!online) {
-      final dynamic res = JsonObjectLite<dynamic>();
+      final res = SporranResult();
       res.localResponse = true;
       res.operation = putc;
       res.ok = true;
@@ -200,7 +200,7 @@ class Sporran {
       } else {
         res.rev = null;
       }
-      opCompleter.complete(res);
+      opCompleter.complete(SporranResult.fromJsonObject(res));
     }
 
     return opCompleter.future;
@@ -208,11 +208,10 @@ class Sporran {
 
   /// Get a document
   /// If the parameters are invalid null is returned.
-  Future<dynamic> get(String id, [String rev = '']) async {
-    final opCompleter = Completer<dynamic>();
+  Future<SporranResult> get(String id, [String rev = '']) async {
+    final opCompleter = Completer<SporranResult>();
     if (id.isEmpty) {
-      opCompleter.complete(null);
-      return opCompleter.future;
+      throw ArgumentError('Empty id supplied', id);
     }
     // Check for offline, if so try the get from local storage.
     if (!online) {
@@ -230,7 +229,7 @@ class Sporran {
         res.payload = document['payload'];
         res.rev = WiltUserUtils.getDocumentRev(res);
       }
-      opCompleter.complete(res);
+      opCompleter.complete(SporranResult.fromJsonObject(res));
       return opCompleter.future;
     } else {
       // Get the document from CouchDb with its attachments.
@@ -253,7 +252,7 @@ class Sporran {
         res.payload = null;
         res.rev = null;
       }
-      opCompleter.complete(res);
+      opCompleter.complete(SporranResult.fromJsonObject(res));
       return opCompleter.future;
     }
   }
@@ -262,11 +261,10 @@ class Sporran {
   ///
   /// Revision must be supplied if we are online.
   /// If the parameters are invalid null is returned.
-  Future<dynamic> delete(String id, [String rev = '']) async {
-    final opCompleter = Completer<dynamic>();
+  Future<SporranResult> delete(String id, [String rev = '']) async {
+    final opCompleter = Completer<SporranResult>();
     if (id.isEmpty) {
-      opCompleter.complete(null);
-      return opCompleter.future;
+      throw ArgumentError('Empty id supplied', id);
     }
     // Remove from Lawndart //
     final document = await _database.lawndart.getByKey(id);
@@ -283,7 +281,7 @@ class Sporran {
         res.id = id;
         res.payload = null;
         res.rev = rev;
-        opCompleter.complete(res);
+        opCompleter.complete(SporranResult.fromJsonObject(res));
         return opCompleter.future;
       } else {
         // Delete the document from CouchDB.
@@ -301,7 +299,7 @@ class Sporran {
           res.rev = res.jsonCouchResponse.rev;
         }
         _database.removePendingDelete(id);
-        opCompleter.complete(res);
+        opCompleter.complete(SporranResult.fromJsonObject(res));
       }
     } else {
       // Doesn't exist, return error.
@@ -312,7 +310,7 @@ class Sporran {
       res.payload = null;
       res.rev = null;
       res.ok = false;
-      opCompleter.complete(res);
+      opCompleter.complete(SporranResult.fromJsonObject(res));
     }
 
     return opCompleter.future;

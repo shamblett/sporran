@@ -22,3 +22,5 @@ part 'src/sporran_exception.dart';
 part 'src/sporran_database.dart';
 
 part 'src/sporran_initialiser.dart';
+
+part 'src/sporran_result.dart';
