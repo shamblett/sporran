@@ -9,6 +9,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:js_interop';
 
 import 'package:web/web.dart';
 import 'package:wilt/wilt.dart';

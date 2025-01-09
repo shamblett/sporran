@@ -35,6 +35,12 @@ class SporranResult {
     }
     rev = res.rev;
     res.containsKey('payload') ? payload = res.payload : null;
+    res.containsKey('totalRows') && res['totalRows'] != null
+        ? totalRows = res.totalRows
+        : 0;
+    res.containsKey('keyList') && res['keyList'] != null
+        ? keyList = ((res.keyList as JSArray).toDart).cast<String>()
+        : [];
   }
 
   /// The id of the document. Not always present e.g. [Sporran.bulkCreatec]
@@ -85,4 +91,12 @@ class SporranResult {
   /// Note the document body may well contain CouchDb annotations such as
   /// _attachments, _rev etc. These can be interrogated if needed.
   dynamic payload;
+
+  /// Total rows returned by a [Sporran.getAllDocsc].
+  /// Only present if offline i.e. [localResponse] is true.
+  int totalRows = 0;
+
+  /// Key list returned by [Sporran.getAllDocsc].
+  /// Only present if offline i.e. [localResponse] is true.
+  List<String> keyList = [];
 }

@@ -579,7 +579,7 @@ class Sporran {
         for (final dynamic resp in couchResp.toList()) {
           try {
             revisions.add(resp);
-            revisionsMap[resp.id] = resp.rev;
+            revisionsMap[resp.id] = resp['rev'];
           } on Exception {
             revisions.add(null);
           }

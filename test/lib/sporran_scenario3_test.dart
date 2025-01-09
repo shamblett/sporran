@@ -212,7 +212,7 @@ void main() async {
       expect(res.rev, isNull);
       expect(res.payload, isNotNull);
       expect(res.totalRows, equals(2));
-      final List<String> keyList = res.keyList;
+      final keyList = res.keyList;
       expect(keyList[0], '8docid1');
       expect(keyList[1], '8docid2');
       expect(res.payload[keyList[0]].key, equals('8docid1'));
