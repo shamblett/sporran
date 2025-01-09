@@ -110,54 +110,50 @@ void main() async {
     });
 
     test('4. Put No Doc Id ', () async {
-      await expectLater(sporran!.put('', JsonObjectLite<dynamic>()),
-          throwsArgumentError);
+      await expectLater(
+          sporran!.put('', JsonObjectLite<dynamic>()), throwsArgumentError);
     });
 
     test('5. Get No Doc Id ', () async {
-      final res = await sporran!.get('', '');
-      expect(res, isNull);
+      await expectLater(sporran!.get('', ''), throwsArgumentError);
     });
 
     test('6. Delete No Doc Id ', () async {
-      final res = await sporran!.delete('', '');
-      expect(res, isNull);
+      await expectLater(sporran!.delete('', ''), throwsArgumentError);
     });
 
     test('7. Put Attachment No Doc Id ', () async {
-      final res = await sporran!.putAttachment('', null);
-      expect(res, isNull);
+      await expectLater(sporran!.putAttachment('', null), throwsArgumentError);
     });
 
     test('8. Put Attachment No Attachment ', () async {
-      final res = await sporran!.putAttachment('billy', null);
-      expect(res, isNull);
+      await expectLater(
+          sporran!.putAttachment('billy', null), throwsArgumentError);
     });
 
     test('9. Delete Attachment No Doc Id ', () async {
-      final res = await sporran!.deleteAttachment('', '', '');
-      expect(res, isNull);
+      await expectLater(
+          sporran!.deleteAttachment('', '', ''), throwsArgumentError);
     });
 
     test('10. Delete Attachment No Attachment Name ', () async {
-      final res = await sporran!.deleteAttachment('billy', '', '');
-      expect(res, isNull);
+      await expectLater(
+          sporran!.deleteAttachment('billy', '', ''), throwsArgumentError);
     });
 
     test('12. Get Attachment No Doc Id ', () async {
-      final res = await sporran!.getAttachment('', '');
-      expect(res, isNull);
+      await expectLater(sporran!.getAttachment('', ''), throwsArgumentError);
     });
 
     test('13. Get Attachment No Attachment Name ', () async {
-      final res = await sporran!.getAttachment('billy', '');
-      expect(res, isNull);
+      await expectLater(
+          sporran!.getAttachment('billy', ''), throwsArgumentError);
     });
 
     test('14. Bulk Create No Document List ', () async {
-      final res =
-          await sporran!.bulkCreate(<String, JsonObjectLite<dynamic>>{});
-      expect(res, isNull);
+      await expectLater(
+          sporran!.bulkCreate(<String, JsonObjectLite<dynamic>>{}),
+          throwsArgumentError);
     });
 
     test('15. Login invalid user ', () {
