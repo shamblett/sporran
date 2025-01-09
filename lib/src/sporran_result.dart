@@ -28,7 +28,7 @@ class SporranResult {
       res.containsKey['errorText'] ? errorText = res.errorText : '';
       res.containsKey['errorReason'] ? errorReason = res.errorReason : '';
     }
-    res.rev ?? '';
+    rev = res.rev;
     res.containsKey['payload'] ? payload = res.payload : null;
   }
 
@@ -62,7 +62,7 @@ class SporranResult {
   /// Always present, indicates the revision of the document post this operation,
   /// may be empty for bulk operations and database info etc and if ok is false or
   /// we are not online.
-  String rev = '';
+  dynamic rev;
 
   /// Always present if [ok] is true, the document or attachment body.
   /// If [ok] is false this will be null.
@@ -79,5 +79,5 @@ class SporranResult {
   ///
   /// Note the document body may well contain CouchDb annotations such as
   /// _attachments, _rev etc. These can be interrogated if needed.
-  JsonObjectLite? payload;
+  dynamic payload;
 }

@@ -200,7 +200,7 @@ void main() async {
       expect(res.rev, anything);
       onlineDocRev = res.rev;
       final payload = JsonObjectLite();
-      JsonObjectLite.toTypedJsonObjectLite(res.payload, payload);
+      JsonObjectLite.toTypedJsonObjectLite(res.payload!, payload);
       expect(payload['name'], 'Online');
     });
 
@@ -212,7 +212,7 @@ void main() async {
       expect(res.operation, Sporran.putc);
       expect(res.localResponse, isTrue);
       expect(res.id, docIdPutOffline);
-      expect(res.payload.name, 'Offline');
+      expect(res.payload?['name'], 'Offline');
     });
 
     test('4. Put Document Online Conflict', () async {
@@ -220,7 +220,7 @@ void main() async {
       onlineDoc.name = 'Online';
       final res = await sporran3.put(docIdPutOnline, onlineDoc);
       expect(res.errorCode, 409);
-      expect(res.jsonCouchResponse.error, 'conflict');
+      expect(res.errorText, 'conflict');
       expect(res.operation, Sporran.putc);
       expect(res.id, docIdPutOnline);
     });
@@ -233,7 +233,7 @@ void main() async {
       expect(res.localResponse, isFalse);
       expect(res.id, docIdPutOnline);
       expect(res.rev, anything);
-      expect(res.payload.name, 'Online - Updated');
+      expect(res.payload?['name'], 'Online - Updated');
     });
 
     test('6. Get Document Offline docIdPutOnline', () async {
@@ -540,7 +540,7 @@ void main() async {
       docid2rev = res.rev[1].rev;
       expect(res.rev[2].rev, anything);
       docid3rev = res.rev[2].rev;
-      final dynamic doc3 = res.payload['docid3'];
+      final dynamic doc3 = res.payload?['docid3'];
       expect(doc3['title'], 'Document 3');
       expect(doc3['version'], 3);
       expect(doc3['attribute'], 'Doc 3 attribute');
@@ -575,7 +575,7 @@ void main() async {
       expect(res.id, isNull);
       expect(res.payload, isNotNull);
       expect(res.rev, isNull);
-      final dynamic doc3 = res.payload['docid3offline'];
+      final dynamic doc3 = res.payload?['docid3offline'];
       expect(doc3['title'], 'Document 3');
       expect(doc3['version'], 3);
       expect(doc3['attribute'], 'Doc 3 attribute');
@@ -744,9 +744,9 @@ void main() async {
       expect(res.operation, Sporran.getc);
       expect(res.localResponse, isTrue);
       expect(res.id, 'MyBulkId1');
-      expect(res.payload['title'], 'Document 1');
-      expect(res.payload['version'], 1);
-      expect(res.payload['attribute'], 'Doc 1 attribute');
+      expect(res.payload?['title'], 'Document 1');
+      expect(res.payload?['version'], 1);
+      expect(res.payload?['attribute'], 'Doc 1 attribute');
     });
 
     test('5. Get Document Offline MyBulkId2', () async {
@@ -755,9 +755,9 @@ void main() async {
       expect(res.operation, Sporran.getc);
       expect(res.localResponse, isTrue);
       expect(res.id, 'MyBulkId2');
-      expect(res.payload['title'], 'Document 2');
-      expect(res.payload['version'], 2);
-      expect(res.payload['attribute'], 'Doc 2 attribute');
+      expect(res.payload?['title'], 'Document 2');
+      expect(res.payload?['version'], 2);
+      expect(res.payload?['attribute'], 'Doc 2 attribute');
     });
 
     test('6. Get Document Offline MyBulkId3', () async {
@@ -766,9 +766,9 @@ void main() async {
       expect(res.operation, Sporran.getc);
       expect(res.localResponse, isTrue);
       expect(res.id, 'MyBulkId3');
-      expect(res.payload['title'], 'Document 3');
-      expect(res.payload['version'], 3);
-      expect(res.payload['attribute'], 'Doc 3 attribute');
+      expect(res.payload?['title'], 'Document 3');
+      expect(res.payload?['version'], 3);
+      expect(res.payload?['attribute'], 'Doc 3 attribute');
     });
 
     test('7. Wilt - Delete Document MyBulkId1', () async {
