@@ -110,8 +110,8 @@ void main() async {
     });
 
     test('4. Put No Doc Id ', () async {
-      final res = await sporran!.put('', JsonObjectLite<dynamic>());
-      expect(res, isNull);
+      await expectLater(sporran!.put('', JsonObjectLite<dynamic>()),
+          throwsArgumentError);
     });
 
     test('5. Get No Doc Id ', () async {
