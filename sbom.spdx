@@ -5,18 +5,18 @@ DocumentName: sporran
 DocumentNamespace: https://pub.dev/packages/sporran
 LicenseListVersion: 3.8
 Creator: Tool: https://pub.dev/packages/sbom
-Created: 2024-12-16T11:05:11Z
+Created: 2025-01-10T11:08:10Z
 
 
 PackageName: sporran
 SPDXID: SPDXRef-Package-sporran
-PackageVersion: 7.1.0
+PackageVersion: 8.0.0
 PackageFileName: sporran
 PackageSupplier: NOASSERTION
 PackageOriginator: NOASSERTION
 PackageDownloadLocation: https://pub.dev/packages/sporran
 FilesAnalyzed: true
-PackageVerificationCode: 1f3c3d3224c4411cc7b7cf1c54389ed67c352dd6
+PackageVerificationCode: 326bcf526cace263e14cb61322964fd20effe813
 PackageHomePage: https://pub.dev/packages/sporran
 PackageLicenseConcluded: NOASSERTION
 PackageLicenseInfoFromFiles: NOASSERTION
@@ -28,7 +28,7 @@ PackageSummary: <text>A PouchDB alike for Dart. Uses lawndart for local storage 
 FileName: lib/sporran.dart
 SPDXID: SPDXRef-sporran-0
 FileType: SOURCE
-FileChecksum: SHA1: 464e6b64574ee97805363e2acee58f71f1834819
+FileChecksum: SHA1: 1b0c22a242a25745bf1f29478adc34eea27de915
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -37,7 +37,7 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/lawndart/lawndart.dart
 SPDXID: SPDXRef-lawndart-1
 FileType: SOURCE
-FileChecksum: SHA1: 1b0c22a242a25745bf1f29478adc34eea27de915
+FileChecksum: SHA1: 6eb7b72e29e59354b6949c46203d8f698d0be4f4
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -46,7 +46,7 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/lawndart/src/indexeddb_store.dart
 SPDXID: SPDXRef-indexeddb-store-2
 FileType: SOURCE
-FileChecksum: SHA1: 6eb7b72e29e59354b6949c46203d8f698d0be4f4
+FileChecksum: SHA1: e7dbd129099795cccb3f1ff7507d031bbd9fddd8
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -55,7 +55,7 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/lawndart/src/local_storage_store.dart
 SPDXID: SPDXRef-local-storage-store-3
 FileType: SOURCE
-FileChecksum: SHA1: e7dbd129099795cccb3f1ff7507d031bbd9fddd8
+FileChecksum: SHA1: c19a9b958156c6347d1baa783e633a4b7b190813
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -64,7 +64,7 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/lawndart/src/map_store.dart
 SPDXID: SPDXRef-map-store-4
 FileType: SOURCE
-FileChecksum: SHA1: 29bbc8551ce48205f804b545282eced07258de78
+FileChecksum: SHA1: 25216e32be61b7d17b2fd22ee0cc60935a7a14f0
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -91,7 +91,7 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/sporran_database.dart
 SPDXID: SPDXRef-sporran-database-7
 FileType: SOURCE
-FileChecksum: SHA1: ceeebd67390caed94ea799ab4e78dcefdd172b48
+FileChecksum: SHA1: 16ab33783d339fbf049fafed5cfcf3397d3ae3eb
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -100,7 +100,7 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/sporran_exception.dart
 SPDXID: SPDXRef-sporran-exception-8
 FileType: SOURCE
-FileChecksum: SHA1: 3c9aa472ca96374388b07912c13c3535879a3012
+FileChecksum: SHA1: bb3030b1ca36be6862f94bae4d40106b84c28c66
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
@@ -109,21 +109,30 @@ FileCopyrightText: NOASSERTION
 FileName: lib/src/sporran_initialiser.dart
 SPDXID: SPDXRef-sporran-initialiser-9
 FileType: SOURCE
-FileChecksum: SHA1: e8bd59c7a877a8d4b5e63040d3157481f92734d5
+FileChecksum: SHA1: 40bca3dee928e688ad61ed4f7b8fd73ba5a38104
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+
+FileName: lib/src/sporran_result.dart
+SPDXID: SPDXRef-sporran-result-10
+FileType: SOURCE
+FileChecksum: SHA1: 06ecd859751d8ec1d3c823bcdea44434934da08f
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
 
 
 FileName: pubspec.yaml
-SPDXID: SPDXRef-pubspec-10
+SPDXID: SPDXRef-pubspec-11
 FileType: TEXT
-FileChecksum: SHA1: ed2353fc8db06a23202e2c663dd3186ca84c8276
+FileChecksum: SHA1: bd1586b06f6918c3a1d033387c68a8c781439f2f
 LicenseConcluded: NOASSERTION
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
 
 
-Relationship: SPDXRef-pubspec-10 DEPENDENCY_MANIFEST_OF SPDXRef-Package-sporran
+Relationship: SPDXRef-pubspec-11 DEPENDENCY_MANIFEST_OF SPDXRef-Package-sporran
 
 

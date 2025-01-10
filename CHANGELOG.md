@@ -1,3 +1,12 @@
+## 8.0.0
+---- Major update ----
+
+All API cals now return a Sporran Result, not a Json Object.
+
+Invalid parameters now throw argument error
+
+Issue 35
+
 ## 7.1.0
 Issue 33
 
