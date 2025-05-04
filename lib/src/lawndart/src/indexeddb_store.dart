@@ -17,16 +17,21 @@ part of '../lawndart.dart';
 /// Wraps the IndexedDB API and exposes it as a [Store].
 /// IndexedDB is generally the preferred API if it is available.
 class IndexedDbStore extends Store {
-  /// Construction
-  IndexedDbStore._(this.dbName, this.storeName) : super._();
-
-  static final Map<String, idb.Database> _databases = <String, idb.Database>{};
-
   /// Database name
   final String dbName;
 
   /// Store name
   final String storeName;
+
+  static final Map<String, idb.Database> _databases = <String, idb.Database>{};
+
+  /// Returns true if IndexedDB is supported on this platform.
+  static bool get supported => idb.IdbFactory.supported;
+
+  idb.Database? get _db => _databases[dbName];
+
+  /// Construction
+  IndexedDbStore._(this.dbName, this.storeName) : super._();
 
   /// Open
   static Future<IndexedDbStore> open(String dbName, String storeName) async {
@@ -34,37 +39,6 @@ class IndexedDbStore extends Store {
     await store._open();
     return store;
   }
-
-  /// Returns true if IndexedDB is supported on this platform.
-  static bool get supported => idb.IdbFactory.supported;
-
-  @override
-  Future<void> _open() async {
-    final factory = idb.IdbFactory();
-    if (!supported) {
-      throw UnsupportedError('IndexedDB is not supported on this platform');
-    }
-
-    void upgradeNeeded(idb.VersionChangeEvent event) async {
-      final db = event.target.database;
-      if (db.objectStoreNames != null) {
-        if (!db.objectStoreNames!.contains(storeName)) {
-          db.createObjectStore(storeName);
-        }
-      } else {
-        db.createObjectStore(storeName);
-      }
-    }
-
-    final db = await factory.open(
-      dbName,
-      version: 1,
-      onUpgradeNeeded: upgradeNeeded,
-    );
-    _databases[dbName] = db;
-  }
-
-  idb.Database? get _db => _databases[dbName];
 
   @override
   Future<void> removeByKey(String key) =>
@@ -82,27 +56,6 @@ class IndexedDbStore extends Store {
 
   @override
   Future<void> nuke() => _runInTxn((dynamic store) => store.clear());
-
-  Future<T> _runInTxn<T>(
-    Future<T>? Function(idb.ObjectStore) requestCommand, [
-    String txnMode = 'readwrite',
-  ]) async {
-    final trans = _db!.transaction(storeName, txnMode);
-    final store = trans.objectStore(storeName);
-    final result = await requestCommand(store)!;
-    await trans.completed;
-    return result;
-  }
-
-  Stream<String> _doGetAll(
-    String? Function(idb.CursorWithValue?) onCursor,
-  ) async* {
-    final trans = _db!.transaction(storeName, 'readonly');
-    final store = trans.objectStore(storeName);
-    await for (final dynamic cursor in store.openCursor(autoAdvance: true)) {
-      yield onCursor(cursor)!;
-    }
-  }
 
   @override
   Stream<String> all() =>
@@ -149,4 +102,51 @@ class IndexedDbStore extends Store {
   @override
   Stream<String> keys() =>
       _doGetAll((idb.CursorWithValue? cursor) => cursor!.key as String?);
+
+  @override
+  Future<void> _open() async {
+    final factory = idb.IdbFactory();
+    if (!supported) {
+      throw UnsupportedError('IndexedDB is not supported on this platform');
+    }
+
+    void upgradeNeeded(idb.VersionChangeEvent event) async {
+      final db = event.target.database;
+      if (db.objectStoreNames != null) {
+        if (!db.objectStoreNames!.contains(storeName)) {
+          db.createObjectStore(storeName);
+        }
+      } else {
+        db.createObjectStore(storeName);
+      }
+    }
+
+    final db = await factory.open(
+      dbName,
+      version: 1,
+      onUpgradeNeeded: upgradeNeeded,
+    );
+    _databases[dbName] = db;
+  }
+
+  Future<T> _runInTxn<T>(
+    Future<T>? Function(idb.ObjectStore) requestCommand, [
+    String txnMode = 'readwrite',
+  ]) async {
+    final trans = _db!.transaction(storeName, txnMode);
+    final store = trans.objectStore(storeName);
+    final result = await requestCommand(store)!;
+    await trans.completed;
+    return result;
+  }
+
+  Stream<String> _doGetAll(
+    String? Function(idb.CursorWithValue?) onCursor,
+  ) async* {
+    final trans = _db!.transaction(storeName, 'readonly');
+    final store = trans.objectStore(storeName);
+    await for (final dynamic cursor in store.openCursor(autoAdvance: true)) {
+      yield onCursor(cursor)!;
+    }
+  }
 }

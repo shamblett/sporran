@@ -66,19 +66,15 @@ abstract class Store {
     Map<String, String>? options,
   ]) async {
     Store store;
-    if (IndexedDbStore.supported) {
-      store = IndexedDbStore._(dbName, storeName);
-    } else {
-      store = LocalStorageStore._();
-    }
+    store =
+        IndexedDbStore.supported
+            ? IndexedDbStore._(dbName, storeName)
+            : LocalStorageStore._();
 
     await store._open();
 
     return store;
   }
-
-  /// Opens and initializes the database.
-  Future<void> _open();
 
   /// Returns all the keys as a stream. No order is guaranteed.
   Stream<String?> keys();
@@ -118,4 +114,7 @@ abstract class Store {
   /// Returns a Future that completes when all values and keys
   /// are removed.
   Future<void> nuke();
+
+  // Opens and initializes the database.
+  Future<void> _open();
 }
