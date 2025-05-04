@@ -13,36 +13,6 @@ part of '../sporran.dart';
 /// When an API method is invoked [Sporran] will supply a completion
 /// result [SporranResult] with the following properties.
 class SporranResult {
-  /// Default
-  SporranResult();
-
-  /// Create from a [JsonObjectLite]
-  SporranResult.fromJsonObject(dynamic res) {
-    id = res.id;
-    operation = res.operation;
-    localResponse = res.localResponse;
-    ok = res.ok;
-    if (!ok) {
-      res.containsKey('errorCode') && res['errorCode'] != null
-          ? errorCode = res.errorCode
-          : 0;
-      res.containsKey('errorText') && res['errorText'] != null
-          ? errorText = res.errorText
-          : '';
-      res.containsKey('errorReason') && res['errorReason'] != null
-          ? errorReason = res.errorReason
-          : '';
-    }
-    rev = res.rev;
-    res.containsKey('payload') ? payload = res.payload : null;
-    res.containsKey('totalRows') && res['totalRows'] != null
-        ? totalRows = res.totalRows
-        : 0;
-    res.containsKey('keyList') && res['keyList'] != null
-        ? keyList = ((res.keyList as JSArray).toDart).cast<String>()
-        : [];
-  }
-
   /// The id of the document. Not always present e.g. [Sporran.bulkCreatec]
   String? id = '';
 
@@ -99,4 +69,34 @@ class SporranResult {
   /// Key list returned by [Sporran.getAllDocsc].
   /// Only present if offline i.e. [localResponse] is true.
   List<String> keyList = [];
+
+  /// Default
+  SporranResult();
+
+  /// Create from a [JsonObjectLite]
+  SporranResult.fromJsonObject(dynamic res) {
+    id = res.id;
+    operation = res.operation;
+    localResponse = res.localResponse;
+    ok = res.ok;
+    if (!ok) {
+      res.containsKey('errorCode') && res['errorCode'] != null
+          ? errorCode = res.errorCode
+          : 0;
+      res.containsKey('errorText') && res['errorText'] != null
+          ? errorText = res.errorText
+          : '';
+      res.containsKey('errorReason') && res['errorReason'] != null
+          ? errorReason = res.errorReason
+          : '';
+    }
+    rev = res.rev;
+    res.containsKey('payload') ? payload = res.payload : null;
+    res.containsKey('totalRows') && res['totalRows'] != null
+        ? totalRows = res.totalRows
+        : 0;
+    res.containsKey('keyList') && res['keyList'] != null
+        ? keyList = ((res.keyList as JSArray).toDart).cast<String>()
+        : [];
+  }
 }
