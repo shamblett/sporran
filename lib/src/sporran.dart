@@ -12,6 +12,74 @@ part of '../sporran.dart';
 
 ///  This is the main Sporran API class.
 class Sporran {
+  static const keyLength = 3;
+  static const allDocsLimit = 10;
+
+  /// Method constants
+  static const String putc = 'put';
+  static const String getc = 'get';
+  static const String deletec = 'delete';
+  static const String putAttachmentc = 'put_attachment';
+  static const String getAttachmentc = 'get_attachment';
+  static const String deleteAttachmentc = 'delete_attachment';
+  static const String bulkCreatec = 'bulk_create';
+  static const String getAllDocsc = 'get_all_docs';
+  static const String dbInfoc = 'db_info';
+  static const String none = 'none';
+
+  /// Manual control of sync().
+  ///
+  /// Usually Sporran syncs when a transition to online is detected,
+  /// however this can be disabled, use in conjunction with manual
+  /// change notification control. If this is set to false you must
+  /// call sync() explicitly.
+  bool autoSync = true;
+
+  // Database
+  late _SporranDatabase _database;
+
+  // Database name
+  String _dbName = '';
+
+  bool _online = true;
+
+  String get dbName => _dbName;
+
+  /// Lawndart database
+  Store get lawndart => _database.lawndart;
+
+  /// Lawndart database is open
+  bool get lawnIsOpen => _database.lawnIsOpen;
+
+  /// Wilt database
+  Wilt get wilt => _database.wilt;
+
+  /// On/Offline indicator
+  bool get online {
+    // If we are not online or we are and the CouchDb database is not
+    // available we are offline.
+    if ((!_online) || (_database.noCouchDb)) {
+      return false;
+    }
+    return true;
+  }
+
+  /// Pending delete queue size
+  int get pendingDeleteSize => _database.pendingLength();
+
+  /// Ready event
+  Stream<dynamic>? get onReady => _database.onReady;
+
+  /// Manual notification control
+  bool get manualNotificationControl => _database.manualNotificationControl;
+
+  set online(bool state) {
+    _online = state;
+    if (state) {
+      _transitionToOnline();
+    }
+  }
+
   /// Construction.
   Sporran(SporranInitialiser initialiser) {
     _dbName = initialiser.dbName;
@@ -29,37 +97,6 @@ class Sporran {
     );
   }
 
-  /// Method constants
-  static const String putc = 'put';
-  static const String getc = 'get';
-  static const String deletec = 'delete';
-  static const String putAttachmentc = 'put_attachment';
-  static const String getAttachmentc = 'get_attachment';
-  static const String deleteAttachmentc = 'delete_attachment';
-  static const String bulkCreatec = 'bulk_create';
-  static const String getAllDocsc = 'get_all_docs';
-  static const String dbInfoc = 'db_info';
-  static const String none = 'none';
-
-  /// Database
-  late _SporranDatabase _database;
-
-  /// Database name
-  String _dbName = '';
-
-  String get dbName => _dbName;
-
-  /// Lawndart database
-  Store get lawndart => _database.lawndart;
-
-  /// Lawndart database is open
-  bool get lawnIsOpen => _database.lawnIsOpen;
-
-  /// Wilt database
-  Wilt get wilt => _database.wilt;
-
-  bool _online = true;
-
   /// Initialise sporran
   Future<bool> initialise() async {
     await _database.initialise();
@@ -75,32 +112,6 @@ class Sporran {
 
     return true;
   }
-
-  /// On/Offline indicator
-  bool get online {
-    // If we are not online or we are and the CouchDb database is not
-    // available we are offline.
-    if ((!_online) || (_database.noCouchDb)) {
-      return false;
-    }
-    return true;
-  }
-
-  set online(bool state) {
-    _online = state;
-    if (state) {
-      _transitionToOnline();
-    }
-  }
-
-  /// Pending delete queue size
-  int get pendingDeleteSize => _database.pendingLength();
-
-  /// Ready event
-  Stream<dynamic>? get onReady => _database.onReady;
-
-  /// Manual notification control
-  bool get manualNotificationControl => _database.manualNotificationControl;
 
   /// Get the JSON success response from an API operation result.
   JsonObjectLite getJsonResponse(JsonObjectLite result) {
@@ -128,31 +139,6 @@ class Sporran {
     if (manualNotificationControl) {
       _database.wilt.pauseChangeNotifications();
     }
-  }
-
-  /// Manual control of sync().
-  ///
-  /// Usually Sporran syncs when a transition to online is detected,
-  /// however this can be disabled, use in conjunction with manual
-  /// change notification control. If this is set to false you must
-  /// call sync() explicitly.
-  bool autoSync = true;
-
-  /// Online transition
-  EventHandler _transitionToOnline() {
-    _online = true;
-
-    // If we have never connected to CouchDb try now,
-    // otherwise we can sync straight away.
-
-    if (!_database.noCouchDb) {
-      _database.connectToCouch(true);
-    }
-
-    if (autoSync) {
-      sync();
-    }
-    return null;
   }
 
   /// Update document.
@@ -379,23 +365,22 @@ class Sporran {
     } else {
       // Do the create.
       dynamic res;
-      if (attachment.rev == '') {
-        res = await _database.wilt.createAttachment(
-          id,
-          attachment.attachmentName,
-          attachment.rev,
-          attachment.contentType,
-          attachment.payload,
-        );
-      } else {
-        res = await _database.wilt.updateAttachment(
-          id,
-          attachment.attachmentName,
-          attachment.rev,
-          attachment.contentType,
-          attachment.payload,
-        );
-      }
+      res =
+          attachment.rev == ''
+              ? await _database.wilt.createAttachment(
+                id,
+                attachment.attachmentName,
+                attachment.rev,
+                attachment.contentType,
+                attachment.payload,
+              )
+              : await _database.wilt.updateAttachment(
+                id,
+                attachment.attachmentName,
+                attachment.rev,
+                attachment.contentType,
+                attachment.payload,
+              );
       // If success, mark the update as UPDATED in local storage.
       res.ok = false;
       res.localResponse = false;
@@ -658,7 +643,7 @@ class Sporran {
   /// The includeDocs parameter is also forced to true.
   Future<SporranResult> getAllDocs({
     bool includeDocs = false,
-    int limit = 10,
+    int limit = allDocsLimit,
     String? startKey,
     String? endKey,
     List<String> keys = const <String>[],
@@ -675,10 +660,8 @@ class Sporran {
           final docList = <String>[];
           keyList.forEach((dynamic key) {
             final List<String> temp = key.split('-');
-            if ((temp.length == 3) &&
-                (temp[2] == _SporranDatabase.attachmentMarkerc)) {
-              /* Attachment, discard the key */
-            } else {
+            if ((temp.length == keyLength) &&
+                (temp[2] != _SporranDatabase.attachmentMarkerc)) {
               docList.add(key);
             }
           });
@@ -817,5 +800,22 @@ class Sporran {
       }
     }
     return json.encode(map);
+  }
+
+  // Online transition
+  EventHandler _transitionToOnline() {
+    _online = true;
+
+    // If we have never connected to CouchDb try now,
+    // otherwise we can sync straight away.
+
+    if (!_database.noCouchDb) {
+      _database.connectToCouch(true);
+    }
+
+    if (autoSync) {
+      sync();
+    }
+    return null;
   }
 }
