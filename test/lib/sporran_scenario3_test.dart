@@ -173,8 +173,10 @@ void main() async {
 
     test('7. Check - Get All Docs Offline - Existing Sporran', () async {
       final keys = const <String>[];
-      final dynamic res =
-          await sporran9!.getAllDocs(includeDocs: true, keys: keys);
+      final dynamic res = await sporran9!.getAllDocs(
+        includeDocs: true,
+        keys: keys,
+      );
       expect(res.ok, isTrue);
       expect(res.localResponse, isTrue);
       expect(res.operation, Sporran.getAllDocsc);
@@ -203,8 +205,10 @@ void main() async {
       expect(sporran10.lawnIsOpen, isTrue);
       sporran10.online = false;
       final keys = const <String>[];
-      final dynamic res =
-          await sporran10.getAllDocs(includeDocs: true, keys: keys);
+      final dynamic res = await sporran10.getAllDocs(
+        includeDocs: true,
+        keys: keys,
+      );
       expect(res.ok, isTrue);
       expect(res.localResponse, isTrue);
       expect(res.operation, Sporran.getAllDocsc);

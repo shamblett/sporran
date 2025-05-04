@@ -111,7 +111,9 @@ void main() async {
 
     test('4. Put No Doc Id ', () async {
       await expectLater(
-          sporran!.put('', JsonObjectLite<dynamic>()), throwsArgumentError);
+        sporran!.put('', JsonObjectLite<dynamic>()),
+        throwsArgumentError,
+      );
     });
 
     test('5. Get No Doc Id ', () async {
@@ -128,17 +130,23 @@ void main() async {
 
     test('8. Put Attachment No Attachment ', () async {
       await expectLater(
-          sporran!.putAttachment('billy', null), throwsArgumentError);
+        sporran!.putAttachment('billy', null),
+        throwsArgumentError,
+      );
     });
 
     test('9. Delete Attachment No Doc Id ', () async {
       await expectLater(
-          sporran!.deleteAttachment('', '', ''), throwsArgumentError);
+        sporran!.deleteAttachment('', '', ''),
+        throwsArgumentError,
+      );
     });
 
     test('10. Delete Attachment No Attachment Name ', () async {
       await expectLater(
-          sporran!.deleteAttachment('billy', '', ''), throwsArgumentError);
+        sporran!.deleteAttachment('billy', '', ''),
+        throwsArgumentError,
+      );
     });
 
     test('12. Get Attachment No Doc Id ', () async {
@@ -147,13 +155,16 @@ void main() async {
 
     test('13. Get Attachment No Attachment Name ', () async {
       await expectLater(
-          sporran!.getAttachment('billy', ''), throwsArgumentError);
+        sporran!.getAttachment('billy', ''),
+        throwsArgumentError,
+      );
     });
 
     test('14. Bulk Create No Document List ', () async {
       await expectLater(
-          sporran!.bulkCreate(<String, JsonObjectLite<dynamic>>{}),
-          throwsArgumentError);
+        sporran!.bulkCreate(<String, JsonObjectLite<dynamic>>{}),
+        throwsArgumentError,
+      );
     });
 
     test('15. Login invalid user ', () {
@@ -161,8 +172,10 @@ void main() async {
         sporran!.login('', 'password');
       } on SporranException catch (e) {
         expect(e.runtimeType.toString(), 'SporranException');
-        expect(e.toString(),
-            SporranException.headerEx + SporranException.invalidLoginCredsEx);
+        expect(
+          e.toString(),
+          SporranException.headerEx + SporranException.invalidLoginCredsEx,
+        );
       }
     });
   });
@@ -238,8 +251,9 @@ void main() async {
       expect(res.operation, Sporran.getc);
       expect(res.localResponse, isTrue);
       expect(res.id, docIdPutOnline);
-      final dynamic payload =
-          JsonObjectLite<dynamic>.fromJsonString(res.payload);
+      final dynamic payload = JsonObjectLite<dynamic>.fromJsonString(
+        res.payload,
+      );
       expect(payload.payload.name, 'Online - Updated');
     });
 
@@ -250,8 +264,9 @@ void main() async {
       expect(res.operation, Sporran.getc);
       expect(res.localResponse, isTrue);
       expect(res.id, docIdPutOffline);
-      final dynamic payload =
-          JsonObjectLite<dynamic>.fromJsonString(res.payload);
+      final dynamic payload = JsonObjectLite<dynamic>.fromJsonString(
+        res.payload,
+      );
       expect(payload.payload.name, 'Offline');
       expect(res.rev, isNull);
     });
@@ -405,8 +420,10 @@ void main() async {
 
     test('6. Get Attachment Online docIdPutOnline', () async {
       sporran4.online = true;
-      final res =
-          await sporran4.getAttachment(docIdPutOnline, 'onlineAttachment');
+      final res = await sporran4.getAttachment(
+        docIdPutOnline,
+        'onlineAttachment',
+      );
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.getAttachmentc);
       expect(res.id, docIdPutOnline);
@@ -419,15 +436,18 @@ void main() async {
 
     test('7. Get Attachment Offline docIdPutOffline', () async {
       sporran4.online = false;
-      final res =
-          await sporran4.getAttachment(docIdPutOffline, 'offlineAttachment');
+      final res = await sporran4.getAttachment(
+        docIdPutOffline,
+        'offlineAttachment',
+      );
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.getAttachmentc);
       expect(res.id, docIdPutOffline);
       expect(res.localResponse, isTrue);
       expect(res.rev, isNull);
-      final dynamic p2 =
-          JsonObjectLite<dynamic>.fromJsonString(res.payload.payload);
+      final dynamic p2 = JsonObjectLite<dynamic>.fromJsonString(
+        res.payload.payload,
+      );
       expect(p2.payload.attachmentName, 'offlineAttachment');
       expect(p2.payload.contentType, 'image/png');
       expect(p2.payload.payload, attachmentPayload);
@@ -448,7 +468,10 @@ void main() async {
     test('9. Delete Attachment Online docIdPutOnline', () async {
       sporran4.online = true;
       final res = await sporran4.deleteAttachment(
-          docIdPutOnline, 'onlineAttachment', onlineDocRev);
+        docIdPutOnline,
+        'onlineAttachment',
+        onlineDocRev,
+      );
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.deleteAttachmentc);
       expect(res.id, docIdPutOnline);
@@ -465,7 +488,10 @@ void main() async {
     test('11. Delete Attachment Offline docIdPutOffline', () async {
       sporran4.online = false;
       final res = await sporran4.deleteAttachment(
-          docIdPutOffline, 'offlineAttachment', '');
+        docIdPutOffline,
+        'offlineAttachment',
+        '',
+      );
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.deleteAttachmentc);
       expect(res.id, docIdPutOffline);
@@ -598,7 +624,7 @@ void main() async {
         'docid3offline',
         'docid1',
         'docid2',
-        'docid3'
+        'docid3',
       ];
 
       final dynamic res = await sporran5.getAllDocs(keys: keys);
@@ -979,7 +1005,10 @@ void main() async {
     test('7. Delete Attachment Online MyBulkId1 Attachment 1', () async {
       wilting.db = databaseName;
       final res = await wilting.deleteAttachment(
-          'MyBulkId1', 'AttachmentName1', docId1Rev!);
+        'MyBulkId1',
+        'AttachmentName1',
+        docId1Rev!,
+      );
       try {
         expect(res.error, isFalse);
       } on Exception {

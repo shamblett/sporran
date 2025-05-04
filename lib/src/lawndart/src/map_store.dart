@@ -51,8 +51,9 @@ abstract class _MapStore extends Store {
 
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
-    final values =
-        keys.map((String key) => storage[key]).where((final v) => v != null);
+    final values = keys
+        .map((String key) => storage[key])
+        .where((final v) => v != null);
     for (final v in values) {
       yield v!;
     }

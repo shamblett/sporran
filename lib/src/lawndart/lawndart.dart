@@ -60,8 +60,11 @@ abstract class Store {
   Store._();
 
   /// Finds the best implementation. In order: IndexedDB, LocalStorage.
-  static Future<Store> open(String dbName, String storeName,
-      [Map<String, String>? options]) async {
+  static Future<Store> open(
+    String dbName,
+    String storeName, [
+    Map<String, String>? options,
+  ]) async {
     Store store;
     if (IndexedDbStore.supported) {
       store = IndexedDbStore._(dbName, storeName);

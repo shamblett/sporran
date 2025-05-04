@@ -20,13 +20,16 @@ part of '../sporran.dart';
 class _SporranDatabase {
   /// Construction, for Wilt we need URL and authentication parameters.
   /// For LawnDart only the database name, the store name is fixed by Sporran
-  _SporranDatabase(this._dbName, this._host,
-      [this._manualNotificationControl = false,
-      this._port = 5984,
-      this._scheme = 'http://',
-      this._user = '',
-      this._password = '',
-      this._preserveLocalDatabase = false]);
+  _SporranDatabase(
+    this._dbName,
+    this._host, [
+    this._manualNotificationControl = false,
+    this._port = 5984,
+    this._scheme = 'http://',
+    this._user = '',
+    this._password = '',
+    this._preserveLocalDatabase = false,
+  ]);
 
   /// Constants
   static const String notUpdatedc = 'not_updated';
@@ -111,7 +114,9 @@ class _SporranDatabase {
   JsonObjectLite getJsonResponse(JsonObjectLite result) {
     final JsonObjectLite response = JsonObjectLite();
     JsonObjectLite.toTypedJsonObjectLite(
-        (result as dynamic).jsonCouchResponse, response);
+      (result as dynamic).jsonCouchResponse,
+      response,
+    );
     return response;
   }
 
@@ -136,7 +141,11 @@ class _SporranDatabase {
     /* Process the update or delete event */
     if (e.type == WiltChangeNotificationEvent.updatee) {
       await updateLocalStorageObject(
-          e.docId!, e.document!, e.docRevision!, updatedc);
+        e.docId!,
+        e.document!,
+        e.docRevision!,
+        updatedc,
+      );
 
       /* Now update the attachments */
 
@@ -145,35 +154,38 @@ class _SporranDatabase {
       final attachmentsToDelete = <String>[];
 
       /* For all the keys... */
-      _lawndart.keys().listen((String? key) {
-        /* If an attachment... */
-        final keyList = key?.split('-');
-        if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
-          /* ...for this document... */
-          if (e.docId == keyList?[0]) {
-            /* ..potentially now deleted... */
-            attachmentsToDelete.add(key!);
+      _lawndart.keys().listen(
+        (String? key) {
+          /* If an attachment... */
+          final keyList = key?.split('-');
+          if ((keyList?.length == 3) && (keyList?[2] == attachmentMarkerc)) {
+            /* ...for this document... */
+            if (e.docId == keyList?[0]) {
+              /* ..potentially now deleted... */
+              attachmentsToDelete.add(key!);
 
-            /* ...check against all the documents current attachments */
-            for (final dynamic attachment in attachments) {
-              if ((keyList?[1] == attachment.name) &&
-                  (keyList?[0] == e.docId) &&
-                  (keyList?[2] == attachmentMarkerc)) {
-                /* If still valid remove it from the delete list */
-                attachmentsToDelete.remove(key);
+              /* ...check against all the documents current attachments */
+              for (final dynamic attachment in attachments) {
+                if ((keyList?[1] == attachment.name) &&
+                    (keyList?[0] == e.docId) &&
+                    (keyList?[2] == attachmentMarkerc)) {
+                  /* If still valid remove it from the delete list */
+                  attachmentsToDelete.remove(key);
+                }
               }
             }
           }
-        }
-      }, onDone: () async {
-        /* We now have a list of attachments for this document that
+        },
+        onDone: () async {
+          /* We now have a list of attachments for this document that
           * are not present in the document itself so remove them.
           */
-        for (final dynamic key in attachmentsToDelete) {
-          await _lawndart.removeByKey(key);
-          removePendingDelete(key);
-        }
-      });
+          for (final dynamic key in attachmentsToDelete) {
+            await _lawndart.removeByKey(key);
+            removePendingDelete(key);
+          }
+        },
+      );
 
       /* Now update already existing ones and add any ones */
       updateDocumentAttachments(e.docId!, e.document!);
@@ -319,7 +331,11 @@ class _SporranDatabase {
           final key =
               '$id-${attachment.name}-${_SporranDatabase.attachmentMarkerc}';
           updateLocalStorageObject(
-              key, newAttachment, newAttachment.rev, _SporranDatabase.updatedc);
+            key,
+            newAttachment,
+            newAttachment.rev,
+            _SporranDatabase.updatedc,
+          );
         }
       }
 
@@ -331,7 +347,10 @@ class _SporranDatabase {
 
   /// Create local storage updated entry
   JsonObjectLite<dynamic> _createUpdated(
-      String key, String? revision, JsonObjectLite<dynamic>? payload) {
+    String key,
+    String? revision,
+    JsonObjectLite<dynamic>? payload,
+  ) {
     /* Add our type marker and set to 'not updated' */
     final dynamic update = JsonObjectLite<dynamic>();
     update.status = updatedc;
@@ -343,7 +362,10 @@ class _SporranDatabase {
 
   /// Create local storage not updated entry
   JsonObjectLite<dynamic> _createNotUpdated(
-      String key, String revision, JsonObjectLite<dynamic> payload) {
+    String key,
+    String revision,
+    JsonObjectLite<dynamic> payload,
+  ) {
     /* Add our type marker and set to 'not updated' */
     final dynamic update = JsonObjectLite<dynamic>();
     update.status = notUpdatedc;
@@ -358,16 +380,18 @@ class _SporranDatabase {
   /// Update local storage.
   ///
   Future<dynamic> updateLocalStorageObject(
-      String key,
-      JsonObjectLite<dynamic> update,
-      String revision,
-      String updateStatus) async {
+    String key,
+    JsonObjectLite<dynamic> update,
+    String revision,
+    String updateStatus,
+  ) async {
     final completer = Completer<dynamic>();
 
     /* Check for not initialized */
     if (!_lawnIsOpen) {
       return Future<dynamic>.error(
-          SporranException(SporranException.lawnNotInitEx));
+        SporranException(SporranException.lawnNotInitEx),
+      );
     }
 
     /* Do the update */
@@ -405,18 +429,24 @@ class _SporranDatabase {
 
   /// Get multiple objects from local storage
   Future<Map<String, JsonObjectLite<dynamic>>> getLocalStorageObjects(
-      List<String> keys) {
+    List<String> keys,
+  ) {
     final completer = Completer<Map<String, JsonObjectLite<dynamic>>>();
     final results = <String, JsonObjectLite<dynamic>>{};
     var keyPos = 0;
 
-    lawndart.getByKeys(keys).listen((String value) {
-      final document = JsonObjectLite<dynamic>.fromJsonString(value);
-      results[keys[keyPos]] = document;
-      keyPos++;
-    }, onDone: () {
-      completer.complete(results);
-    });
+    lawndart
+        .getByKeys(keys)
+        .listen(
+          (String value) {
+            final document = JsonObjectLite<dynamic>.fromJsonString(value);
+            results[keys[keyPos]] = document;
+            keyPos++;
+          },
+          onDone: () {
+            completer.complete(results);
+          },
+        );
 
     return completer.future;
   }
@@ -464,8 +494,13 @@ class _SporranDatabase {
   }
 
   /// Update/create a CouchDb attachment
-  FutureOr<void> updateAttachment(String key, String name, String revision,
-      String contentType, String payload) async {
+  FutureOr<void> updateAttachment(
+    String key,
+    String name,
+    String revision,
+    String contentType,
+    String payload,
+  ) async {
     /* Create our own Wilt instance */
     final wilting = Wilt(_host, port: _port);
 
@@ -494,7 +529,12 @@ class _SporranDatabase {
         if (!found) {
           final newRevision = WiltUserUtils.getDocumentRev(successResponse);
           await wilting.updateAttachment(
-              key, name, newRevision, contentType, payload);
+            key,
+            name,
+            newRevision,
+            contentType,
+            payload,
+          );
         }
       }
     }
@@ -523,7 +563,10 @@ class _SporranDatabase {
 
   /// Update/create a CouchDb document
   Future<String> update(
-      String key, JsonObjectLite<dynamic> document, String revision) async {
+    String key,
+    JsonObjectLite<dynamic> document,
+    String revision,
+  ) async {
     final completer = Completer<String>();
 
     /* Create our own Wilt instance */
@@ -556,7 +599,8 @@ class _SporranDatabase {
 
   /// Manual bulk insert uses update
   Future<Map<String, String>> _manualBulkInsert(
-      Map<String, JsonObjectLite<dynamic>> documentsToUpdate) async {
+    Map<String, JsonObjectLite<dynamic>> documentsToUpdate,
+  ) async {
     final completer = Completer<Map<String, String>>();
     final revisions = <String, String>{};
 
@@ -569,8 +613,11 @@ class _SporranDatabase {
         jsonDoc.isImmutable = false;
         (jsonDoc as dynamic).rev = '';
       }
-      await update(key, (jsonDoc as dynamic).payload, (jsonDoc as dynamic).rev)
-          .then((String rev) {
+      await update(
+        key,
+        (jsonDoc as dynamic).payload,
+        (jsonDoc as dynamic).rev,
+      ).then((String rev) {
         revisions[document.key] = rev;
         count++;
         if (count == length) {
@@ -584,7 +631,8 @@ class _SporranDatabase {
 
   /// Bulk insert documents using bulk insert
   Future<JsonObjectLite<dynamic>> bulkInsert(
-      Map<String, dynamic> docList) async {
+    Map<String, dynamic> docList,
+  ) async {
     final completer = Completer<JsonObjectLite<dynamic>>();
 
     /* Create our own Wilt instance */
@@ -671,37 +719,41 @@ class _SporranDatabase {
     /**
     * Get a list of non updated documents and attachments from Lawndart
     */
-    lawndart.all().listen((String? document) {
-      final doc = JsonObjectLite<dynamic>.fromJsonString(document!);
-      final String? key = doc['key'];
-      if (doc['status'] == notUpdatedc) {
-        final update = doc;
-        /* If an attachment just stack it */
-        final keyList = key!.split('-');
-        if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
-          attachmentsToUpdate[key] = update;
-        } else {
-          documentsToUpdate[key] = update;
+    lawndart.all().listen(
+      (String? document) {
+        final doc = JsonObjectLite<dynamic>.fromJsonString(document!);
+        final String? key = doc['key'];
+        if (doc['status'] == notUpdatedc) {
+          final update = doc;
+          /* If an attachment just stack it */
+          final keyList = key!.split('-');
+          if ((keyList.length == 3) && (keyList[2] == attachmentMarkerc)) {
+            attachmentsToUpdate[key] = update;
+          } else {
+            documentsToUpdate[key] = update;
+          }
         }
-      }
-    }, onDone: () {
-      _manualBulkInsert(documentsToUpdate).then((dynamic revisions) {
-        /* Finally do the attachments */
-        attachmentsToUpdate.forEach((dynamic key, dynamic attachment) {
-          attachment.isImmutable = false;
-          final List<String> keyList = key.split('-');
-          attachment.rev = revisions[keyList[0]];
-          if (attachment.rev != null) {
-            updateAttachment(
+      },
+      onDone: () {
+        _manualBulkInsert(documentsToUpdate).then((dynamic revisions) {
+          /* Finally do the attachments */
+          attachmentsToUpdate.forEach((dynamic key, dynamic attachment) {
+            attachment.isImmutable = false;
+            final List<String> keyList = key.split('-');
+            attachment.rev = revisions[keyList[0]];
+            if (attachment.rev != null) {
+              updateAttachment(
                 keyList[0],
                 attachment['payload']['attachmentName'],
                 attachment['rev'],
                 attachment['payload']['contentType'],
-                attachment['payload']['payload']);
-          }
+                attachment['payload']['payload'],
+              );
+            }
+          });
         });
-      });
-    });
+      },
+    );
   }
 
   /// Create document attachments
@@ -718,7 +770,11 @@ class _SporranDatabase {
       attachmentToCreate.payload = window.btoa(attachment.data.data);
 
       updateLocalStorageObject(
-          attachmentKey, attachmentToCreate, attachmentToCreate.rev, updatedc);
+        attachmentKey,
+        attachmentToCreate,
+        attachmentToCreate.rev,
+        updatedc,
+      );
     }
   }
 

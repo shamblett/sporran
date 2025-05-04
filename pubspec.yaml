@@ -8,7 +8,7 @@ funding:
   - https://www.darticulate.com/#funding
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.7.0 <4.0.0'
 
 dependencies:
   wilt: '^7.1.0'
@@ -22,5 +22,6 @@ dev_dependencies:
   build_test: '^2.2.2'
   build_web_compilers: '^4.0.11'
   lints: '^5.1.0'
+  dart_code_metrics_presets: '^2.22.0'
 
 

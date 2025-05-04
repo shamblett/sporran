@@ -56,8 +56,11 @@ class IndexedDbStore extends Store {
       }
     }
 
-    final db =
-        await factory.open(dbName, version: 1, onUpgradeNeeded: upgradeNeeded);
+    final db = await factory.open(
+      dbName,
+      version: 1,
+      onUpgradeNeeded: upgradeNeeded,
+    );
     _databases[dbName] = db;
   }
 
@@ -73,13 +76,17 @@ class IndexedDbStore extends Store {
 
   @override
   Future<dynamic> getByKey(String key) => _runInTxn<dynamic>(
-      (dynamic store) async => await store.getObject(key), 'readonly');
+    (dynamic store) async => await store.getObject(key),
+    'readonly',
+  );
 
   @override
   Future<void> nuke() => _runInTxn((dynamic store) => store.clear());
 
-  Future<T> _runInTxn<T>(Future<T>? Function(idb.ObjectStore) requestCommand,
-      [String txnMode = 'readwrite']) async {
+  Future<T> _runInTxn<T>(
+    Future<T>? Function(idb.ObjectStore) requestCommand, [
+    String txnMode = 'readwrite',
+  ]) async {
     final trans = _db!.transaction(storeName, txnMode);
     final store = trans.objectStore(storeName);
     final result = await requestCommand(store)!;
@@ -88,7 +95,8 @@ class IndexedDbStore extends Store {
   }
 
   Stream<String> _doGetAll(
-      String? Function(idb.CursorWithValue?) onCursor) async* {
+    String? Function(idb.CursorWithValue?) onCursor,
+  ) async* {
     final trans = _db!.transaction(storeName, 'readonly');
     final store = trans.objectStore(storeName);
     await for (final dynamic cursor in store.openCursor(autoAdvance: true)) {
