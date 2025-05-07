@@ -12,21 +12,8 @@ part of '../sporran.dart';
 
 ///  This is the main Sporran API class.
 class Sporran {
-  /// Construction.
-  Sporran(SporranInitialiser initialiser) {
-    _dbName = initialiser.dbName;
-
-    // Construct our database.
-    _database = _SporranDatabase(
-        _dbName,
-        initialiser.hostname,
-        initialiser.manualNotificationControl,
-        initialiser.port,
-        initialiser.scheme,
-        initialiser.username,
-        initialiser.password,
-        initialiser.preserveLocal);
-  }
+  static const keyLength = 3;
+  static const allDocsLimit = 10;
 
   /// Method constants
   static const String putc = 'put';
@@ -40,11 +27,21 @@ class Sporran {
   static const String dbInfoc = 'db_info';
   static const String none = 'none';
 
-  /// Database
+  /// Manual control of sync().
+  ///
+  /// Usually Sporran syncs when a transition to online is detected,
+  /// however this can be disabled, use in conjunction with manual
+  /// change notification control. If this is set to false you must
+  /// call sync() explicitly.
+  bool autoSync = true;
+
+  // Database
   late _SporranDatabase _database;
 
-  /// Database name
+  // Database name
   String _dbName = '';
+
+  bool _online = true;
 
   String get dbName => _dbName;
 
@@ -57,7 +54,48 @@ class Sporran {
   /// Wilt database
   Wilt get wilt => _database.wilt;
 
-  bool _online = true;
+  /// On/Offline indicator
+  bool get online {
+    // If we are not online or we are and the CouchDb database is not
+    // available we are offline.
+    if ((!_online) || (_database.noCouchDb)) {
+      return false;
+    }
+    return true;
+  }
+
+  /// Pending delete queue size
+  int get pendingDeleteSize => _database.pendingLength();
+
+  /// Ready event
+  Stream<dynamic>? get onReady => _database.onReady;
+
+  /// Manual notification control
+  bool get manualNotificationControl => _database.manualNotificationControl;
+
+  set online(bool state) {
+    _online = state;
+    if (state) {
+      _transitionToOnline();
+    }
+  }
+
+  /// Construction.
+  Sporran(SporranInitialiser initialiser) {
+    _dbName = initialiser.dbName;
+
+    // Construct our database.
+    _database = _SporranDatabase(
+      _dbName,
+      initialiser.hostname,
+      initialiser.manualNotificationControl,
+      initialiser.port,
+      initialiser.scheme,
+      initialiser.username,
+      initialiser.password,
+      initialiser.preserveLocal,
+    );
+  }
 
   /// Initialise sporran
   Future<bool> initialise() async {
@@ -75,37 +113,13 @@ class Sporran {
     return true;
   }
 
-  /// On/Offline indicator
-  bool get online {
-    // If we are not online or we are and the CouchDb database is not
-    // available we are offline.
-    if ((!_online) || (_database.noCouchDb)) {
-      return false;
-    }
-    return true;
-  }
-
-  set online(bool state) {
-    _online = state;
-    if (state) {
-      _transitionToOnline();
-    }
-  }
-
-  /// Pending delete queue size
-  int get pendingDeleteSize => _database.pendingLength();
-
-  /// Ready event
-  Stream<dynamic>? get onReady => _database.onReady;
-
-  /// Manual notification control
-  bool get manualNotificationControl => _database.manualNotificationControl;
-
   /// Get the JSON success response from an API operation result.
   JsonObjectLite getJsonResponse(JsonObjectLite result) {
     final JsonObjectLite response = JsonObjectLite();
     JsonObjectLite.toTypedJsonObjectLite(
-        (result as dynamic).jsonCouchResponse, response);
+      (result as dynamic).jsonCouchResponse,
+      response,
+    );
     return response;
   }
 
@@ -127,39 +141,17 @@ class Sporran {
     }
   }
 
-  /// Manual control of sync().
-  ///
-  /// Usually Sporran syncs when a transition to online is detected,
-  /// however this can be disabled, use in conjunction with manual
-  /// change notification control. If this is set to false you must
-  /// call sync() explicitly.
-  bool autoSync = true;
-
-  /// Online transition
-  EventHandler _transitionToOnline() {
-    _online = true;
-
-    // If we have never connected to CouchDb try now,
-    // otherwise we can sync straight away.
-
-    if (!_database.noCouchDb) {
-      _database.connectToCouch(true);
-    }
-
-    if (autoSync) {
-      sync();
-    }
-    return null;
-  }
-
   /// Update document.
   ///
   /// If the document does not exist a create is performed.
   ///
   /// For an update operation a specific revision must be specified.
   /// If the parameters are invalid null is returned.
-  Future<SporranResult> put(String id, JsonObjectLite<dynamic> document,
-      [String rev = '']) async {
+  Future<SporranResult> put(
+    String id,
+    JsonObjectLite<dynamic> document, [
+    String rev = '',
+  ]) async {
     final document1 = JsonObjectLite();
     JsonObjectLite.toTypedJsonObjectLite(document, document1);
     final opCompleter = Completer<SporranResult>();
@@ -168,7 +160,11 @@ class Sporran {
     }
     // Update LawnDart
     await _database.updateLocalStorageObject(
-        id, document, rev, _SporranDatabase.notUpdatedc);
+      id,
+      document,
+      rev,
+      _SporranDatabase.notUpdatedc,
+    );
 
     // If we are offline just return
     if (!online) {
@@ -194,7 +190,11 @@ class Sporran {
       if (!res.error) {
         res.rev = res.jsonCouchResponse.rev;
         _database.updateLocalStorageObject(
-            id, document, rev, _SporranDatabase.updatedc);
+          id,
+          document,
+          rev,
+          _SporranDatabase.updatedc,
+        );
         _database.updateAttachmentRevisions(id, rev);
         res.ok = true;
       } else {
@@ -242,7 +242,11 @@ class Sporran {
       if (!res.error) {
         res.rev = WiltUserUtils.getDocumentRev(res.jsonCouchResponse);
         await _database.updateLocalStorageObject(
-            id, res.jsonCouchResponse, res.rev, _SporranDatabase.updatedc);
+          id,
+          res.jsonCouchResponse,
+          res.rev,
+          _SporranDatabase.updatedc,
+        );
         res.ok = true;
         res.payload = res.jsonCouchResponse;
         // Get the documents attachments and create them locally.
@@ -338,10 +342,15 @@ class Sporran {
       throw ArgumentError('Null attachment supplied for ', attachment);
     }
     // Update LawnDart.
-    final key = '$id-${attachment.attachmentName}-'
+    final key =
+        '$id-${attachment.attachmentName}-'
         '${_SporranDatabase.attachmentMarkerc}';
     await _database.updateLocalStorageObject(
-        key, attachment, attachment.rev, _SporranDatabase.notUpdatedc);
+      key,
+      attachment,
+      attachment.rev,
+      _SporranDatabase.notUpdatedc,
+    );
     // If we are offline just return //
     if (!online) {
       final dynamic res = JsonObjectLite<dynamic>();
@@ -356,21 +365,22 @@ class Sporran {
     } else {
       // Do the create.
       dynamic res;
-      if (attachment.rev == '') {
-        res = await _database.wilt.createAttachment(
-            id,
-            attachment.attachmentName,
-            attachment.rev,
-            attachment.contentType,
-            attachment.payload);
-      } else {
-        res = await _database.wilt.updateAttachment(
-            id,
-            attachment.attachmentName,
-            attachment.rev,
-            attachment.contentType,
-            attachment.payload);
-      }
+      res =
+          attachment.rev == ''
+              ? await _database.wilt.createAttachment(
+                id,
+                attachment.attachmentName,
+                attachment.rev,
+                attachment.contentType,
+                attachment.payload,
+              )
+              : await _database.wilt.updateAttachment(
+                id,
+                attachment.attachmentName,
+                attachment.rev,
+                attachment.contentType,
+                attachment.payload,
+              );
       // If success, mark the update as UPDATED in local storage.
       res.ok = false;
       res.localResponse = false;
@@ -379,16 +389,21 @@ class Sporran {
       res.rev = null;
       res.payload = null;
       if (!res.error) {
-        final dynamic newAttachment =
-            JsonObjectLite<dynamic>.fromJsonString(_mapToJson(attachment));
+        final dynamic newAttachment = JsonObjectLite<dynamic>.fromJsonString(
+          _mapToJson(attachment),
+        );
         newAttachment.contentType = attachment.contentType;
         newAttachment.payload = attachment.payload;
         newAttachment.attachmentName = attachment.attachmentName;
         res.payload = newAttachment;
         res.rev = res.jsonCouchResponse.rev;
         newAttachment.rev = res.jsonCouchResponse.rev;
-        await _database.updateLocalStorageObject(key, newAttachment,
-            res.jsonCouchResponse.rev, _SporranDatabase.updatedc);
+        await _database.updateLocalStorageObject(
+          key,
+          newAttachment,
+          res.jsonCouchResponse.rev,
+          _SporranDatabase.updatedc,
+        );
         _database.updateAttachmentRevisions(id, res.jsonCouchResponse.rev);
         res.ok = true;
       }
@@ -400,8 +415,11 @@ class Sporran {
   /// Delete an attachment.
   /// Revision can be null if offline.
   /// If the parameters are invalid null is returned.
-  Future<SporranResult> deleteAttachment(String id, String attachmentName,
-      [String rev = '']) async {
+  Future<SporranResult> deleteAttachment(
+    String id,
+    String attachmentName, [
+    String rev = '',
+  ]) async {
     final opCompleter = Completer<SporranResult>();
     if (id.isEmpty) {
       throw ArgumentError('Empty id supplied', id);
@@ -432,8 +450,11 @@ class Sporran {
         _database.removePendingDelete(key);
         // Delete the attachment from CouchDB.
         final wiltRev = rev.isNotEmpty ? rev : null;
-        dynamic res =
-            await _database.wilt.deleteAttachment(id, attachmentName, wiltRev);
+        dynamic res = await _database.wilt.deleteAttachment(
+          id,
+          attachmentName,
+          wiltRev,
+        );
         res.operation = deleteAttachmentc;
         res.localResponse = false;
         res.payload = res.jsonCouchResponse;
@@ -513,7 +534,11 @@ class Sporran {
         res.payload = attachment;
 
         await _database.updateLocalStorageObject(
-            key, attachment, res.rev, _SporranDatabase.updatedc);
+          key,
+          attachment,
+          res.rev,
+          _SporranDatabase.updatedc,
+        );
       } else {
         res.ok = false;
         res.payload = null;
@@ -529,7 +554,8 @@ class Sporran {
   /// docList is a map of documents with their keys.
   /// If the parameters are invalid null is returned.
   Future<SporranResult> bulkCreate(
-      Map<String, JsonObjectLite<dynamic>> docList) async {
+    Map<String, JsonObjectLite<dynamic>> docList,
+  ) async {
     final opCompleter = Completer<SporranResult>();
     if (docList.isEmpty) {
       throw ArgumentError('Empty docList supplied');
@@ -538,7 +564,11 @@ class Sporran {
     // Update LawnDart.
     for (final key in docList.keys) {
       await _database.updateLocalStorageObject(
-          key, docList[key]!, '', _SporranDatabase.notUpdatedc);
+        key,
+        docList[key]!,
+        '',
+        _SporranDatabase.notUpdatedc,
+      );
     }
 
     // If we are offline just return.
@@ -589,7 +619,11 @@ class Sporran {
         // Update the documents.
         docList.forEach((String key, dynamic document) async {
           await _database.updateLocalStorageObject(
-              key, document, revisionsMap[key]!, _SporranDatabase.updatedc);
+            key,
+            document,
+            revisionsMap[key]!,
+            _SporranDatabase.updatedc,
+          );
         });
 
         res.ok = true;
@@ -607,13 +641,14 @@ class Sporran {
   ///
   /// In offline mode only the keys parameter is respected.
   /// The includeDocs parameter is also forced to true.
-  Future<SporranResult> getAllDocs(
-      {bool includeDocs = false,
-      int limit = 10,
-      String? startKey,
-      String? endKey,
-      List<String> keys = const <String>[],
-      bool descending = false}) async {
+  Future<SporranResult> getAllDocs({
+    bool includeDocs = false,
+    int limit = allDocsLimit,
+    String? startKey,
+    String? endKey,
+    List<String> keys = const <String>[],
+    bool descending = false,
+  }) async {
     final opCompleter = Completer<SporranResult>();
 
     // Check for offline, if so try the get from local storage.
@@ -625,7 +660,8 @@ class Sporran {
           final docList = <String>[];
           keyList.forEach((dynamic key) {
             final List<String> temp = key.split('-');
-            if ((temp.length == 3) &&
+            if ((temp.length == keyLength) &&
+                // ignore: no-empty-block
                 (temp[2] == _SporranDatabase.attachmentMarkerc)) {
               /* Attachment, discard the key */
             } else {
@@ -661,12 +697,13 @@ class Sporran {
     } else {
       // Get the document from CouchDb.
       var res = await _database.wilt.getAllDocs(
-          includeDocs: includeDocs,
-          limit: limit,
-          startKey: startKey,
-          endKey: endKey,
-          keys: keys.isEmpty ? null : keys,
-          descending: descending);
+        includeDocs: includeDocs,
+        limit: limit,
+        startKey: startKey,
+        endKey: endKey,
+        keys: keys.isEmpty ? null : keys,
+        descending: descending,
+      );
       // If Ok update local storage with the document.
       res.operation = getAllDocsc;
       res.id = null;
@@ -766,5 +803,22 @@ class Sporran {
       }
     }
     return json.encode(map);
+  }
+
+  // Online transition
+  EventHandler _transitionToOnline() {
+    _online = true;
+
+    // If we have never connected to CouchDb try now,
+    // otherwise we can sync straight away.
+
+    if (!_database.noCouchDb) {
+      _database.connectToCouch(true);
+    }
+
+    if (autoSync) {
+      sync();
+    }
+    return null;
   }
 }

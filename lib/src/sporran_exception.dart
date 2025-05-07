@@ -9,8 +9,6 @@ part of '../sporran.dart';
 
 /// Sporran exceptions
 class SporranException implements Exception {
-  SporranException([this._message = 'No Message Supplied']);
-
   /* Exception message strings */
   static const String headerEx = 'SporranException: ';
   static const String lawnNotInitEx =
@@ -21,6 +19,8 @@ class SporranException implements Exception {
       'You must supply an initialiser on construction';
 
   final String _message;
+
+  SporranException([this._message = 'No Message Supplied']);
 
   @override
   String toString() => '$headerEx$_message';

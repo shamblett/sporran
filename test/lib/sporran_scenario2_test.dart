@@ -179,7 +179,10 @@ void main() async {
 
     test('8. Delete Attachment Offline docid1 Attachment1', () async {
       final res = await sporran9.deleteAttachment(
-          '9docid1', 'AttachmentName1', docid1rev);
+        '9docid1',
+        'AttachmentName1',
+        docid1rev,
+      );
       expect(res.ok, isTrue);
       expect(res.operation, Sporran.deleteAttachmentc);
       expect(res.id, '9docid1');
