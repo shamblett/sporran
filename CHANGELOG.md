@@ -1,3 +1,6 @@
+## 8.0.1
+- [Issue 39](https://github.com/shamblett/sporran/issues/39
+)
 ## 8.0.0
 ---- Major update ----
 
