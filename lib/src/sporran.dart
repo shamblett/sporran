@@ -661,7 +661,10 @@ class Sporran {
           keyList.forEach((dynamic key) {
             final List<String> temp = key.split('-');
             if ((temp.length == keyLength) &&
-                (temp[2] != _SporranDatabase.attachmentMarkerc)) {
+                // ignore: no-empty-block
+                (temp[2] == _SporranDatabase.attachmentMarkerc)) {
+              /* Attachment, discard the key */
+            } else {
               docList.add(key);
             }
           });
