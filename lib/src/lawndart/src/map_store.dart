@@ -28,24 +28,24 @@ abstract class _MapStore extends Store {
 
   @override
   Future<String> save(String obj, String key) async {
-    storage[key] = obj;
+    storage.setItem(key, obj);
     return key;
   }
 
   @override
   Future<void> batch(Map<String, String> objectsByKey) async {
     for (final key in objectsByKey.keys) {
-      storage[key] = objectsByKey[key]!;
+      storage.setItem(key, objectsByKey[key]!);
     }
   }
 
   @override
-  Future<String> getByKey(String key) async => storage[key]!;
+  Future<String> getByKey(String key) async => storage.getItem(key)!;
 
   @override
   Stream<String> getByKeys(Iterable<String> keys) async* {
     final values = keys
-        .map((String key) => storage[key])
+        .map((String key) => storage.getItem(key))
         .where((final v) => v != null);
     for (final v in values) {
       yield v!;
